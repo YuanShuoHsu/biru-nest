@@ -1,4 +1,8 @@
+# biru-nest
+
 ```bash
+# https://docs.nestjs.com/
+
 nest new biru-nest --strict
 ✨  We will scaffold your app in a few seconds..
 
@@ -33,6 +37,34 @@ $ pnpm run start
 
 
                🍷  Donate: https://opencollective.com/nest
+```
+
+## Editor
+
+```bash
+# Visual Studio Code
+# https://github.com/prettier/prettier-vscode
+# https://marketplace.visualstudio.com/items?itemName=tombonnike.vscode-status-bar-format-toggle
+
+# .vscode/settings.json
+{
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "always",
+    "source.addMissingImports": "always",
+    "source.organizeImports": "always"
+  },
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true
+}
+```
+
+## Controllers
+
+```bash
+# https://docs.nestjs.com/controllers
+
+Hint
+To quickly create a CRUD controller with built-in validation, you can use the CLI's CRUD generator: nest g resource [name].
 ```
 
 <p align="center">
@@ -133,4 +165,5 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 ## License
 
 Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+
 # biru-nest
