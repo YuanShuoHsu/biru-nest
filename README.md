@@ -67,6 +67,14 @@ Hint
 To quickly create a CRUD controller with built-in validation, you can use the CLI's CRUD generator: nest g resource [name].
 ```
 
+## Swagger
+
+```bash
+# https://docs.nestjs.com/openapi/introduction
+
+pnpm add @nestjs/swagger
+```
+
 <p align="center">
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
 </p>
