@@ -73,6 +73,29 @@ To quickly create a CRUD controller with built-in validation, you can use the CL
 # https://docs.nestjs.com/openapi/introduction
 
 pnpm add @nestjs/swagger
+
+import { NestFactory } from '@nestjs/core';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { AppModule } from './app.module';
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+
+  const config = new DocumentBuilder()
+    .setTitle('Cats example')
+    .setDescription('The cats API description')
+    .setVersion('1.0')
+    .addTag('cats')
+    .build();
+  const documentFactory = () => SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api', app, documentFactory);
+
+  await app.listen(process.env.PORT ?? 3000);
+}
+
+void bootstrap();
+
+# http://localhost:3000/api
 ```
 
 <p align="center">
