@@ -106,6 +106,30 @@ void bootstrap();
 # http://localhost:3000/api
 ```
 
+## Configuration
+
+```bash
+# https://docs.nestjs.com/techniques/configuration
+pnpm add @nestjs/config
+
+# app.module.tsJS
+import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+
+@Module({
+  imports: [ConfigModule.forRoot()],
+})
+
+export class AppModule {}
+```
+
+## ECPayAIO_Node.js
+
+```bash
+# https://github.com/ECPay/ECPayAIO_Node.js
+pnpm add ecpay_aio_nodejs
+```
+
 <p align="center">
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
 </p>
