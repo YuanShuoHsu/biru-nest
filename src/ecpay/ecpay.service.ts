@@ -1,74 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import ECPayPayment from 'ecpay_aio_nodejs';
+
+import ECPayPayment, {
+  EcpayBaseParams,
+  EcpayInvParams,
+  EcpayOptions,
+} from 'ecpay_aio_nodejs';
+
 import { CreateEcpayDto } from './dto/create-ecpay.dto';
-
-type OperationMode = 'Test' | 'Production';
-
-type IgnorePayment =
-  | 'Credit'
-  | 'WebATM'
-  | 'ATM'
-  | 'CVS'
-  | 'BARCODE'
-  | 'AndroidPay';
-
-interface EcpayOptions {
-  OperationMode: OperationMode;
-  MercProfile: {
-    MerchantID: string;
-    HashKey: string;
-    HashIV: string;
-  };
-  IgnorePayment: IgnorePayment[];
-  IsProjectContractor: boolean;
-}
-
-interface EcpayBaseParams {
-  MerchantTradeNo: string;
-  MerchantTradeDate: string;
-  TotalAmount: string;
-  TradeDesc: string;
-  ItemName: string;
-  ReturnURL: string;
-  ChooseSubPayment?: string;
-  OrderResultURL?: string;
-  NeedExtraPaidInfo?: string;
-  ClientBackURL?: string;
-  ItemURL?: string;
-  Remark?: string;
-  HoldTradeAMT?: string;
-  StoreID?: string;
-  CustomField1?: string;
-  CustomField2?: string;
-  CustomField3?: string;
-  CustomField4?: string;
-}
-
-interface EcpayInvParams {
-  RelateNumber: string;
-  CustomerID?: string;
-  CustomerIdentifier?: string;
-  CustomerName?: string;
-  CustomerAddr?: string;
-  CustomerPhone?: string;
-  CustomerEmail?: string;
-  ClearanceMark?: string;
-  TaxType?: string;
-  CarruerType?: string;
-  CarruerNum?: string;
-  Donation?: string;
-  LoveCode?: string;
-  Print?: string;
-  InvoiceItemName?: string;
-  InvoiceItemCount?: string;
-  InvoiceItemWord?: string;
-  InvoiceItemPrice?: string;
-  InvoiceItemTaxType?: string;
-  InvoiceRemark?: string;
-  DelayDay?: string;
-  InvType?: string;
-}
 
 @Injectable()
 export class EcpayService {
@@ -91,53 +30,52 @@ export class EcpayService {
     };
   }
 
-  aioCheckOutAll(createDto: CreateEcpayDto) {
+  aioCheckOutAll({ Base, Invoice }: CreateEcpayDto) {
     const base_param: EcpayBaseParams = {
-      MerchantTradeNo: createDto.Base.MerchantTradeNo,
-      MerchantTradeDate: createDto.Base.MerchantTradeDate,
-      TotalAmount: createDto.Base.TotalAmount,
-      TradeDesc: createDto.Base.TradeDesc,
-      ItemName: createDto.Base.ItemName,
-      ReturnURL: createDto.Base.ReturnURL,
-      ChooseSubPayment: createDto.Base.ChooseSubPayment
-        ? createDto.Base.ChooseSubPayment.join(',')
+      MerchantTradeNo: Base.MerchantTradeNo,
+      MerchantTradeDate: Base.MerchantTradeDate,
+      TotalAmount: Base.TotalAmount,
+      TradeDesc: Base.TradeDesc,
+      ItemName: Base.ItemName,
+      ReturnURL: Base.ReturnURL,
+      ChooseSubPayment: Base.ChooseSubPayment
+        ? Base.ChooseSubPayment.join(',')
         : undefined,
-      OrderResultURL: createDto.Base.OrderResultURL,
-      NeedExtraPaidInfo: createDto.Base.NeedExtraPaidInfo,
-      ClientBackURL: createDto.Base.ClientBackURL,
-      ItemURL: createDto.Base.ItemURL,
-      Remark: createDto.Base.Remark,
-      HoldTradeAMT: createDto.Base.HoldTradeAMT,
-      StoreID: createDto.Base.StoreID,
-      CustomField1: createDto.Base.CustomField1,
-      CustomField2: createDto.Base.CustomField2,
-      CustomField3: createDto.Base.CustomField3,
-      CustomField4: createDto.Base.CustomField4,
+      OrderResultURL: Base.OrderResultURL,
+      NeedExtraPaidInfo: Base.NeedExtraPaidInfo,
+      ClientBackURL: Base.ClientBackURL,
+      ItemURL: Base.ItemURL,
+      Remark: Base.Remark,
+      HoldTradeAMT: Base.HoldTradeAMT,
+      StoreID: Base.StoreID,
+      CustomField1: Base.CustomField1,
+      CustomField2: Base.CustomField2,
+      CustomField3: Base.CustomField3,
+      CustomField4: Base.CustomField4,
     };
 
-    // 再把 Invoice 部分拆出來
     const inv_params: EcpayInvParams = {
-      RelateNumber: createDto.Invoice.RelateNumber,
-      CustomerName: createDto.Invoice.CustomerName,
-      InvoiceItemName: createDto.Invoice.InvoiceItemName,
-      InvoiceItemCount: createDto.Invoice.InvoiceItemCount,
-      InvoiceItemWord: createDto.Invoice.InvoiceItemWord,
-      InvoiceItemPrice: createDto.Invoice.InvoiceItemPrice,
-      InvoiceItemTaxType: createDto.Invoice.InvoiceItemTaxType,
-      CustomerIdentifier: createDto.Invoice.CustomerIdentifier,
-      CustomerAddr: createDto.Invoice.CustomerAddr,
-      CustomerPhone: createDto.Invoice.CustomerPhone,
-      CustomerEmail: createDto.Invoice.CustomerEmail,
-      ClearanceMark: createDto.Invoice.ClearanceMark,
-      TaxType: createDto.Invoice.TaxType,
-      CarruerType: createDto.Invoice.CarruerType,
-      CarruerNum: createDto.Invoice.CarruerNum,
-      Donation: createDto.Invoice.Donation,
-      LoveCode: createDto.Invoice.LoveCode,
-      Print: createDto.Invoice.Print,
-      InvoiceRemark: createDto.Invoice.InvoiceRemark,
-      DelayDay: createDto.Invoice.DelayDay,
-      InvType: createDto.Invoice.InvType,
+      RelateNumber: Invoice.RelateNumber,
+      CustomerName: Invoice.CustomerName,
+      InvoiceItemName: Invoice.InvoiceItemName,
+      InvoiceItemCount: Invoice.InvoiceItemCount,
+      InvoiceItemWord: Invoice.InvoiceItemWord,
+      InvoiceItemPrice: Invoice.InvoiceItemPrice,
+      InvoiceItemTaxType: Invoice.InvoiceItemTaxType,
+      CustomerIdentifier: Invoice.CustomerIdentifier,
+      CustomerAddr: Invoice.CustomerAddr,
+      CustomerPhone: Invoice.CustomerPhone,
+      CustomerEmail: Invoice.CustomerEmail,
+      ClearanceMark: Invoice.ClearanceMark,
+      TaxType: Invoice.TaxType,
+      CarruerType: Invoice.CarruerType,
+      CarruerNum: Invoice.CarruerNum,
+      Donation: Invoice.Donation,
+      LoveCode: Invoice.LoveCode,
+      Print: Invoice.Print,
+      InvoiceRemark: Invoice.InvoiceRemark,
+      DelayDay: Invoice.DelayDay,
+      InvType: Invoice.InvType,
     };
 
     const create = new ECPayPayment(this.options);
@@ -145,6 +83,7 @@ export class EcpayService {
       base_param,
       inv_params,
     );
+
     return html;
   }
 }

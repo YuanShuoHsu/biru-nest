@@ -6,7 +6,7 @@ import { EcpayModule } from './ecpay/ecpay.module';
 import { UserModule } from './user/user.module';
 
 @Module({
-  imports: [ConfigModule.forRoot(), UserModule, EcpayModule],
+  imports: [ConfigModule.forRoot({ isGlobal: true }), UserModule, EcpayModule],
   controllers: [AppController],
   providers: [AppService],
 })
