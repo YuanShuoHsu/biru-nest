@@ -3,7 +3,6 @@ import {
   IsEmail,
   IsNotEmpty,
   IsNumberString,
-  IsOptional,
   IsString,
   Length,
   Matches,
@@ -15,7 +14,7 @@ export class InvoiceEcpayDto {
     example: 'INV20250603-000000000000000000000000',
   })
   @IsString()
-  @Length(0, 30)
+  @Length(1, 30)
   RelateNumber: string;
 
   @ApiProperty({
@@ -23,7 +22,7 @@ export class InvoiceEcpayDto {
     example: 'CUST000001234567890',
   })
   @IsString()
-  @Length(1, 20)
+  @Length(0, 20)
   @IsNotEmpty()
   CustomerID: string;
 
@@ -32,7 +31,7 @@ export class InvoiceEcpayDto {
     example: '12345678',
   })
   @IsNumberString()
-  @Length(8, 8)
+  @Length(0, 8)
   @IsNotEmpty()
   CustomerIdentifier: string;
 
@@ -41,7 +40,7 @@ export class InvoiceEcpayDto {
     example: '王小明',
   })
   @IsString()
-  @Length(1, 20)
+  @Length(0, 20)
   @IsNotEmpty()
   CustomerName: string;
 
@@ -50,7 +49,7 @@ export class InvoiceEcpayDto {
     example: '臺北市中正區忠孝東路一段1號',
   })
   @IsString()
-  @Length(1, 200)
+  @Length(0, 200)
   @IsNotEmpty()
   CustomerAddr: string;
 
@@ -59,7 +58,7 @@ export class InvoiceEcpayDto {
     example: '0912345678',
   })
   @IsNumberString()
-  @Length(1, 20)
+  @Length(0, 20)
   @IsNotEmpty()
   CustomerPhone: string;
 
@@ -68,7 +67,7 @@ export class InvoiceEcpayDto {
     example: 'test@example.com',
   })
   @IsEmail()
-  @Length(1, 200)
+  @Length(0, 200)
   @IsNotEmpty()
   CustomerEmail: string;
 
@@ -86,7 +85,6 @@ export class InvoiceEcpayDto {
     description: '',
     example: '1',
   })
-  @IsOptional()
   @Matches(/^[12]$/, {
     message: 'TaxType 只能是 "1" 或 "2"',
   })
@@ -120,6 +118,8 @@ export class InvoiceEcpayDto {
 不捐贈: 0`,
     example: '1',
   })
+  @IsNumberString()
+  @Length(1, 1)
   @Matches(/^[01]$/, {
     message: 'Donation 只能是 "0" 或 "1"',
   })
@@ -139,6 +139,7 @@ export class InvoiceEcpayDto {
 不列印: 0`,
     example: '0',
   })
+  @IsNumberString()
   @Matches(/^[01]$/, {
     message: 'Print 只能是 "0" 或 "1"',
   })
