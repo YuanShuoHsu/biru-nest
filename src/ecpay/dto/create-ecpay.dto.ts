@@ -9,10 +9,10 @@ export class CreateEcpayDto {
   @ApiProperty({ type: BaseEcpayDto })
   @ValidateNested()
   @Type(() => BaseEcpayDto)
-  Base: BaseEcpayDto;
+  base: BaseEcpayDto;
 
   @ApiProperty({ type: InvoiceEcpayDto })
   @ValidateNested()
   @Type(() => InvoiceEcpayDto)
-  Invoice: InvoiceEcpayDto;
+  invoice: InvoiceEcpayDto;
 }
