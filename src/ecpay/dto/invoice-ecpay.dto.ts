@@ -1,4 +1,4 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 import {
   IsEmail,
   IsNotEmpty,
@@ -72,16 +72,15 @@ export class InvoiceEcpayDto {
   @IsNotEmpty()
   CustomerEmail: string;
 
-  @ApiPropertyOptional({
+  @ApiProperty({
     description: `經海關出口: 1
 非經海關出口: 2`,
     example: '1',
   })
-  @IsOptional()
   @Matches(/^[12]$/, {
     message: 'ClearanceMark 只能是 "1" 或 "2"',
   })
-  ClearanceMark?: string;
+  ClearanceMark: string;
 
   @ApiProperty({
     description: '',
@@ -115,17 +114,16 @@ export class InvoiceEcpayDto {
   @Length(0, 64)
   CarruerNum: string;
 
-  @ApiPropertyOptional({
+  @ApiProperty({
     description: `是否捐贈發票
 捐贈: 1
 不捐贈: 0`,
     example: '1',
   })
-  @IsOptional()
   @Matches(/^[01]$/, {
     message: 'Donation 只能是 "0" 或 "1"',
   })
-  Donation?: string;
+  Donation: string;
 
   @ApiProperty({
     description: '受捐贈單位愛心碼',
@@ -136,16 +134,15 @@ export class InvoiceEcpayDto {
   @IsNotEmpty()
   LoveCode: string;
 
-  @ApiPropertyOptional({
+  @ApiProperty({
     description: `列印: 1
 不列印: 0`,
     example: '0',
   })
-  @IsOptional()
   @Matches(/^[01]$/, {
     message: 'Print 只能是 "0" 或 "1"',
   })
-  Print?: string;
+  Print: string;
 
   @ApiProperty({
     description: '商品名稱，若有兩項以上商品時請用管線符號”|”分隔。',
@@ -188,14 +185,13 @@ export class InvoiceEcpayDto {
   @Length(1, 4096)
   InvoiceItemTaxType: string;
 
-  @ApiPropertyOptional({
+  @ApiProperty({
     description: '商品備註，若有兩項以上商品時請用管線符號”|”分隔。',
     example: '限量|贈品',
   })
-  @IsOptional()
   @IsString()
   @Length(1, 4096)
-  InvoiceRemark?: string;
+  InvoiceRemark: string;
 
   @ApiProperty({
     description: `發票開立延遲天數。本參數值請帶 0~15(天)，當天數
