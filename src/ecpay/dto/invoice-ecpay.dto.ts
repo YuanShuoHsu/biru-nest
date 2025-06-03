@@ -13,6 +13,7 @@ export class InvoiceEcpayDto {
     description: '發票關聯號碼，請用 30 碼 UID',
     example: 'INV20250603-000000000000000000000000',
   })
+  @IsNotEmpty()
   @IsString()
   @Length(1, 30)
   RelateNumber: string;
@@ -23,7 +24,6 @@ export class InvoiceEcpayDto {
   })
   @IsString()
   @Length(0, 20)
-  @IsNotEmpty()
   CustomerID: string;
 
   @ApiProperty({
@@ -32,7 +32,6 @@ export class InvoiceEcpayDto {
   })
   @IsNumberString()
   @Length(0, 8)
-  @IsNotEmpty()
   CustomerIdentifier: string;
 
   @ApiProperty({
@@ -41,7 +40,6 @@ export class InvoiceEcpayDto {
   })
   @IsString()
   @Length(0, 20)
-  @IsNotEmpty()
   CustomerName: string;
 
   @ApiProperty({
@@ -50,7 +48,6 @@ export class InvoiceEcpayDto {
   })
   @IsString()
   @Length(0, 200)
-  @IsNotEmpty()
   CustomerAddr: string;
 
   @ApiProperty({
@@ -59,7 +56,6 @@ export class InvoiceEcpayDto {
   })
   @IsNumberString()
   @Length(0, 20)
-  @IsNotEmpty()
   CustomerPhone: string;
 
   @ApiProperty({
@@ -68,7 +64,6 @@ export class InvoiceEcpayDto {
   })
   @IsEmail()
   @Length(0, 200)
-  @IsNotEmpty()
   CustomerEmail: string;
 
   @ApiProperty({
@@ -76,6 +71,9 @@ export class InvoiceEcpayDto {
 非經海關出口: 2`,
     example: '1',
   })
+  @IsNotEmpty()
+  @IsNumberString()
+  @Length(1, 1)
   @Matches(/^[12]$/, {
     message: 'ClearanceMark 只能是 "1" 或 "2"',
   })
@@ -85,6 +83,9 @@ export class InvoiceEcpayDto {
     description: '',
     example: '1',
   })
+  @IsNotEmpty()
+  @IsNumberString()
+  @Length(1, 1)
   @Matches(/^[12]$/, {
     message: 'TaxType 只能是 "1" 或 "2"',
   })
@@ -98,7 +99,7 @@ export class InvoiceEcpayDto {
 手機條碼: 3`,
     example: '3',
   })
-  @IsString()
+  @IsNumberString()
   @Length(0, 1)
   CarruerType: string;
 
@@ -108,7 +109,7 @@ export class InvoiceEcpayDto {
 3. 當載具類別[CarruerType]為 3(買受人之手機條碼)時，則請帶固定長度為 8 且格式為 1 碼斜線「/」加上 由 7 碼數字及大小寫字母組成`,
     example: '/ABCD123',
   })
-  @IsString()
+  @IsNumberString()
   @Length(0, 64)
   CarruerNum: string;
 
@@ -118,6 +119,7 @@ export class InvoiceEcpayDto {
 不捐贈: 0`,
     example: '1',
   })
+  @IsNotEmpty()
   @IsNumberString()
   @Length(1, 1)
   @Matches(/^[01]$/, {
@@ -129,9 +131,8 @@ export class InvoiceEcpayDto {
     description: '受捐贈單位愛心碼',
     example: '1234567',
   })
-  @IsString()
-  @Length(1, 7)
-  @IsNotEmpty()
+  @IsNumberString()
+  @Length(0, 7)
   LoveCode: string;
 
   @ApiProperty({
@@ -139,6 +140,7 @@ export class InvoiceEcpayDto {
 不列印: 0`,
     example: '0',
   })
+  @IsNotEmpty()
   @IsNumberString()
   @Matches(/^[01]$/, {
     message: 'Print 只能是 "0" 或 "1"',
@@ -149,6 +151,7 @@ export class InvoiceEcpayDto {
     description: '商品名稱，若有兩項以上商品時請用管線符號”|”分隔。',
     example: '咖啡|甜點',
   })
+  @IsNotEmpty()
   @IsString()
   @Length(1, 4096)
   InvoiceItemName: string;
@@ -157,6 +160,7 @@ export class InvoiceEcpayDto {
     description: '商品數量，若有兩項以上商品時請用管線符號”|”分隔。',
     example: '1|2',
   })
+  @IsNotEmpty()
   @IsString()
   @Length(1, 4096)
   InvoiceItemCount: string;
@@ -165,6 +169,7 @@ export class InvoiceEcpayDto {
     description: '商品單位，若有兩項以上商品時請用管線符號”|”分隔。',
     example: '杯|份',
   })
+  @IsNotEmpty()
   @IsString()
   @Length(1, 4096)
   InvoiceItemWord: string;
@@ -173,6 +178,7 @@ export class InvoiceEcpayDto {
     description: '商品價格，若有兩項以上商品時請用管線符號”|”分隔。',
     example: '100|200',
   })
+  @IsNotEmpty()
   @IsString()
   @Length(1, 4096)
   InvoiceItemPrice: string;
@@ -182,6 +188,7 @@ export class InvoiceEcpayDto {
 分隔。`,
     example: '1|2',
   })
+  @IsNotEmpty()
   @IsString()
   @Length(1, 4096)
   InvoiceItemTaxType: string;
@@ -190,6 +197,7 @@ export class InvoiceEcpayDto {
     description: '商品備註，若有兩項以上商品時請用管線符號”|”分隔。',
     example: '限量|贈品',
   })
+  @IsNotEmpty()
   @IsString()
   @Length(1, 4096)
   InvoiceRemark: string;
@@ -199,6 +207,7 @@ export class InvoiceEcpayDto {
 為 0 時，則付款完成後立即開立發票。`,
     example: '0',
   })
+  @IsNotEmpty()
   @IsNumberString()
   @Length(1, 2)
   @Matches(/^(?:\d|1[0-5])$/, {
@@ -211,7 +220,8 @@ export class InvoiceEcpayDto {
 特種稅額: 08`,
     example: '07',
   })
-  @IsString()
+  @IsNotEmpty()
+  @IsNumberString()
   @Length(2, 2)
   @Matches(/^(?:07|08)$/, {
     message: 'InvType 必須是 "07" 或 "08"',
