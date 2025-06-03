@@ -15,8 +15,7 @@ export class InvoiceEcpayDto {
     example: 'INV20250603-000000000000000000000000',
   })
   @IsString()
-  @Length(1, 30)
-  @IsNotEmpty()
+  @Length(0, 30)
   RelateNumber: string;
 
   @ApiProperty({
@@ -32,7 +31,7 @@ export class InvoiceEcpayDto {
     description: '固定 8 位長度數字',
     example: '12345678',
   })
-  @IsString()
+  @IsNumberString()
   @Length(8, 8)
   @IsNotEmpty()
   CustomerIdentifier: string;
@@ -84,7 +83,7 @@ export class InvoiceEcpayDto {
   })
   ClearanceMark?: string;
 
-  @ApiPropertyOptional({
+  @ApiProperty({
     description: '',
     example: '1',
   })
@@ -92,7 +91,7 @@ export class InvoiceEcpayDto {
   @Matches(/^[12]$/, {
     message: 'TaxType 只能是 "1" 或 "2"',
   })
-  TaxType?: string;
+  TaxType: string;
 
   @ApiProperty({
     description: `載具類別:
@@ -104,7 +103,6 @@ export class InvoiceEcpayDto {
   })
   @IsString()
   @Length(0, 1)
-  @IsNotEmpty()
   CarruerType: string;
 
   @ApiProperty({
@@ -115,7 +113,6 @@ export class InvoiceEcpayDto {
   })
   @IsString()
   @Length(0, 64)
-  @IsNotEmpty()
   CarruerNum: string;
 
   @ApiPropertyOptional({
@@ -156,7 +153,6 @@ export class InvoiceEcpayDto {
   })
   @IsString()
   @Length(1, 4096)
-  @IsNotEmpty()
   InvoiceItemName: string;
 
   @ApiProperty({
@@ -165,7 +161,6 @@ export class InvoiceEcpayDto {
   })
   @IsString()
   @Length(1, 4096)
-  @IsNotEmpty()
   InvoiceItemCount: string;
 
   @ApiProperty({
@@ -174,7 +169,6 @@ export class InvoiceEcpayDto {
   })
   @IsString()
   @Length(1, 4096)
-  @IsNotEmpty()
   InvoiceItemWord: string;
 
   @ApiProperty({
@@ -183,7 +177,6 @@ export class InvoiceEcpayDto {
   })
   @IsString()
   @Length(1, 4096)
-  @IsNotEmpty()
   InvoiceItemPrice: string;
 
   @ApiProperty({
@@ -193,7 +186,6 @@ export class InvoiceEcpayDto {
   })
   @IsString()
   @Length(1, 4096)
-  @IsNotEmpty()
   InvoiceItemTaxType: string;
 
   @ApiPropertyOptional({
@@ -215,7 +207,6 @@ export class InvoiceEcpayDto {
   @Matches(/^(?:\d|1[0-5])$/, {
     message: 'DelayDay 必須為 0~15 的數字字串',
   })
-  @IsNotEmpty()
   DelayDay: string;
 
   @ApiProperty({
@@ -228,6 +219,5 @@ export class InvoiceEcpayDto {
   @Matches(/^(?:07|08)$/, {
     message: 'InvType 必須是 "07" 或 "08"',
   })
-  @IsNotEmpty()
   InvType: string;
 }
