@@ -130,6 +130,13 @@ export class AppModule {}
 pnpm add ecpay_aio_nodejs
 ```
 
+## validation
+
+```bash
+# https://docs.nestjs.com/techniques/validation
+pnpm add class-validator class-transformer
+```
+
 <p align="center">
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
 </p>
