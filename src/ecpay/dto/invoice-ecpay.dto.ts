@@ -7,6 +7,7 @@ import {
   IsString,
   Length,
   Matches,
+  ValidateIf,
 } from 'class-validator';
 
 export class InvoiceEcpayDto {
@@ -34,8 +35,11 @@ export class InvoiceEcpayDto {
     example: '12345678',
   })
   @IsDefined()
+  @ValidateIf(
+    ({ CustomerIdentifier }: InvoiceEcpayDto) => CustomerIdentifier !== '',
+  )
   @IsNumberString()
-  @Length(0, 8)
+  @Length(8, 8)
   CustomerIdentifier: string;
 
   @ApiProperty({
@@ -61,8 +65,9 @@ export class InvoiceEcpayDto {
     example: '0912345678',
   })
   @IsDefined()
+  @ValidateIf(({ CustomerPhone }: InvoiceEcpayDto) => CustomerPhone !== '')
   @IsNumberString()
-  @Length(0, 20)
+  @Length(1, 20)
   CustomerPhone: string;
 
   @ApiProperty({
@@ -70,8 +75,9 @@ export class InvoiceEcpayDto {
     example: 'test@example.com',
   })
   @IsDefined()
+  @ValidateIf(({ CustomerEmail }: InvoiceEcpayDto) => CustomerEmail !== '')
   @IsEmail()
-  @Length(0, 200)
+  @Length(1, 200)
   CustomerEmail: string;
 
   @ApiProperty({
@@ -106,20 +112,30 @@ export class InvoiceEcpayDto {
     example: '3',
   })
   @IsDefined()
+  @ValidateIf(({ CarruerType }: InvoiceEcpayDto) => CarruerType !== '')
   @IsNumberString()
-  @Length(0, 1)
-  @Matches(/^$|^[123]$/)
+  @Matches(/^[123]$/)
+  @Length(1, 1)
   CarruerType: string;
 
   @ApiProperty({
     description: `1. 當載具類別[CarruerType]為空字串(無載具)或 1(會員載具)時，則請帶空字串。
-2. 當載具類別[CarruerType]為 2(自然人憑證)時，則請帶固定長度為 16 且格式為 2 碼大小寫字母 加上 14 碼數字。
-3. 當載具類別[CarruerType]為 3(買受人之手機條碼)時，則請帶固定長度為 8 且格式為 1 碼斜線「/」加上 由 7 碼數字及大小寫字母組成`,
+    2. 當載具類別[CarruerType]為 2(自然人憑證)時，則請帶固定長度為 16 且格式為 2 碼大小寫字母 加上 14 碼數字。
+    3. 當載具類別[CarruerType]為 3(買受人之手機條碼)時，則請帶固定長度為 8 且格式為 1 碼斜線「/」加上由 7 碼數字及大小寫字母組成`,
     example: '/ABCD123',
   })
   @IsDefined()
-  @IsNumberString()
-  @Length(0, 64)
+  @ValidateIf(
+    ({ CarruerType }: InvoiceEcpayDto) =>
+      CarruerType === '' || CarruerType === '1',
+  )
+  @Matches(/^$/)
+  @ValidateIf(({ CarruerType }: InvoiceEcpayDto) => CarruerType === '2')
+  @Matches(/^[A-Za-z]{2}[0-9]{14}$/)
+  @Length(16, 16)
+  @ValidateIf(({ CarruerType }: InvoiceEcpayDto) => CarruerType === '3')
+  @Matches(/^\/[A-Za-z0-9]{7}$/)
+  @Length(8, 8)
   CarruerNum: string;
 
   @ApiProperty({
@@ -140,8 +156,9 @@ export class InvoiceEcpayDto {
     example: '1234567',
   })
   @IsDefined()
+  @ValidateIf(({ LoveCode }: InvoiceEcpayDto) => LoveCode === '')
   @IsNumberString()
-  @Length(0, 7)
+  @Length(7, 7)
   LoveCode: string;
 
   @ApiProperty({
