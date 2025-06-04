@@ -1,6 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsArray,
+  IsDefined,
   IsNumberString,
   IsOptional,
   IsString,
@@ -15,6 +16,7 @@ export class BaseEcpayDto {
     type: String,
     example: 'ORD20250603ABCDE1234',
   })
+  @IsDefined()
   @IsString()
   @Length(1, 20)
   MerchantTradeNo: string;
@@ -24,6 +26,7 @@ export class BaseEcpayDto {
     type: String,
     example: '2025/06/03 17:45:30',
   })
+  @IsDefined()
   @IsString()
   @Length(19, 20)
   @Matches(/^\d{4}\/\d{2}\/\d{2}\s\d{2}:\d{2}:\d{2}$/)
@@ -35,6 +38,7 @@ export class BaseEcpayDto {
     type: String,
     example: '1500',
   })
+  @IsDefined()
   @IsNumberString()
   @Length(1, 20)
   TotalAmount: string;
@@ -44,6 +48,7 @@ export class BaseEcpayDto {
     type: String,
     example: '購買咖啡與甜點',
   })
+  @IsDefined()
   @IsString()
   @Length(1, 200)
   TradeDesc: string;
@@ -54,6 +59,7 @@ export class BaseEcpayDto {
     type: String,
     example: '咖啡#甜點',
   })
+  @IsDefined()
   @IsString()
   @Length(1, 200)
   ItemName: string;
@@ -64,13 +70,14 @@ export class BaseEcpayDto {
     type: String,
     example: 'https://your-domain.com/ecpay/return',
   })
+  @IsDefined()
   @IsUrl()
   @Length(1, 200)
   ReturnURL: string;
 
   @ApiPropertyOptional({
-    description:
-      '若設定此參數，使用者將無法在付款方式選擇頁做二次選擇。最長 20 字元，多筆時請以陣列形式傳遞。',
+    description: `若設定此參數，使用者則無法看見金流選擇頁。 例如：付款方式[ChoosePayment]設定 WebATM，付款子項目 [ChooseSubPayment]設定 TAISHIN，此次交易僅會以台新銀行的 網路 ATM 付款。
+    請參考付款方式一覽表`,
     type: [String],
     example: ['Credit', 'WebATM'],
   })
@@ -81,8 +88,16 @@ export class BaseEcpayDto {
   ChooseSubPayment?: string[];
 
   @ApiPropertyOptional({
-    description:
-      '付款完成後，綠界科技會將頁面導回到此網址。若未設定則使用綠界預設的付款完成頁。最長 200 字元。',
+    description: `付款完成後，綠界科技將頁面導回到會員網址，並將付款結果帶回
+    注意事項：
+    1. 沒帶此參數則會顯示綠界科技的付款完成頁。
+    2. 如果要將付款結果頁顯示在會員系統內，請設定此參數。
+    3. 若設定此參數，將會使設定的 Client 端返回會員系統的按鈕連結[ClientBackURL]失效。
+    4. 部分銀行 WebATM 在交易成功後，會停留在銀行的頁面，並不會導回給綠界科技，所以綠界科技也不會將頁面導回到[OrderResultURL]的頁面。
+    5. 銀聯卡和非及時交易（ATM、CVS、BARCODE）不支援此參數。
+    6. 建議在測試階段時先不要設定此參數，可將畫面停留在綠界科技，看見綠界科技所提供的錯誤訊息，便可以有效除錯。
+    7. 若有設定此參數，請務必根據回傳的交易狀態來判斷顯示付款成功與否的頁面。
+    8. 若導回網址未使用 https 時，部份瀏覽器可能會出現警告訊息。`,
     type: String,
     example: 'https://your-domain.com/ecpay/result',
   })
@@ -204,8 +219,10 @@ export class BaseEcpayDto {
   Language?: string;
 
   @ApiPropertyOptional({
-    description:
-      '是否使用記憶信用卡（僅對信用卡付款有效）。1 表示使用，0 表示不使用。',
+    description: `當 ChoosePayment 參數為 Credit 付款方式有效
+    使用記憶信用卡
+    使用：1
+    不使用：0`,
     type: String,
     example: '1',
   })
@@ -214,8 +231,9 @@ export class BaseEcpayDto {
   BidingCard?: string;
 
   @ApiPropertyOptional({
-    description:
-      '合作特店使用的會員識別碼（僅對信用卡付款且 BidingCard=1 時必填）。最長 20 字元。',
+    description: `當 ChoosePayment 參數為 Credit 付款方式有效
+    為合作特店使用的會員識別碼
+    若記憶卡號為 1 時，記憶卡號識別碼為必填`,
     type: String,
     example: 'MEMBER123456789',
   })
