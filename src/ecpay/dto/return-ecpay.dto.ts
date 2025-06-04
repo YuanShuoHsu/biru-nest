@@ -1,7 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsDefined,
-  IsNumber,
+  IsNumberString,
   IsOptional,
   IsString,
   Length,
@@ -26,7 +26,7 @@ export class ReturnEcpayDto {
   @ApiPropertyOptional({ description: '特店旗下店舖代號' })
   @IsOptional()
   @IsString()
-  @Length(1, 20)
+  @Length(0, 20)
   StoreID?: string;
 
   @ApiProperty({
@@ -44,12 +44,14 @@ export class ReturnEcpayDto {
     10100256：「被盜用卡，請客戶更換卡片重新交易」`,
   })
   @IsDefined()
-  @IsNumber()
-  RtnCode: number;
+  @IsNumberString()
+  @Length(1, 8)
+  RtnCode: string;
 
   @ApiProperty({ description: '交易訊息' })
   @IsDefined()
   @IsString()
+  @Length(1, 200)
   RtnMsg: string;
 
   @ApiProperty({
@@ -63,8 +65,9 @@ export class ReturnEcpayDto {
 
   @ApiProperty({ description: '交易金額' })
   @IsDefined()
-  @IsNumber()
-  TradeAmt: number;
+  @IsNumberString()
+  @Length(1, 10)
+  TradeAmt: string;
 
   @ApiProperty({
     description: `付款時間
@@ -89,8 +92,8 @@ export class ReturnEcpayDto {
     交易手續費+交易處理費的總金額`,
   })
   @IsDefined()
-  @IsNumber()
-  PaymentTypeChargeFee: number;
+  @IsNumberString()
+  PaymentTypeChargeFee: string;
 
   @ApiProperty({
     description: `訂單成立時間
@@ -121,8 +124,8 @@ export class ReturnEcpayDto {
       只有透過廠商後台的定期定額查詢功能發動的模擬付款通知，綠界才會傳送此參數，正常由定期定額排程所發送的付款通知，不會傳送此參數。`,
   })
   @IsOptional()
-  @IsNumber()
-  SimulatePaid?: number;
+  @IsNumberString()
+  SimulatePaid?: string;
 
   @ApiPropertyOptional({
     description: `自訂名稱欄位 1
@@ -166,6 +169,5 @@ export class ReturnEcpayDto {
   })
   @IsDefined()
   @IsString()
-  @Length(1, 200)
   CheckMacValue: string;
 }
