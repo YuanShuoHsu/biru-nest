@@ -1,9 +1,10 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsNumber, IsOptional, IsString, Length } from 'class-validator';
 
 export class ReturnEcpayDto {
   @ApiProperty({ description: '特店編號' })
   @IsString()
+  @Length(10, 10)
   MerchantID: string;
 
   @ApiProperty({
@@ -11,11 +12,13 @@ export class ReturnEcpayDto {
     訂單產生時傳送給綠界的特店交易編號。`,
   })
   @IsString()
+  @Length(1, 20)
   MerchantTradeNo: string;
 
   @ApiPropertyOptional({ description: '特店旗下店舖代號' })
   @IsOptional()
   @IsString()
+  @Length(1, 20)
   StoreID?: string;
 
   @ApiProperty({
@@ -44,6 +47,7 @@ export class ReturnEcpayDto {
     請保存綠界的交易編號與特店交易編號 [MerchantTradeNo] 的關連。`,
   })
   @IsString()
+  @Length(1, 20)
   TradeNo: string;
 
   @ApiProperty({ description: '交易金額' })
@@ -55,6 +59,7 @@ export class ReturnEcpayDto {
     格式為yyyy/MM/dd HH:mm:ss`,
   })
   @IsString()
+  @Length(19, 20)
   PaymentDate: string;
 
   @ApiProperty({
@@ -62,6 +67,7 @@ export class ReturnEcpayDto {
     請參考回覆付款方式一覽表`,
   })
   @IsString()
+  @Length(1, 20)
   PaymentType: string;
 
   @ApiProperty({
@@ -76,6 +82,7 @@ export class ReturnEcpayDto {
     格式為 yyyy/MM/dd HH:mm:ss`,
   })
   @IsString()
+  @Length(19, 20)
   TradeDate: string;
 
   @ApiPropertyOptional({
@@ -84,6 +91,7 @@ export class ReturnEcpayDto {
   })
   @IsOptional()
   @IsString()
+  @Length(1, 10)
   PlatformID?: string;
 
   @ApiPropertyOptional({
@@ -106,6 +114,7 @@ export class ReturnEcpayDto {
   })
   @IsOptional()
   @IsString()
+  @Length(0, 50)
   CustomField1?: string;
 
   @ApiPropertyOptional({
@@ -114,6 +123,7 @@ export class ReturnEcpayDto {
   })
   @IsOptional()
   @IsString()
+  @Length(0, 50)
   CustomField2?: string;
 
   @ApiPropertyOptional({
@@ -122,6 +132,7 @@ export class ReturnEcpayDto {
   })
   @IsOptional()
   @IsString()
+  @Length(0, 50)
   CustomField3?: string;
 
   @ApiPropertyOptional({
@@ -130,6 +141,7 @@ export class ReturnEcpayDto {
   })
   @IsOptional()
   @IsString()
+  @Length(0, 50)
   CustomField4?: string;
 
   @ApiProperty({
@@ -137,5 +149,6 @@ export class ReturnEcpayDto {
     特店必須檢查檢查碼 [CheckMacValue] 來驗證，請參考附錄檢查碼機制。`,
   })
   @IsString()
+  @Length(1, 200)
   CheckMacValue: string;
 }
