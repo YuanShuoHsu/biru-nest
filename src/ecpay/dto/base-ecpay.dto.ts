@@ -7,6 +7,7 @@ import {
   IsUrl,
   Length,
   Matches,
+  ValidateIf,
 } from 'class-validator';
 
 export class BaseEcpayDto {
@@ -94,6 +95,8 @@ export class BaseEcpayDto {
     example: '1',
   })
   @IsOptional()
+  @IsNumberString()
+  @Length(1, 1)
   @Matches(/^[01]$/)
   NeedExtraPaidInfo?: string;
 
@@ -134,6 +137,8 @@ export class BaseEcpayDto {
     example: '0',
   })
   @IsOptional()
+  @IsNumberString()
+  @Length(1, 1)
   @Matches(/^[01]$/)
   HoldTradeAMT?: string;
 
@@ -192,8 +197,10 @@ export class BaseEcpayDto {
     example: 'ENG',
   })
   @IsOptional()
+  @ValidateIf(({ Language }) => Language !== '')
+  @IsString()
+  @Length(3, 3)
   @Matches(/^(ENG|JPN|KOR|CHI)?$/)
-  @Length(0, 3)
   Language?: string;
 
   @ApiPropertyOptional({
@@ -204,7 +211,10 @@ export class BaseEcpayDto {
     example: '1',
   })
   @IsOptional()
-  @Matches(/^[01]?$/)
+  @ValidateIf(({ BidingCard }) => BidingCard !== '')
+  @IsNumberString()
+  @Length(1, 1)
+  @Matches(/^[01]$/)
   BidingCard?: string;
 
   @ApiPropertyOptional({
@@ -214,6 +224,7 @@ export class BaseEcpayDto {
     example: 'MEMBER123456789',
   })
   @IsOptional()
+  @ValidateIf(({ BidingCard }) => BidingCard === '1')
   @IsString()
   @Length(1, 20)
   MerchantMemberID?: string;
