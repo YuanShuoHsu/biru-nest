@@ -156,7 +156,7 @@ export class InvoiceEcpayDto {
     example: '1234567',
   })
   @IsDefined()
-  @ValidateIf(({ LoveCode }: InvoiceEcpayDto) => LoveCode === '')
+  @ValidateIf(({ LoveCode }: InvoiceEcpayDto) => LoveCode !== '')
   @IsNumberString()
   @Length(7, 7)
   LoveCode: string;
