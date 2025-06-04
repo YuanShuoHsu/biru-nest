@@ -82,9 +82,7 @@ export class EcpayService {
       TradeDesc,
       ItemName,
       ReturnURL,
-      ChooseSubPayment: ChooseSubPayment
-        ? ChooseSubPayment.join(',')
-        : undefined,
+      ChooseSubPayment,
       OrderResultURL,
       NeedExtraPaidInfo,
       ClientBackURL,

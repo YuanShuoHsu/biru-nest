@@ -35,9 +35,7 @@ export class InvoiceEcpayDto {
     example: '12345678',
   })
   @IsDefined()
-  @ValidateIf(
-    ({ CustomerIdentifier }: InvoiceEcpayDto) => CustomerIdentifier !== '',
-  )
+  @ValidateIf(({ CustomerIdentifier }) => CustomerIdentifier !== '')
   @IsNumberString()
   @Length(8, 8)
   CustomerIdentifier: string;
@@ -65,7 +63,7 @@ export class InvoiceEcpayDto {
     example: '0912345678',
   })
   @IsDefined()
-  @ValidateIf(({ CustomerPhone }: InvoiceEcpayDto) => CustomerPhone !== '')
+  @ValidateIf(({ CustomerPhone }) => CustomerPhone !== '')
   @IsNumberString()
   @Length(1, 20)
   CustomerPhone: string;
@@ -75,7 +73,7 @@ export class InvoiceEcpayDto {
     example: 'test@example.com',
   })
   @IsDefined()
-  @ValidateIf(({ CustomerEmail }: InvoiceEcpayDto) => CustomerEmail !== '')
+  @ValidateIf(({ CustomerEmail }) => CustomerEmail !== '')
   @IsEmail()
   @Length(1, 200)
   CustomerEmail: string;
@@ -112,7 +110,7 @@ export class InvoiceEcpayDto {
     example: '3',
   })
   @IsDefined()
-  @ValidateIf(({ CarruerType }: InvoiceEcpayDto) => CarruerType !== '')
+  @ValidateIf(({ CarruerType }) => CarruerType !== '')
   @IsNumberString()
   @Matches(/^[123]$/)
   @Length(1, 1)
@@ -125,15 +123,12 @@ export class InvoiceEcpayDto {
     example: '/ABCD123',
   })
   @IsDefined()
-  @ValidateIf(
-    ({ CarruerType }: InvoiceEcpayDto) =>
-      CarruerType === '' || CarruerType === '1',
-  )
+  @ValidateIf(({ CarruerType }) => CarruerType === '' || CarruerType === '1')
   @Matches(/^$/)
-  @ValidateIf(({ CarruerType }: InvoiceEcpayDto) => CarruerType === '2')
+  @ValidateIf(({ CarruerType }) => CarruerType === '2')
   @Matches(/^[A-Za-z]{2}[0-9]{14}$/)
   @Length(16, 16)
-  @ValidateIf(({ CarruerType }: InvoiceEcpayDto) => CarruerType === '3')
+  @ValidateIf(({ CarruerType }) => CarruerType === '3')
   @Matches(/^\/[A-Za-z0-9]{7}$/)
   @Length(8, 8)
   CarruerNum: string;
@@ -156,7 +151,7 @@ export class InvoiceEcpayDto {
     example: '1234567',
   })
   @IsDefined()
-  @ValidateIf(({ LoveCode }: InvoiceEcpayDto) => LoveCode !== '')
+  @ValidateIf(({ LoveCode }) => LoveCode !== '')
   @IsNumberString()
   @Length(7, 7)
   LoveCode: string;
