@@ -80,7 +80,7 @@ export class InvoiceEcpayDto {
 
   @ApiProperty({
     description: `經海關出口: 1
-非經海關出口: 2`,
+    非經海關出口: 2`,
     example: '1',
   })
   @IsDefined()
@@ -102,11 +102,11 @@ export class InvoiceEcpayDto {
   TaxType: string;
 
   @ApiProperty({
-    description: `載具類別:
-無載具: 空字串
-會員載具: 1
-自然人憑證: 2
-手機條碼: 3`,
+    description: `載具類別：
+    無載具：空字串
+    會員載具：1
+    自然人憑證：2
+    手機條碼：3`,
     example: '3',
   })
   @IsDefined()
@@ -135,8 +135,8 @@ export class InvoiceEcpayDto {
 
   @ApiProperty({
     description: `是否捐贈發票
-捐贈: 1
-不捐贈: 0`,
+    捐贈: 1
+    不捐贈: 0`,
     example: '1',
   })
   @IsDefined()
@@ -157,8 +157,8 @@ export class InvoiceEcpayDto {
   LoveCode: string;
 
   @ApiProperty({
-    description: `列印: 1
-不列印: 0`,
+    description: `列印：1
+    不列印：0`,
     example: '0',
   })
   @IsDefined()
@@ -235,13 +235,13 @@ export class InvoiceEcpayDto {
   @IsDefined()
   @IsNotEmpty()
   @IsNumberString()
-  @Matches(/^(?:\d|1[0-5])$/)
   @Length(1, 2)
+  @Matches(/^(?:\d|1[0-5])$/)
   DelayDay: string;
 
   @ApiProperty({
     description: `一般稅額: 07
-特種稅額: 08`,
+    特種稅額: 08`,
     example: '07',
   })
   @IsDefined()
