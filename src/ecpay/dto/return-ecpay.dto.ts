@@ -5,6 +5,7 @@ import {
   IsOptional,
   IsString,
   Length,
+  Matches,
 } from 'class-validator';
 
 export class ReturnEcpayDto {
@@ -46,6 +47,7 @@ export class ReturnEcpayDto {
   @IsDefined()
   @IsNumberString()
   @Length(1, 8)
+  @Matches(/^\d{1,8}$/)
   RtnCode: string;
 
   @ApiProperty({ description: '交易訊息' })
@@ -66,6 +68,7 @@ export class ReturnEcpayDto {
   @ApiProperty({ description: '交易金額' })
   @IsDefined()
   @IsNumberString()
+  @Matches(/^\d+$/)
   TradeAmt: string;
 
   @ApiProperty({
@@ -75,6 +78,7 @@ export class ReturnEcpayDto {
   @IsDefined()
   @IsString()
   @Length(19, 20)
+  @Matches(/^\d{4}\/\d{2}\/\d{2}\s\d{2}:\d{2}:\d{2}$/)
   PaymentDate: string;
 
   @ApiProperty({
@@ -92,6 +96,7 @@ export class ReturnEcpayDto {
   })
   @IsDefined()
   @IsNumberString()
+  @Matches(/^\d+$/)
   PaymentTypeChargeFee: string;
 
   @ApiProperty({
@@ -101,6 +106,7 @@ export class ReturnEcpayDto {
   @IsDefined()
   @IsString()
   @Length(19, 20)
+  @Matches(/^\d{4}\/\d{2}\/\d{2}\s\d{2}:\d{2}:\d{2}$/)
   TradeDate: string;
 
   @ApiPropertyOptional({
@@ -124,6 +130,7 @@ export class ReturnEcpayDto {
   })
   @IsOptional()
   @IsNumberString()
+  @Matches(/^[01]$/)
   SimulatePaid?: string;
 
   @ApiPropertyOptional({
