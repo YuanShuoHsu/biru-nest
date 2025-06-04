@@ -66,7 +66,6 @@ export class ReturnEcpayDto {
   @ApiProperty({ description: '交易金額' })
   @IsDefined()
   @IsNumberString()
-  @Length(1, 10)
   TradeAmt: string;
 
   @ApiProperty({
@@ -110,7 +109,7 @@ export class ReturnEcpayDto {
   })
   @IsOptional()
   @IsString()
-  @Length(1, 10)
+  @Length(0, 10)
   PlatformID?: string;
 
   @ApiPropertyOptional({
