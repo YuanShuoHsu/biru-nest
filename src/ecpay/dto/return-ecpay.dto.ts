@@ -6,6 +6,7 @@ import {
   IsString,
   Length,
   Matches,
+  ValidateIf,
 } from 'class-validator';
 
 export class ReturnEcpayDto {
@@ -68,6 +69,7 @@ export class ReturnEcpayDto {
   @ApiProperty({ description: '交易金額' })
   @IsDefined()
   @IsNumberString()
+  @Length(1, 10)
   @Matches(/^\d+$/)
   TradeAmt: string;
 
@@ -96,6 +98,7 @@ export class ReturnEcpayDto {
   })
   @IsDefined()
   @IsNumberString()
+  @Length(1, 10)
   @Matches(/^\d+$/)
   PaymentTypeChargeFee: string;
 
@@ -129,7 +132,9 @@ export class ReturnEcpayDto {
       只有透過廠商後台的定期定額查詢功能發動的模擬付款通知，綠界才會傳送此參數，正常由定期定額排程所發送的付款通知，不會傳送此參數。`,
   })
   @IsOptional()
+  @ValidateIf(({ SimulatePaid }) => SimulatePaid !== '')
   @IsNumberString()
+  @Length(1, 1)
   @Matches(/^[01]$/)
   SimulatePaid?: string;
 
@@ -175,5 +180,6 @@ export class ReturnEcpayDto {
   })
   @IsDefined()
   @IsString()
+  @Length(64, 128)
   CheckMacValue: string;
 }
