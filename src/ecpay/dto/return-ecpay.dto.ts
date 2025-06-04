@@ -1,8 +1,15 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsNumber, IsOptional, IsString, Length } from 'class-validator';
+import {
+  IsDefined,
+  IsNumber,
+  IsOptional,
+  IsString,
+  Length,
+} from 'class-validator';
 
 export class ReturnEcpayDto {
   @ApiProperty({ description: '特店編號' })
+  @IsDefined()
   @IsString()
   @Length(10, 10)
   MerchantID: string;
@@ -11,6 +18,7 @@ export class ReturnEcpayDto {
     description: `特店交易編號
     訂單產生時傳送給綠界的特店交易編號。`,
   })
+  @IsDefined()
   @IsString()
   @Length(1, 20)
   MerchantTradeNo: string;
@@ -35,10 +43,12 @@ export class ReturnEcpayDto {
     10100255：「報失卡，請客戶更換卡片重新交易」
     10100256：「被盜用卡，請客戶更換卡片重新交易」`,
   })
+  @IsDefined()
   @IsNumber()
   RtnCode: number;
 
   @ApiProperty({ description: '交易訊息' })
+  @IsDefined()
   @IsString()
   RtnMsg: string;
 
@@ -46,11 +56,13 @@ export class ReturnEcpayDto {
     description: `綠界的交易編號
     請保存綠界的交易編號與特店交易編號 [MerchantTradeNo] 的關連。`,
   })
+  @IsDefined()
   @IsString()
   @Length(1, 20)
   TradeNo: string;
 
   @ApiProperty({ description: '交易金額' })
+  @IsDefined()
   @IsNumber()
   TradeAmt: number;
 
@@ -58,6 +70,7 @@ export class ReturnEcpayDto {
     description: `付款時間
     格式為yyyy/MM/dd HH:mm:ss`,
   })
+  @IsDefined()
   @IsString()
   @Length(19, 20)
   PaymentDate: string;
@@ -66,6 +79,7 @@ export class ReturnEcpayDto {
     description: `特店選擇的付款方式
     請參考回覆付款方式一覽表`,
   })
+  @IsDefined()
   @IsString()
   @Length(1, 20)
   PaymentType: string;
@@ -74,6 +88,7 @@ export class ReturnEcpayDto {
     description: `交易服務金額
     交易手續費+交易處理費的總金額`,
   })
+  @IsDefined()
   @IsNumber()
   PaymentTypeChargeFee: number;
 
@@ -81,6 +96,7 @@ export class ReturnEcpayDto {
     description: `訂單成立時間
     格式為 yyyy/MM/dd HH:mm:ss`,
   })
+  @IsDefined()
   @IsString()
   @Length(19, 20)
   TradeDate: string;
@@ -148,6 +164,7 @@ export class ReturnEcpayDto {
     description: `檢查碼
     特店必須檢查檢查碼 [CheckMacValue] 來驗證，請參考附錄檢查碼機制。`,
   })
+  @IsDefined()
   @IsString()
   @Length(1, 200)
   CheckMacValue: string;
