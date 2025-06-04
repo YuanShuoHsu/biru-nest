@@ -71,8 +71,6 @@ To quickly create a CRUD controller with built-in validation, you can use the CL
 
 ```bash
 # https://docs.nestjs.com/openapi/introduction
-# https://docs.nestjs.com/security/cors
-# https://docs.nestjs.com/faq/global-prefix
 
 pnpm add @nestjs/swagger
 
@@ -81,13 +79,7 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, {
-    cors: {
-      origin: 'https://biru-eight.vercel.app',
-    },
-  });
-
-  app.setGlobalPrefix('api');
+  const app = await NestFactory.create(AppModule);
 
   const config = new DocumentBuilder()
     .setTitle('Cats example')
@@ -104,6 +96,28 @@ async function bootstrap() {
 void bootstrap();
 
 # http://localhost:3000/api
+```
+
+## CORS
+
+```bash
+# https://docs.nestjs.com/security/cors
+
+const app = await NestFactory.create(AppModule, {
+  cors: {
+    origin: 'https://biru-eight.vercel.app',
+  },
+});
+```
+
+## Global prefix
+
+```bash
+# https://docs.nestjs.com/faq/global-prefix
+
+const app = await NestFactory.create(AppModule);
+
+app.setGlobalPrefix('api');
 ```
 
 ## Configuration
@@ -123,18 +137,18 @@ import { ConfigModule } from '@nestjs/config';
 export class AppModule {}
 ```
 
-## ECPayAIO_Node.js
-
-```bash
-# https://github.com/ECPay/ECPayAIO_Node.js
-pnpm add ecpay_aio_nodejs
-```
-
 ## validation
 
 ```bash
 # https://docs.nestjs.com/techniques/validation
 pnpm add class-validator class-transformer
+```
+
+## ECPayAIO_Node.js
+
+```bash
+# https://github.com/ECPay/ECPayAIO_Node.js
+pnpm add ecpay_aio_nodejs
 ```
 
 <p align="center">
