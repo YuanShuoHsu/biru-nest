@@ -74,6 +74,9 @@ declare module 'ecpay_aio_nodejs' {
         base_param: EcpayBaseParams,
         inv_params: EcpayInvParams,
       ): string;
+      helper: {
+        gen_chk_mac_value: (data) => string;
+      };
     };
   }
 

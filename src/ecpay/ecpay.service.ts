@@ -8,6 +8,7 @@ import ECPayPayment, {
 } from 'ecpay_aio_nodejs';
 
 import { CreateEcpayDto } from './dto/create-ecpay.dto';
+import { ReturnEcpayDto } from './dto/return-ecpay.dto';
 
 @Injectable()
 export class EcpayService {
@@ -127,5 +128,15 @@ export class EcpayService {
     );
 
     return html;
+  }
+
+  isCheckMacValueValid({
+    CheckMacValue,
+    ...data
+  }: ReturnEcpayDto): '1|OK' | '0|FAIL' {
+    const create = new ECPayPayment(this.options);
+    const checkValue = create.payment_client.helper.gen_chk_mac_value(data);
+
+    return checkValue === CheckMacValue ? '1|OK' : '0|FAIL';
   }
 }

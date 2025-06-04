@@ -1,5 +1,6 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { CreateEcpayDto } from './dto/create-ecpay.dto';
+import { ReturnEcpayDto } from './dto/return-ecpay.dto';
 import { EcpayService } from './ecpay.service';
 
 @Controller('ecpay')
@@ -9,5 +10,10 @@ export class EcpayController {
   @Post()
   create(@Body() createEcpayDto: CreateEcpayDto) {
     return this.ecpayService.aioCheckOutAll(createEcpayDto);
+  }
+
+  @Post('return')
+  return(@Body() returnEcpayDto: ReturnEcpayDto) {
+    return this.ecpayService.isCheckMacValueValid(returnEcpayDto);
   }
 }
