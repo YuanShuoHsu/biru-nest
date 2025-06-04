@@ -110,6 +110,15 @@ const app = await NestFactory.create(AppModule, {
 });
 ```
 
+## Rate Limiting
+
+```bash
+# https://docs.nestjs.com/security/rate-limiting
+pnpm add @nestjs/throttler
+
+
+```
+
 ## Global prefix
 
 ```bash
