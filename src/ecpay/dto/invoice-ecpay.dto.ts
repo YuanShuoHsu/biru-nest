@@ -38,6 +38,7 @@ export class InvoiceEcpayDto {
   @ValidateIf(({ CustomerIdentifier }) => CustomerIdentifier !== '')
   @IsNumberString()
   @Length(8, 8)
+  @Matches(/^\d{8}$/)
   CustomerIdentifier: string;
 
   @ApiProperty({
@@ -66,6 +67,7 @@ export class InvoiceEcpayDto {
   @ValidateIf(({ CustomerPhone }) => CustomerPhone !== '')
   @IsNumberString()
   @Length(1, 20)
+  @Matches(/^\d{1,20}$/)
   CustomerPhone: string;
 
   @ApiProperty({
@@ -154,6 +156,7 @@ export class InvoiceEcpayDto {
   @ValidateIf(({ LoveCode }) => LoveCode !== '')
   @IsNumberString()
   @Length(7, 7)
+  @Matches(/^\d{7}$/)
   LoveCode: string;
 
   @ApiProperty({
