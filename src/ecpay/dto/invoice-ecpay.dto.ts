@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
+  IsDefined,
   IsEmail,
   IsNotEmpty,
   IsNumberString,
@@ -13,6 +14,7 @@ export class InvoiceEcpayDto {
     description: '發票關聯號碼，請用 30 碼 UID',
     example: 'INV20250603-000000000000000000000000',
   })
+  @IsDefined()
   @IsNotEmpty()
   @IsString()
   @Length(1, 30)
@@ -22,6 +24,7 @@ export class InvoiceEcpayDto {
     description: '客戶代號',
     example: 'CUST000001234567890',
   })
+  @IsDefined()
   @IsString()
   @Length(0, 20)
   CustomerID: string;
@@ -30,6 +33,7 @@ export class InvoiceEcpayDto {
     description: '固定 8 位長度數字',
     example: '12345678',
   })
+  @IsDefined()
   @IsNumberString()
   @Length(0, 8)
   CustomerIdentifier: string;
@@ -38,6 +42,7 @@ export class InvoiceEcpayDto {
     description: '買受人姓名，須為中英文及數字',
     example: '王小明',
   })
+  @IsDefined()
   @IsString()
   @Length(0, 20)
   CustomerName: string;
@@ -46,6 +51,7 @@ export class InvoiceEcpayDto {
     description: '買受人地址',
     example: '臺北市中正區忠孝東路一段1號',
   })
+  @IsDefined()
   @IsString()
   @Length(0, 200)
   CustomerAddr: string;
@@ -54,6 +60,7 @@ export class InvoiceEcpayDto {
     description: '買受人電話(純數字)',
     example: '0912345678',
   })
+  @IsDefined()
   @IsNumberString()
   @Length(0, 20)
   CustomerPhone: string;
@@ -62,6 +69,7 @@ export class InvoiceEcpayDto {
     description: '買受人電子郵件',
     example: 'test@example.com',
   })
+  @IsDefined()
   @IsEmail()
   @Length(0, 200)
   CustomerEmail: string;
@@ -71,24 +79,22 @@ export class InvoiceEcpayDto {
 非經海關出口: 2`,
     example: '1',
   })
+  @IsDefined()
   @IsNotEmpty()
   @IsNumberString()
   @Length(1, 1)
-  @Matches(/^[12]$/, {
-    message: 'ClearanceMark 只能是 "1" 或 "2"',
-  })
+  @Matches(/^[12]$/)
   ClearanceMark: string;
 
   @ApiProperty({
     description: '',
     example: '1',
   })
+  @IsDefined()
   @IsNotEmpty()
   @IsNumberString()
   @Length(1, 1)
-  @Matches(/^[12]$/, {
-    message: 'TaxType 只能是 "1" 或 "2"',
-  })
+  @Matches(/^[12]$/)
   TaxType: string;
 
   @ApiProperty({
@@ -99,8 +105,10 @@ export class InvoiceEcpayDto {
 手機條碼: 3`,
     example: '3',
   })
+  @IsDefined()
   @IsNumberString()
   @Length(0, 1)
+  @Matches(/^$|^[123]$/)
   CarruerType: string;
 
   @ApiProperty({
@@ -109,6 +117,7 @@ export class InvoiceEcpayDto {
 3. 當載具類別[CarruerType]為 3(買受人之手機條碼)時，則請帶固定長度為 8 且格式為 1 碼斜線「/」加上 由 7 碼數字及大小寫字母組成`,
     example: '/ABCD123',
   })
+  @IsDefined()
   @IsNumberString()
   @Length(0, 64)
   CarruerNum: string;
@@ -119,18 +128,18 @@ export class InvoiceEcpayDto {
 不捐贈: 0`,
     example: '1',
   })
+  @IsDefined()
   @IsNotEmpty()
   @IsNumberString()
   @Length(1, 1)
-  @Matches(/^[01]$/, {
-    message: 'Donation 只能是 "0" 或 "1"',
-  })
+  @Matches(/^[01]$/)
   Donation: string;
 
   @ApiProperty({
     description: '受捐贈單位愛心碼',
     example: '1234567',
   })
+  @IsDefined()
   @IsNumberString()
   @Length(0, 7)
   LoveCode: string;
@@ -140,17 +149,18 @@ export class InvoiceEcpayDto {
 不列印: 0`,
     example: '0',
   })
+  @IsDefined()
   @IsNotEmpty()
   @IsNumberString()
-  @Matches(/^[01]$/, {
-    message: 'Print 只能是 "0" 或 "1"',
-  })
+  @Length(1, 1)
+  @Matches(/^[01]$/)
   Print: string;
 
   @ApiProperty({
     description: '商品名稱，若有兩項以上商品時請用管線符號”|”分隔。',
     example: '咖啡|甜點',
   })
+  @IsDefined()
   @IsNotEmpty()
   @IsString()
   @Length(1, 4096)
@@ -160,6 +170,7 @@ export class InvoiceEcpayDto {
     description: '商品數量，若有兩項以上商品時請用管線符號”|”分隔。',
     example: '1|2',
   })
+  @IsDefined()
   @IsNotEmpty()
   @IsString()
   @Length(1, 4096)
@@ -169,6 +180,7 @@ export class InvoiceEcpayDto {
     description: '商品單位，若有兩項以上商品時請用管線符號”|”分隔。',
     example: '杯|份',
   })
+  @IsDefined()
   @IsNotEmpty()
   @IsString()
   @Length(1, 4096)
@@ -178,16 +190,17 @@ export class InvoiceEcpayDto {
     description: '商品價格，若有兩項以上商品時請用管線符號”|”分隔。',
     example: '100|200',
   })
+  @IsDefined()
   @IsNotEmpty()
   @IsString()
   @Length(1, 4096)
   InvoiceItemPrice: string;
 
   @ApiProperty({
-    description: `商品課稅類別，若有兩項以上商品時請用管線符號”|”
-分隔。`,
+    description: `商品課稅類別，若有兩項以上商品時請用管線符號”|”分隔。`,
     example: '1|2',
   })
+  @IsDefined()
   @IsNotEmpty()
   @IsString()
   @Length(1, 4096)
@@ -197,22 +210,21 @@ export class InvoiceEcpayDto {
     description: '商品備註，若有兩項以上商品時請用管線符號”|”分隔。',
     example: '限量|贈品',
   })
+  @IsDefined()
   @IsNotEmpty()
   @IsString()
   @Length(1, 4096)
   InvoiceRemark: string;
 
   @ApiProperty({
-    description: `發票開立延遲天數。本參數值請帶 0~15(天)，當天數
-為 0 時，則付款完成後立即開立發票。`,
+    description: `發票開立延遲天數。本參數值請帶 0~15(天)，當天數為 0 時，則付款完成後立即開立發票。`,
     example: '0',
   })
+  @IsDefined()
   @IsNotEmpty()
   @IsNumberString()
+  @Matches(/^(?:\d|1[0-5])$/)
   @Length(1, 2)
-  @Matches(/^(?:\d|1[0-5])$/, {
-    message: 'DelayDay 必須為 0~15 的數字字串',
-  })
   DelayDay: string;
 
   @ApiProperty({
@@ -220,11 +232,10 @@ export class InvoiceEcpayDto {
 特種稅額: 08`,
     example: '07',
   })
+  @IsDefined()
   @IsNotEmpty()
   @IsNumberString()
   @Length(2, 2)
-  @Matches(/^(?:07|08)$/, {
-    message: 'InvType 必須是 "07" 或 "08"',
-  })
+  @Matches(/^(?:07|08)$/)
   InvType: string;
 }
