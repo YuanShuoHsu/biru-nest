@@ -200,7 +200,7 @@ export class BaseEcpayDto {
   @ValidateIf(({ Language }) => Language !== '')
   @IsString()
   @Length(3, 3)
-  @Matches(/^(ENG|JPN|KOR|CHI)?$/)
+  @Matches(/^(ENG|JPN|KOR|CHI)$/)
   Language?: string;
 
   @ApiPropertyOptional({
