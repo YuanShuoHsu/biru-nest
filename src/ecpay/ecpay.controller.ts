@@ -9,6 +9,7 @@ export class EcpayController {
 
   @Post()
   create(@Body() createEcpayDto: CreateEcpayDto) {
+    console.log(createEcpayDto);
     return this.ecpayService.aioCheckOutAll(createEcpayDto);
   }
 

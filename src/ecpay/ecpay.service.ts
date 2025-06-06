@@ -53,6 +53,9 @@ export class EcpayService {
       CustomField2,
       CustomField3,
       CustomField4,
+      Language,
+      BidingCard,
+      MerchantMemberID,
     },
     invoice: {
       RelateNumber,
@@ -98,6 +101,9 @@ export class EcpayService {
       CustomField2,
       CustomField3,
       CustomField4,
+      Language,
+      BidingCard,
+      MerchantMemberID,
     };
 
     const inv_params: EcpayInvParams = {
