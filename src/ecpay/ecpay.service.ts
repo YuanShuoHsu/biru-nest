@@ -7,7 +7,7 @@ import {
   EcpayOptions,
 } from 'ecpay_aio_nodejs';
 
-import * as EcpayPayment from 'ecpay_aio_nodejs';
+import * as ECPayPayment from 'ecpay_aio_nodejs';
 
 import { CreateEcpayDto } from './dto/create-ecpay.dto';
 import { ReturnEcpayDto } from './dto/return-ecpay.dto';
@@ -131,7 +131,7 @@ export class EcpayService {
       InvType,
     };
 
-    const create = new EcpayPayment(this.options);
+    const create = new ECPayPayment(this.options);
     const html = create.payment_client.aio_check_out_all(
       base_param,
       inv_params,
@@ -143,7 +143,7 @@ export class EcpayService {
     CheckMacValue,
     ...data
   }: ReturnEcpayDto): '1|OK' | '0|FAIL' {
-    const create = new EcpayPayment(this.options);
+    const create = new ECPayPayment(this.options);
     const checkValue = create.payment_client.helper.gen_chk_mac_value(data);
 
     return checkValue === CheckMacValue ? '1|OK' : '0|FAIL';

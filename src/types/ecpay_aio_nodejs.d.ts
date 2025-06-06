@@ -69,7 +69,7 @@ declare module 'ecpay_aio_nodejs' {
     InvType: string;
   }
 
-  class EcpayPayment {
+  class ECPayPayment {
     constructor(options: EcpayOptions);
 
     payment_client: {
@@ -83,5 +83,5 @@ declare module 'ecpay_aio_nodejs' {
     };
   }
 
-  export = EcpayPayment;
+  export = ECPayPayment;
 }
