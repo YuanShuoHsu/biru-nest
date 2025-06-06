@@ -12,7 +12,7 @@ async function bootstrap() {
 
   app.useGlobalPipes(
     new ValidationPipe({
-      disableErrorMessages: true,
+      forbidNonWhitelisted: true,
       transform: true,
       whitelist: true,
     }),
@@ -21,6 +21,10 @@ async function bootstrap() {
   app.setGlobalPrefix('api');
 
   const config = new DocumentBuilder()
+    .addGlobalResponse({
+      status: 500,
+      description: 'Internal server error',
+    })
     .setTitle('Biru Coffee NestJS Swagger')
     .setDescription('Biru Coffee API')
     .setVersion('1.0')

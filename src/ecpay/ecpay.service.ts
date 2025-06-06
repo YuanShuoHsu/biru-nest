@@ -1,11 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
-import ECPayPayment, {
+import {
   EcpayBaseParams,
   EcpayInvParams,
   EcpayOptions,
 } from 'ecpay_aio_nodejs';
+
+import * as EcpayPayment from 'ecpay_aio_nodejs';
 
 import { CreateEcpayDto } from './dto/create-ecpay.dto';
 import { ReturnEcpayDto } from './dto/return-ecpay.dto';
@@ -54,13 +56,9 @@ export class EcpayService {
     },
     invoice: {
       RelateNumber,
-      CustomerName,
-      InvoiceItemName,
-      InvoiceItemCount,
-      InvoiceItemWord,
-      InvoiceItemPrice,
-      InvoiceItemTaxType,
+      CustomerID,
       CustomerIdentifier,
+      CustomerName,
       CustomerAddr,
       CustomerPhone,
       CustomerEmail,
@@ -71,6 +69,11 @@ export class EcpayService {
       Donation,
       LoveCode,
       Print,
+      InvoiceItemName,
+      InvoiceItemCount,
+      InvoiceItemWord,
+      InvoiceItemPrice,
+      InvoiceItemTaxType,
       InvoiceRemark,
       DelayDay,
       InvType,
@@ -99,13 +102,9 @@ export class EcpayService {
 
     const inv_params: EcpayInvParams = {
       RelateNumber,
-      CustomerName,
-      InvoiceItemName,
-      InvoiceItemCount,
-      InvoiceItemWord,
-      InvoiceItemPrice,
-      InvoiceItemTaxType,
+      CustomerID,
       CustomerIdentifier,
+      CustomerName,
       CustomerAddr,
       CustomerPhone,
       CustomerEmail,
@@ -116,17 +115,21 @@ export class EcpayService {
       Donation,
       LoveCode,
       Print,
+      InvoiceItemName,
+      InvoiceItemCount,
+      InvoiceItemWord,
+      InvoiceItemPrice,
+      InvoiceItemTaxType,
       InvoiceRemark,
       DelayDay,
       InvType,
     };
 
-    const create = new ECPayPayment(this.options);
+    const create = new EcpayPayment(this.options);
     const html = create.payment_client.aio_check_out_all(
       base_param,
       inv_params,
     );
-
     return html;
   }
 
@@ -134,7 +137,7 @@ export class EcpayService {
     CheckMacValue,
     ...data
   }: ReturnEcpayDto): '1|OK' | '0|FAIL' {
-    const create = new ECPayPayment(this.options);
+    const create = new EcpayPayment(this.options);
     const checkValue = create.payment_client.helper.gen_chk_mac_value(data);
 
     return checkValue === CheckMacValue ? '1|OK' : '0|FAIL';
