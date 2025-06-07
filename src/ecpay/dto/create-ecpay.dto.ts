@@ -1,15 +1,16 @@
-// src/ecpay/dto/create-ecpay.dto.ts
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, PartialType } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsNotEmptyObject, ValidateNested } from 'class-validator';
 import { BaseEcpayDto } from './base-ecpay.dto';
+
+class PartialBaseEcpayDto extends PartialType(BaseEcpayDto) {}
 
 export class CreateEcpayDto {
   @ApiProperty({ type: BaseEcpayDto })
   @IsNotEmptyObject()
   @ValidateNested()
-  @Type(() => BaseEcpayDto)
-  base: BaseEcpayDto;
+  @Type(() => PartialBaseEcpayDto)
+  base: PartialBaseEcpayDto;
 
   // @ApiProperty({ type: InvoiceEcpayDto })
   // @IsNotEmptyObject()
