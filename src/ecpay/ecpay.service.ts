@@ -76,6 +76,7 @@ export class EcpayService {
       PaymentType: 'aio',
       EncryptType: '1',
       ReturnURL: this.returnUrl,
+      ChoosePayment: 'ALL',
       ClientBackURL: this.clientBackUrl,
       OrderResultURL: this.orderResultUrl,
       ...base,
