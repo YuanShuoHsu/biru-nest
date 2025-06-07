@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Header, Post } from '@nestjs/common';
 import { CreateEcpayDto } from './dto/create-ecpay.dto';
 import { EcpayService } from './ecpay.service';
 
@@ -7,6 +7,7 @@ export class EcpayController {
   constructor(private readonly ecpayService: EcpayService) {}
 
   @Post()
+  @Header('Content-Type', 'text/html; charset=utf-8')
   create(@Body() createEcpayDto: CreateEcpayDto) {
     return this.ecpayService.aioCheckOutAll(createEcpayDto);
   }

@@ -70,7 +70,6 @@ export class EcpayService {
     const uuid = uuidv4().replace(/-/g, '').slice(0, 15);
 
     const raw = {
-      ...base,
       MerchantID: this.merchantId,
       MerchantTradeNo: `ecpay${uuid}`,
       MerchantTradeDate: this.getEcpayDateString(),
@@ -79,6 +78,7 @@ export class EcpayService {
       ReturnURL: this.returnUrl,
       ClientBackURL: this.clientBackUrl,
       OrderResultURL: this.orderResultUrl,
+      ...base,
     };
 
     const payload: Record<string, string> = Object.fromEntries(
