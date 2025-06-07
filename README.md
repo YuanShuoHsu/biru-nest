@@ -158,6 +158,14 @@ pnpm add class-validator class-transformer
 ```bash
 # https://github.com/ECPay/ECPayAIO_Node.js
 pnpm add ecpay_aio_nodejs
+
+```
+
+## uuid
+
+```bash
+# https://github.com/uuidjs/uuid
+pnpm add uuid
 ```
 
 <p align="center">
