@@ -18,6 +18,12 @@ const getEcpayApiUrl = (mode: EcpayMode): string => {
   return map[mode];
 };
 
+const toStringRecord = (input: Record<string, any>): Record<string, string> => {
+  return Object.fromEntries(
+    Object.entries(input).map(([key, val]) => [key, String(val)]),
+  );
+};
+
 @Injectable()
 export class EcpayService {
   private readonly merchantId: string;
@@ -93,9 +99,7 @@ export class EcpayService {
       ...base,
     };
 
-    const payload: Record<string, string> = Object.fromEntries(
-      Object.entries(raw).map(([key, val]) => [key, String(val)]),
-    );
+    const payload = toStringRecord(raw);
 
     payload.CheckMacValue = this.generateCheckMacValue(payload);
 
@@ -113,7 +117,9 @@ export class EcpayService {
     CheckMacValue,
     ...rest
   }: ReturnEcpayDto): '1|OK' | '0|FAIL' {
-    const checkValue = this.generateCheckMacValue(rest);
+    const payload = toStringRecord(rest);
+
+    const checkValue = this.generateCheckMacValue(payload);
 
     return checkValue === CheckMacValue ? '1|OK' : '0|FAIL';
   }
