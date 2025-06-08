@@ -67,35 +67,28 @@ Hint
 To quickly create a CRUD controller with built-in validation, you can use the CLI's CRUD generator: nest g resource [name].
 ```
 
-## Swagger
+## Configuration
 
 ```bash
-# https://docs.nestjs.com/openapi/introduction
+# https://docs.nestjs.com/techniques/configuration
+pnpm add @nestjs/config
 
-pnpm add @nestjs/swagger
+# app.module.tsJS
+import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 
-import { NestFactory } from '@nestjs/core';
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-import { AppModule } from './app.module';
+@Module({
+  imports: [ConfigModule.forRoot()],
+})
 
-async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+export class AppModule {}
+```
 
-  const config = new DocumentBuilder()
-    .setTitle('Cats example')
-    .setDescription('The cats API description')
-    .setVersion('1.0')
-    .addTag('cats')
-    .build();
-  const documentFactory = () => SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, documentFactory);
+## validation
 
-  await app.listen(process.env.PORT ?? 3000);
-}
-
-void bootstrap();
-
-# http://localhost:3000/api
+```bash
+# https://docs.nestjs.com/techniques/validation
+pnpm add class-validator class-transformer
 ```
 
 ## Helmet
@@ -127,7 +120,53 @@ const app = await NestFactory.create(AppModule, {
 # https://docs.nestjs.com/security/rate-limiting
 pnpm add @nestjs/throttler
 
+app.module.ts
 
+@Module({
+  imports: [
+     ThrottlerModule.forRoot({
+      throttlers: [
+        {
+          ttl: 60000,
+          limit: 10,
+        },
+      ],
+    }),
+  ],
+})
+
+export class AppModule {}
+```
+
+## Swagger
+
+```bash
+# https://docs.nestjs.com/openapi/introduction
+
+pnpm add @nestjs/swagger
+
+import { NestFactory } from '@nestjs/core';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { AppModule } from './app.module';
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+
+  const config = new DocumentBuilder()
+    .setTitle('Cats example')
+    .setDescription('The cats API description')
+    .setVersion('1.0')
+    .addTag('cats')
+    .build();
+  const documentFactory = () => SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api', app, documentFactory);
+
+  await app.listen(process.env.PORT ?? 3000);
+}
+
+void bootstrap();
+
+# http://localhost:3000/api
 ```
 
 ## Global prefix
@@ -138,30 +177,6 @@ pnpm add @nestjs/throttler
 const app = await NestFactory.create(AppModule);
 
 app.setGlobalPrefix('api');
-```
-
-## Configuration
-
-```bash
-# https://docs.nestjs.com/techniques/configuration
-pnpm add @nestjs/config
-
-# app.module.tsJS
-import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
-
-@Module({
-  imports: [ConfigModule.forRoot()],
-})
-
-export class AppModule {}
-```
-
-## validation
-
-```bash
-# https://docs.nestjs.com/techniques/validation
-pnpm add class-validator class-transformer
 ```
 
 ## ECPayAIO_Node.js
