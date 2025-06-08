@@ -94,8 +94,8 @@ export class EcpayService {
 
     return `<form id="ecpayForm" method="POST" action="${this.apiUrl}">
     ${inputs}
-     <button type="submit" >Submit</button>
-    </form>`;
+    </form>
+    <script>document.getElementById('ecpayForm').submit();</script>`;
   }
 
   isCheckMacValueValid({
