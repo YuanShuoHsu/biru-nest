@@ -18,22 +18,20 @@ const getEcpayApiUrl = (mode: EcpayMode): string => {
   return map[mode];
 };
 
-const toStringRecord = (input: Record<string, any>): Record<string, string> => {
-  return Object.fromEntries(
+const toStringRecord = (input: Record<string, any>): Record<string, string> =>
+  Object.fromEntries(
     Object.entries(input).map(([key, val]) => [key, String(val)]),
   );
-};
 
 @Injectable()
 export class EcpayService {
   private readonly merchantId: string;
   private readonly hashKey: string;
   private readonly hashIV: string;
+
   private readonly apiUrl: string;
 
   private readonly returnUrl: string;
-  private readonly clientBackUrl: string;
-  private readonly orderResultUrl: string;
 
   constructor(private readonly configService: ConfigService) {
     this.merchantId = configService.getOrThrow('ECPAY_MERCHANT_ID');
@@ -46,8 +44,6 @@ export class EcpayService {
     this.apiUrl = getEcpayApiUrl(mode);
 
     this.returnUrl = configService.getOrThrow('ECPAY_RETURN_URL');
-    this.clientBackUrl = configService.getOrThrow('ECPAY_CLIENT_BACK_URL');
-    this.orderResultUrl = configService.getOrThrow('ECPAY_ORDER_RESULT_URL');
   }
 
   private getEcpayDateString(): string {
@@ -94,8 +90,6 @@ export class EcpayService {
       EncryptType: '1',
       ReturnURL: this.returnUrl,
       ChoosePayment: 'ALL',
-      ClientBackURL: this.clientBackUrl,
-      OrderResultURL: this.orderResultUrl,
       ...base,
     };
 
