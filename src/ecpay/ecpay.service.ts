@@ -1,8 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+
 import * as crypto from 'crypto';
 import { v4 as uuidv4 } from 'uuid';
+
 import { CreateEcpayDto } from './dto/create-ecpay.dto';
+import { ReturnEcpayDto } from './dto/return-ecpay.dto';
 
 type EcpayMode = 'Test' | 'Production';
 
@@ -109,7 +112,7 @@ export class EcpayService {
   isCheckMacValueValid({
     CheckMacValue,
     ...rest
-  }: Record<string, string>): '1|OK' | '0|FAIL' {
+  }: ReturnEcpayDto): '1|OK' | '0|FAIL' {
     const checkValue = this.generateCheckMacValue(rest);
 
     return checkValue === CheckMacValue ? '1|OK' : '0|FAIL';

@@ -1,19 +1,23 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+
 import {
   IsDefined,
-  IsNumberString,
+  IsIn,
+  IsInt,
+  IsNotEmpty,
+  IsNumber,
   IsOptional,
   IsString,
   Length,
   Matches,
-  ValidateIf,
 } from 'class-validator';
 
 export class ReturnEcpayDto {
   @ApiProperty({ description: '特店編號' })
   @IsDefined()
+  @IsNotEmpty()
   @IsString()
-  @Length(10, 10)
+  @Length(1, 10)
   MerchantID: string;
 
   @ApiProperty({
@@ -21,21 +25,22 @@ export class ReturnEcpayDto {
     訂單產生時傳送給綠界的特店交易編號。`,
   })
   @IsDefined()
+  @IsNotEmpty()
   @IsString()
   @Length(1, 20)
   MerchantTradeNo: string;
 
   @ApiPropertyOptional({ description: '特店旗下店舖代號' })
   @IsOptional()
+  @IsNotEmpty()
   @IsString()
-  @Length(0, 20)
+  @Length(1, 20)
   StoreID?: string;
 
   @ApiProperty({
     description: `交易狀態
     若回傳值為1時，為付款成功
     其餘代碼皆為交易異常，請至廠商管理後台確認後再出貨。
-
     常見交易狀態：
     10300066：「交易付款結果待確認中，請勿出貨」，請至廠商管理後台確認已付款完成再出貨。
     10100248：「拒絕交易，請客戶聯繫發卡行確認原因」
@@ -46,10 +51,8 @@ export class ReturnEcpayDto {
     10100256：「被盜用卡，請客戶更換卡片重新交易」`,
   })
   @IsDefined()
-  @IsNumberString()
-  @Length(1, 8)
-  @Matches(/^\d{1,8}$/)
-  RtnCode: string;
+  @IsInt()
+  RtnCode: number;
 
   @ApiProperty({ description: '交易訊息' })
   @IsDefined()
@@ -68,19 +71,18 @@ export class ReturnEcpayDto {
 
   @ApiProperty({ description: '交易金額' })
   @IsDefined()
-  @IsNumberString()
-  @Length(1, 10)
-  @Matches(/^\d+$/)
-  TradeAmt: string;
+  @IsInt()
+  TradeAmt: number;
 
   @ApiProperty({
     description: `付款時間
     格式為yyyy/MM/dd HH:mm:ss`,
   })
   @IsDefined()
+  @IsNotEmpty()
   @IsString()
   @Length(19, 20)
-  @Matches(/^\d{4}\/\d{2}\/\d{2}\s\d{2}:\d{2}:\d{2}$/)
+  @Matches(/^\d{4}\/\d{2}\/\d{2} \d{2}:\d{2}:\d{2}$/)
   PaymentDate: string;
 
   @ApiProperty({
@@ -88,6 +90,7 @@ export class ReturnEcpayDto {
     請參考回覆付款方式一覽表`,
   })
   @IsDefined()
+  @IsNotEmpty()
   @IsString()
   @Length(1, 20)
   PaymentType: string;
@@ -97,19 +100,18 @@ export class ReturnEcpayDto {
     交易手續費+交易處理費的總金額`,
   })
   @IsDefined()
-  @IsNumberString()
-  @Length(1, 10)
-  @Matches(/^\d+$/)
-  PaymentTypeChargeFee: string;
+  @IsNumber()
+  PaymentTypeChargeFee: number;
 
   @ApiProperty({
     description: `訂單成立時間
     格式為 yyyy/MM/dd HH:mm:ss`,
   })
   @IsDefined()
+  @IsNotEmpty()
   @IsString()
   @Length(19, 20)
-  @Matches(/^\d{4}\/\d{2}\/\d{2}\s\d{2}:\d{2}:\d{2}$/)
+  @Matches(/^\d{4}\/\d{2}\/\d{2} \d{2}:\d{2}:\d{2}$/)
   TradeDate: string;
 
   @ApiPropertyOptional({
@@ -118,7 +120,7 @@ export class ReturnEcpayDto {
   })
   @IsOptional()
   @IsString()
-  @Length(0, 10)
+  @Length(1, 10)
   PlatformID?: string;
 
   @ApiPropertyOptional({
@@ -132,19 +134,18 @@ export class ReturnEcpayDto {
       只有透過廠商後台的定期定額查詢功能發動的模擬付款通知，綠界才會傳送此參數，正常由定期定額排程所發送的付款通知，不會傳送此參數。`,
   })
   @IsOptional()
-  @ValidateIf(({ SimulatePaid }) => SimulatePaid !== '')
-  @IsNumberString()
-  @Length(1, 1)
-  @Matches(/^[01]$/)
-  SimulatePaid?: string;
+  @IsInt()
+  @IsIn([0, 1])
+  SimulatePaid?: number;
 
   @ApiPropertyOptional({
     description: `自訂名稱欄位 1
     提供合作廠商使用記錄用客製化使用欄位`,
   })
   @IsOptional()
+  @IsNotEmpty()
   @IsString()
-  @Length(0, 50)
+  @Length(1, 50)
   CustomField1?: string;
 
   @ApiPropertyOptional({
@@ -152,8 +153,9 @@ export class ReturnEcpayDto {
     提供合作廠商使用記錄用客製化使用欄位`,
   })
   @IsOptional()
+  @IsNotEmpty()
   @IsString()
-  @Length(0, 50)
+  @Length(1, 50)
   CustomField2?: string;
 
   @ApiPropertyOptional({
@@ -161,8 +163,9 @@ export class ReturnEcpayDto {
     提供合作廠商使用記錄用客製化使用欄位`,
   })
   @IsOptional()
+  @IsNotEmpty()
   @IsString()
-  @Length(0, 50)
+  @Length(1, 50)
   CustomField3?: string;
 
   @ApiPropertyOptional({
@@ -170,8 +173,9 @@ export class ReturnEcpayDto {
     提供合作廠商使用記錄用客製化使用欄位`,
   })
   @IsOptional()
+  @IsNotEmpty()
   @IsString()
-  @Length(0, 50)
+  @Length(1, 50)
   CustomField4?: string;
 
   @ApiProperty({
@@ -179,7 +183,7 @@ export class ReturnEcpayDto {
     特店必須檢查檢查碼 [CheckMacValue] 來驗證，請參考附錄檢查碼機制。`,
   })
   @IsDefined()
+  @IsNotEmpty()
   @IsString()
-  @Length(64, 128)
   CheckMacValue: string;
 }

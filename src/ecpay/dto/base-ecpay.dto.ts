@@ -1,4 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+
 import {
   IsDefined,
   IsIn,
@@ -48,7 +49,7 @@ export class BaseEcpayDto {
   @IsDefined()
   @IsNotEmpty()
   @IsString()
-  @Length(1, 20)
+  @Length(19, 20)
   @Matches(/^\d{4}\/\d{2}\/\d{2} \d{2}:\d{2}:\d{2}$/)
   MerchantTradeDate: string;
 
