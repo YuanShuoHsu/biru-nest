@@ -91,6 +91,18 @@ export class AppModule {}
 pnpm add class-validator class-transformer
 ```
 
+## Cookies
+
+```bash
+# https://docs.nestjs.com/techniques/cookies
+pnpm add cookie-parser
+pnpm add -D @types/cookie-parser
+
+import * as cookieParser from 'cookie-parser';
+
+app.use(cookieParser());
+```
+
 ## Helmet
 
 ```bash
