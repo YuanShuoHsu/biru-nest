@@ -4,6 +4,17 @@ import * as crypto from 'crypto';
 import { v4 as uuidv4 } from 'uuid';
 import { CreateEcpayDto } from './dto/create-ecpay.dto';
 
+type EcpayMode = 'Test' | 'Production';
+
+const getEcpayApiUrl = (mode: EcpayMode): string => {
+  const map: Record<EcpayMode, string> = {
+    Test: 'https://payment-stage.ecpay.com.tw/Cashier/AioCheckOut/V5',
+    Production: 'https://payment.ecpay.com.tw/Cashier/AioCheckOut/V5',
+  };
+
+  return map[mode];
+};
+
 @Injectable()
 export class EcpayService {
   private readonly merchantId: string;
@@ -20,13 +31,10 @@ export class EcpayService {
     this.hashKey = configService.getOrThrow('ECPAY_HASH_KEY');
     this.hashIV = configService.getOrThrow('ECPAY_HASH_IV');
 
-    const mode = this.configService.getOrThrow<'Test' | 'Production'>(
+    const mode = this.configService.getOrThrow<EcpayMode>(
       'ECPAY_OPERATION_MODE',
     );
-    this.apiUrl =
-      mode === 'Test'
-        ? 'https://payment-stage.ecpay.com.tw/Cashier/AioCheckOut/V5'
-        : 'https://payment.ecpay.com.tw/Cashier/AioCheckOut/V5';
+    this.apiUrl = getEcpayApiUrl(mode);
 
     this.returnUrl = configService.getOrThrow('ECPAY_RETURN_URL');
     this.clientBackUrl = configService.getOrThrow('ECPAY_CLIENT_BACK_URL');
@@ -67,11 +75,11 @@ export class EcpayService {
   }
 
   aioCheckOutAll({ base }: CreateEcpayDto): string {
-    const uuid = uuidv4().replace(/-/g, '').slice(0, 15);
+    const tradeNo = `ecpay${uuidv4().replace(/-/g, '').slice(0, 15)}`;
 
     const raw = {
       MerchantID: this.merchantId,
-      MerchantTradeNo: `ecpay${uuid}`,
+      MerchantTradeNo: tradeNo,
       MerchantTradeDate: this.getEcpayDateString(),
       PaymentType: 'aio',
       EncryptType: '1',
