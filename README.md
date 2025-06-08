@@ -98,6 +98,17 @@ void bootstrap();
 # http://localhost:3000/api
 ```
 
+## Helmet
+
+```bash
+# https://docs.nestjs.com/security/helmet
+pnpm add helmet
+
+import helmet from 'helmet';
+
+app.use(helmet());
+```
+
 ## CORS
 
 ```bash
