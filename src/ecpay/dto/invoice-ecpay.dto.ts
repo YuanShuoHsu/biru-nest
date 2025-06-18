@@ -1,11 +1,54 @@
 // https://developers.ecpay.com.tw/?p=7896
 
+import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
+import { IsNumber, ValidateNested } from 'class-validator';
+
+export class InvoiceEcpayRequestHeaderDto {
+  @ApiProperty({
+    description: `傳入時間
+    請將傳輸時間轉換為時間戳(GMT+8)，綠界會利用此參數將當下的時間轉為Unix TimeStamp來驗證此次介接的時間區間。
+    注意事項：
+    驗證時間區間暫訂為 10 分鐘內有效，若超過此驗證時間則此次訂單將無法建立，參考資料：http://www.epochconverter.com/。
+    合作特店須進行主機「時間校正」，避免主機產生時差，導致API無法正常運作。`,
+    example: 1718700000,
+  })
+  @IsNumber()
+  Timestamp: number;
+}
+
 export class InvoiceEcpayEncryptedRequestDto {
+  @ApiProperty({
+    description: `特約合作平台商代號
+   這個參數是專為與綠界簽約的指定平台商所設計，只有在申請開通後才能使用。
+   如果您是一般廠商，請在介接時將此參數欄位保留為空。
+   對於平台商，在使用時需要在 MerchantID（特店編號）欄位中填入與您已經完成綁定子廠商的 MerchantID（特定編號）。
+   請注意，只能使用已綁定的子廠商編號，以避免操作失敗。綁定作業請洽所屬業務。`,
+    example: '',
+  })
   PlatformID: string;
+
+  @ApiProperty({
+    description: `特店編號
+    測試環境合作特店編號
+    正式環境金鑰取得`,
+    example: '2000132',
+  })
   MerchantID: string;
-  RqHeader: {
-    Timestamp: number;
-  };
+
+  @ApiProperty({
+    description: '傳入資料',
+    type: () => InvoiceEcpayRequestHeaderDto,
+  })
+  @ValidateNested()
+  @Type(() => InvoiceEcpayRequestHeaderDto)
+  RqHeader: InvoiceEcpayRequestHeaderDto;
+
+  @ApiProperty({
+    description: `加密資料
+    此為加密過JSON格式的資料。加密方法說明`,
+    example: 'ENCRYPTED_URLENCODED_STRING',
+  })
   Data: string;
 }
 

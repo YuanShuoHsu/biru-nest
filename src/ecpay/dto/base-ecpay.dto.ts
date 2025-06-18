@@ -19,7 +19,6 @@ export class BaseEcpayDto {
     測試環境特店編號
     正式環境金鑰取得`,
     example: '3002607',
-    type: String,
   })
   @IsDefined()
   @IsNotEmpty()
@@ -32,7 +31,6 @@ export class BaseEcpayDto {
     特店訂單編號均為唯一值，不可重複使用。
     英數字大小寫混合`,
     example: 'ORD20250607ABCDE1234',
-    type: String,
   })
   @IsDefined()
   @IsNotEmpty()
@@ -44,7 +42,6 @@ export class BaseEcpayDto {
     description: `特店交易時間
     格式為：yyyy/MM/dd HH:mm:ss`,
     example: '2025/06/07 15:00:00',
-    type: String,
   })
   @IsDefined()
   @IsNotEmpty()
@@ -57,7 +54,6 @@ export class BaseEcpayDto {
     description: `交易類型
     請固定填入 aio`,
     example: 'aio',
-    type: String,
   })
   @IsDefined()
   @IsNotEmpty()
@@ -71,7 +67,6 @@ export class BaseEcpayDto {
     請帶整數，不可有小數點。
     僅限新台幣`,
     example: 100,
-    type: Number,
   })
   @IsDefined()
   @IsInt()
@@ -81,7 +76,6 @@ export class BaseEcpayDto {
     description: `交易描述
     請勿帶入特殊字元。`,
     example: '商品訂購',
-    type: String,
   })
   @IsDefined()
   @IsNotEmpty()
@@ -94,7 +88,6 @@ export class BaseEcpayDto {
     如果商品名稱有多筆，需在金流選擇頁一行一行顯示商品名稱的話，商品名稱請以符號 # 分隔。
     商品名稱字數限制為中英數 400 字內，超過此限制系統將自動截斷。 詳細的使用注意事項請參考 FAQ。`,
     example: '商品A#商品B',
-    type: String,
   })
   @IsDefined()
   @IsNotEmpty()
@@ -112,7 +105,6 @@ export class BaseEcpayDto {
     1|OK 僅是廠商回應綠界是否收到通知，並不會改變付款狀態。
     參數內容若有包含 %26(&) 及 %3C(<) 這二個值時，請先進行 urldecode() 避免呼叫 API 失敗。`,
     example: 'https://your-domain.com/api/ecpay/notify',
-    type: String,
   })
   @IsDefined()
   @IsNotEmpty()
@@ -138,7 +130,6 @@ export class BaseEcpayDto {
     如需要不透過綠界畫面取得 ATM、CVS、BARCODE 的繳費代碼，請參考如何不經過綠界畫面取得 ATM、CVS、BARCODE 的繳費代碼。
     當瀏覽器不為 Safari 時，不會顯示 Apple Pay 付款功能。`,
     example: 'ALL',
-    type: String,
   })
   @IsDefined()
   @IsNotEmpty()
@@ -162,7 +153,6 @@ export class BaseEcpayDto {
     description: `檢查碼
     請參考檢查碼機制`,
     example: '85D927637935683EA756CDEF76498FEB9F5D098A7A1AC4F0CB3B3609A9D4116A',
-    type: String,
   })
   @IsDefined()
   @IsNotEmpty()
@@ -173,7 +163,6 @@ export class BaseEcpayDto {
     description: `CheckMacValue 加密類型
     請固定填入 1，使用 SHA256 加密。`,
     example: 1,
-    type: Number,
   })
   @IsDefined()
   @IsInt()
@@ -184,7 +173,6 @@ export class BaseEcpayDto {
     description: `特店旗下店舖代號
     提供特店填入分店代號使用，僅可用英數字大小寫混合。`,
     example: 'STORE123',
-    type: String,
   })
   @IsOptional()
   @IsNotEmpty()
@@ -203,7 +191,6 @@ export class BaseEcpayDto {
     若導回網址未使用 https 時，部份瀏覽器可能會出現警告訊息。
     參數內容若有包含 %26(&) 及 %3C(<) 這二個值時，請先進行 urldecode() 避免呼叫 API 失敗。`,
     example: 'https://your-domain.com/shop',
-    type: String,
   })
   @IsOptional()
   @IsNotEmpty()
@@ -214,7 +201,6 @@ export class BaseEcpayDto {
   @ApiPropertyOptional({
     description: '商品銷售網址',
     example: 'https://your-domain.com/product/123',
-    type: String,
   })
   @IsOptional()
   @IsNotEmpty()
@@ -225,7 +211,6 @@ export class BaseEcpayDto {
   @ApiPropertyOptional({
     description: '備註欄位',
     example: '活動專用',
-    type: String,
   })
   @IsOptional()
   @IsNotEmpty()
@@ -238,7 +223,6 @@ export class BaseEcpayDto {
     若設定此參數，建立訂單將轉導至綠界訂單成立頁，依設定的付款方式及付款子項目帶入訂單，無法選擇其他付款子項目。請參考付款方式一覽表
     注意事項：因板信銀行會於每月進行例行維護，當遇銀行維護時，將會建立訂單失敗。`,
     example: 'Visa',
-    type: String,
   })
   @IsOptional()
   @IsNotEmpty()
@@ -255,7 +239,6 @@ export class BaseEcpayDto {
     付款結果通知請依 ReturnURL（server端的網址）為主,避免因前端操作或網路問題未收到 OrderResultURL 特店的 client 端（前端）的通知。
     參數內容若有包含 %26(&) 及 %3C(<) 這二個值時，請先進行 urldecode() 避免呼叫 API 失敗。`,
     example: 'https://your-domain.com/ecpay/result',
-    type: String,
   })
   @IsOptional()
   @IsNotEmpty()
@@ -269,7 +252,6 @@ export class BaseEcpayDto {
     若不回傳額外的付款資訊時，參數值請傳：Ｎ；
     若要回傳額外的付款資訊時，參數值請傳：Ｙ ，付款完成後綠界後端會以 POST 方式回傳額外付款資訊到特店的 ReturnURL 與 OrderResultURL。`,
     example: 'N',
-    type: String,
   })
   @IsOptional()
   @IsNotEmpty()
@@ -293,7 +275,6 @@ export class BaseEcpayDto {
     WeiXin：微信支付
     注意事項：綠界付款方式會不斷增加及調整，為避免因新付款方式造成接收付款結果通知失敗，建議串接時付款方式 [ChoosePayment] 固定指定付款方式。`,
     example: 'WebATM#ATM',
-    type: String,
   })
   @IsOptional()
   @IsString()
@@ -304,7 +285,6 @@ export class BaseEcpayDto {
     description: `特約合作平台商代號
     為專案合作的平台商使用。`,
     example: 'PLT123',
-    type: String,
   })
   @IsOptional()
   @IsString()
@@ -315,7 +295,6 @@ export class BaseEcpayDto {
     description: `自訂名稱欄位 1
     提供廠商使用記錄客製化欄位。`,
     example: 'Custom1',
-    type: String,
   })
   @IsOptional()
   @IsNotEmpty()
@@ -327,7 +306,6 @@ export class BaseEcpayDto {
     description: `自訂名稱欄位 2
     提供廠商使用記錄客製化欄位。`,
     example: 'Custom2',
-    type: String,
   })
   @IsOptional()
   @IsNotEmpty()
@@ -339,7 +317,6 @@ export class BaseEcpayDto {
     description: `自訂名稱欄位 3
     提供廠商使用記錄客製化欄位。`,
     example: 'Custom3',
-    type: String,
   })
   @IsOptional()
   @IsNotEmpty()
@@ -351,7 +328,6 @@ export class BaseEcpayDto {
     description: `自訂名稱欄位 4
     提供廠商使用記錄客製化欄位。`,
     example: 'Custom4',
-    type: String,
   })
   @IsOptional()
   @IsNotEmpty()
@@ -367,7 +343,6 @@ export class BaseEcpayDto {
     JPN：日語
     CHI：簡體中文`,
     example: 'ENG',
-    type: String,
   })
   @IsOptional()
   @ValidateIf(({ Language }) => Language !== '')
