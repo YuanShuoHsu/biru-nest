@@ -4,7 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import * as crypto from 'crypto';
 import { v4 as uuidv4 } from 'uuid';
 
-import { CreateEcpayDto } from './dto/create-ecpay.dto';
+import { BaseEcpayDto } from './dto/base-ecpay.dto';
 import { ReturnEcpayDto } from './dto/return-ecpay.dto';
 
 type EcpayMode = 'Test' | 'Production';
@@ -79,10 +79,11 @@ export class EcpayService {
       .toUpperCase();
   }
 
-  aioCheckOutAll({ base }: CreateEcpayDto): string {
+  aioCheckOutAll(dto: BaseEcpayDto): string {
     const tradeNo = `ecpay${uuidv4().replace(/-/g, '').slice(0, 15)}`;
 
     const raw = {
+      ...dto,
       MerchantID: this.merchantId,
       MerchantTradeNo: tradeNo,
       MerchantTradeDate: this.getEcpayDateString(),
@@ -90,7 +91,6 @@ export class EcpayService {
       EncryptType: '1',
       ReturnURL: this.returnUrl,
       ChoosePayment: 'ALL',
-      ...base,
     };
 
     const payload = toStringRecord(raw);

@@ -1,6 +1,6 @@
 import { Body, Controller, Header, Post } from '@nestjs/common';
 
-import { CreateEcpayDto } from './dto/create-ecpay.dto';
+import { BaseEcpayDto } from './dto/base-ecpay.dto';
 import { ReturnEcpayDto } from './dto/return-ecpay.dto';
 import { EcpayService } from './ecpay.service';
 
@@ -10,8 +10,8 @@ export class EcpayController {
 
   @Post()
   @Header('Content-Type', 'text/html; charset=utf-8')
-  create(@Body() createEcpayDto: CreateEcpayDto) {
-    return this.ecpayService.aioCheckOutAll(createEcpayDto);
+  create(@Body() baseEcpayDto: BaseEcpayDto) {
+    return this.ecpayService.aioCheckOutAll(baseEcpayDto);
   }
 
   @Post('return')
