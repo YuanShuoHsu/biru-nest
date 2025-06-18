@@ -191,14 +191,6 @@ const app = await NestFactory.create(AppModule);
 app.setGlobalPrefix('api');
 ```
 
-## ECPayAIO_Node.js
-
-```bash
-# https://github.com/ECPay/ECPayAIO_Node.js
-pnpm add ecpay_aio_nodejs
-
-```
-
 ## uuid
 
 ```bash
