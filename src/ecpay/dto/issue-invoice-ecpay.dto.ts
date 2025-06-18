@@ -4,7 +4,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsNumber, ValidateNested } from 'class-validator';
 
-export class InvoiceEcpayRequestHeaderDto {
+export class IssueInvoiceEcpayEncryptedRequestHeaderDto {
   @ApiProperty({
     description: `傳入時間
     請將傳輸時間轉換為時間戳(GMT+8)，綠界會利用此參數將當下的時間轉為Unix TimeStamp來驗證此次介接的時間區間。
@@ -17,7 +17,7 @@ export class InvoiceEcpayRequestHeaderDto {
   Timestamp: number;
 }
 
-export class InvoiceEcpayEncryptedRequestDto {
+export class IssueInvoiceEcpayEncryptedRequestDto {
   @ApiProperty({
     description: `特約合作平台商代號
    這個參數是專為與綠界簽約的指定平台商所設計，只有在申請開通後才能使用。
@@ -38,11 +38,11 @@ export class InvoiceEcpayEncryptedRequestDto {
 
   @ApiProperty({
     description: '傳入資料',
-    type: () => InvoiceEcpayRequestHeaderDto,
+    type: () => IssueInvoiceEcpayEncryptedRequestHeaderDto,
   })
   @ValidateNested()
-  @Type(() => InvoiceEcpayRequestHeaderDto)
-  RqHeader: InvoiceEcpayRequestHeaderDto;
+  @Type(() => IssueInvoiceEcpayEncryptedRequestHeaderDto)
+  RqHeader: IssueInvoiceEcpayEncryptedRequestHeaderDto;
 
   @ApiProperty({
     description: `加密資料
@@ -52,7 +52,7 @@ export class InvoiceEcpayEncryptedRequestDto {
   Data: string;
 }
 
-export class InvoiceEcpayDecryptedRequestDto {
+export class IssueInvoiceEcpayDecryptedRequestDto {
   MerchantID: string;
   RelateNumber: string;
   ChannelPartner?: string;
@@ -89,7 +89,7 @@ export class InvoiceEcpayDecryptedRequestDto {
   vat?: '0' | '1';
 }
 
-export class InvoiceEcpayEncryptedResponseDto {
+export class IssueInvoiceEcpayEncryptedResponseDto {
   PlatformID: string;
   MerchantID: string;
   RpHeader: {
@@ -100,7 +100,7 @@ export class InvoiceEcpayEncryptedResponseDto {
   Data: string;
 }
 
-export class InvoiceEcpayDecryptedResponseDto {
+export class IssueInvoiceEcpayDecryptedResponseDto {
   RtnCode: number;
   RtnMsg: string;
   InvoiceNo: string;
