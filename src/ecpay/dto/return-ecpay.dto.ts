@@ -104,7 +104,7 @@ export class ReturnEcpayDto {
 
   @ApiProperty({
     description: `付款時間<br>
-    格式為yyyy/MM/dd HH:mm:ss`,
+    格式為 yyyy/MM/dd HH:mm:ss`,
     example: '2024/12/31 12:26:09',
     maxLength: 20,
     minLength: 19,
@@ -173,7 +173,7 @@ export class ReturnEcpayDto {
     </ul>
     注意事項：
     <ol>
-    <li>特店可透過廠商後台來針對單筆訂單模擬綠界回傳付款通知，以方便介接API。</li>
+    <li>特店可透過廠商後台來針對單筆訂單模擬綠界回傳付款通知，以方便介接 API。</li>
     <li>此功能僅只是用於測試 ReturnURL 是否能成功接收，不會改變付款狀態。</li>
     <li>只有透過廠商後台的定期定額查詢功能發動的模擬付款通知，綠界才會傳送此參數，正常由定期定額排程所發送的付款通知，不會傳送此參數。</li>
     </ol>`,
