@@ -1,3 +1,5 @@
+// https://developers.ecpay.com.tw/?p=2878
+
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 import {
@@ -13,7 +15,11 @@ import {
 } from 'class-validator';
 
 export class ReturnEcpayDto {
-  @ApiProperty({ description: '特店編號' })
+  @ApiProperty({
+    description: '特店編號',
+    maxLength: 10,
+    minLength: 1,
+  })
   @IsDefined()
   @IsNotEmpty()
   @IsString()
@@ -23,6 +29,8 @@ export class ReturnEcpayDto {
   @ApiProperty({
     description: `特店交易編號
     訂單產生時傳送給綠界的特店交易編號。`,
+    maxLength: 20,
+    minLength: 1,
   })
   @IsDefined()
   @IsNotEmpty()
@@ -30,7 +38,11 @@ export class ReturnEcpayDto {
   @Length(1, 20)
   MerchantTradeNo: string;
 
-  @ApiPropertyOptional({ description: '特店旗下店舖代號' })
+  @ApiPropertyOptional({
+    description: '特店旗下店舖代號',
+    maxLength: 20,
+    minLength: 1,
+  })
   @IsOptional()
   @IsNotEmpty()
   @IsString()
@@ -54,7 +66,7 @@ export class ReturnEcpayDto {
   @IsInt()
   RtnCode: number;
 
-  @ApiProperty({ description: '交易訊息' })
+  @ApiProperty({ description: '交易訊息', maxLength: 200, minLength: 1 })
   @IsDefined()
   @IsString()
   @Length(1, 200)
@@ -63,6 +75,8 @@ export class ReturnEcpayDto {
   @ApiProperty({
     description: `綠界的交易編號
     請保存綠界的交易編號與特店交易編號 [MerchantTradeNo] 的關連。`,
+    maxLength: 20,
+    minLength: 1,
   })
   @IsDefined()
   @IsString()
@@ -77,6 +91,8 @@ export class ReturnEcpayDto {
   @ApiProperty({
     description: `付款時間
     格式為yyyy/MM/dd HH:mm:ss`,
+    maxLength: 20,
+    minLength: 19,
   })
   @IsDefined()
   @IsNotEmpty()
@@ -88,6 +104,8 @@ export class ReturnEcpayDto {
   @ApiProperty({
     description: `特店選擇的付款方式
     請參考回覆付款方式一覽表`,
+    maxLength: 20,
+    minLength: 1,
   })
   @IsDefined()
   @IsNotEmpty()
@@ -106,6 +124,8 @@ export class ReturnEcpayDto {
   @ApiProperty({
     description: `訂單成立時間
     格式為 yyyy/MM/dd HH:mm:ss`,
+    maxLength: 20,
+    minLength: 19,
   })
   @IsDefined()
   @IsNotEmpty()
@@ -117,6 +137,8 @@ export class ReturnEcpayDto {
   @ApiPropertyOptional({
     description: `特約合作平台商代號
     為專案合作的平台商使用。`,
+    maxLength: 10,
+    minLength: 1,
   })
   @IsOptional()
   @IsString()
@@ -141,6 +163,8 @@ export class ReturnEcpayDto {
   @ApiPropertyOptional({
     description: `自訂名稱欄位 1
     提供合作廠商使用記錄用客製化使用欄位`,
+    maxLength: 50,
+    minLength: 1,
   })
   @IsOptional()
   @IsNotEmpty()
@@ -151,6 +175,8 @@ export class ReturnEcpayDto {
   @ApiPropertyOptional({
     description: `自訂名稱欄位 2
     提供合作廠商使用記錄用客製化使用欄位`,
+    maxLength: 50,
+    minLength: 1,
   })
   @IsOptional()
   @IsNotEmpty()
@@ -161,6 +187,8 @@ export class ReturnEcpayDto {
   @ApiPropertyOptional({
     description: `自訂名稱欄位 3
     提供合作廠商使用記錄用客製化使用欄位`,
+    maxLength: 50,
+    minLength: 1,
   })
   @IsOptional()
   @IsNotEmpty()
@@ -171,6 +199,8 @@ export class ReturnEcpayDto {
   @ApiPropertyOptional({
     description: `自訂名稱欄位 4
     提供合作廠商使用記錄用客製化使用欄位`,
+    maxLength: 50,
+    minLength: 1,
   })
   @IsOptional()
   @IsNotEmpty()
