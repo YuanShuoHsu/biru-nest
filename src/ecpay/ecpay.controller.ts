@@ -1,6 +1,7 @@
 import { Body, Controller, Header, Post } from '@nestjs/common';
 
 import { BaseEcpayDto } from './dto/base-ecpay.dto';
+import { IssueInvoiceEcpayDecryptedRequestDto } from './dto/issue-invoice-ecpay.dto';
 import { ReturnEcpayDto } from './dto/return-ecpay.dto';
 import { EcpayService } from './ecpay.service';
 
@@ -18,5 +19,14 @@ export class EcpayController {
   return(@Body() returnEcpayDto: ReturnEcpayDto) {
     console.log(returnEcpayDto);
     return this.ecpayService.isCheckMacValueValid(returnEcpayDto);
+  }
+
+  @Post('test')
+  test(
+    @Body()
+    issueInvoiceEcpayDecryptedRequestDto: IssueInvoiceEcpayDecryptedRequestDto,
+  ) {
+    console.log(issueInvoiceEcpayDecryptedRequestDto);
+    return issueInvoiceEcpayDecryptedRequestDto;
   }
 }
