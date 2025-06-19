@@ -56,6 +56,8 @@ export class BaseEcpayDto {
     <li>正式環境金鑰取得</li>
     </ul>`,
     example: '3002607',
+    maxLength: 10,
+    minLength: 1,
   })
   @IsDefined()
   @IsNotEmpty()
@@ -70,6 +72,8 @@ export class BaseEcpayDto {
     <li>英數字大小寫混合</li>
     </ul>`,
     example: 'ORD20250607ABCDE1234',
+    maxLength: 20,
+    minLength: 1,
   })
   @IsDefined()
   @IsNotEmpty()
@@ -81,6 +85,8 @@ export class BaseEcpayDto {
     description: `特店交易時間（必填）<br>
     格式為：yyyy/MM/dd HH:mm:ss`,
     example: '2025/06/07 15:00:00',
+    maxLength: 20,
+    minLength: 19,
   })
   @IsDefined()
   @IsNotEmpty()
@@ -94,6 +100,8 @@ export class BaseEcpayDto {
     請固定填入 aio`,
     enum: BaseEcpayPaymentType,
     example: BaseEcpayPaymentType.AIO,
+    maxLength: 20,
+    minLength: 1,
   })
   @IsDefined()
   @IsNotEmpty()
@@ -118,6 +126,8 @@ export class BaseEcpayDto {
     description: `交易描述（必填）<br>
     請勿帶入特殊字元。`,
     example: '商品訂購',
+    maxLength: 200,
+    minLength: 1,
   })
   @IsDefined()
   @IsNotEmpty()
@@ -132,6 +142,8 @@ export class BaseEcpayDto {
     <li>商品名稱字數限制為中英數 400 字內，超過此限制系統將自動截斷。 詳細的使用注意事項請參考 FAQ。</li>
     </ul>`,
     example: '商品A#商品B',
+    maxLength: 400,
+    minLength: 1,
   })
   @IsDefined()
   @IsNotEmpty()
@@ -153,6 +165,8 @@ export class BaseEcpayDto {
     <li>參數內容若有包含 %26(&) 及 %3C(<) 這二個值時，請先進行 urldecode() 避免呼叫 API 失敗。</li>
     </ol>`,
     example: 'https://your-domain.com/api/ecpay/notify',
+    maxLength: 200,
+    minLength: 1,
   })
   @IsDefined()
   @IsNotEmpty()
@@ -183,6 +197,8 @@ export class BaseEcpayDto {
     </ol>`,
     enum: BaseEcpayChoosePayment,
     example: BaseEcpayChoosePayment.ALL,
+    maxLength: 20,
+    minLength: 1,
   })
   @IsDefined()
   @IsNotEmpty()
@@ -216,6 +232,8 @@ export class BaseEcpayDto {
     description: `特店旗下店舖代號<br>
     提供特店填入分店代號使用，僅可用英數字大小寫混合。`,
     example: 'STORE123',
+    maxLength: 10,
+    minLength: 1,
   })
   @IsOptional()
   @IsNotEmpty()
@@ -236,6 +254,8 @@ export class BaseEcpayDto {
     <li>參數內容若有包含 %26(&) 及 %3C(<) 這二個值時，請先進行 urldecode() 避免呼叫 API 失敗。</li>
     </ol>`,
     example: 'https://your-domain.com/shop',
+    maxLength: 200,
+    minLength: 1,
   })
   @IsOptional()
   @IsNotEmpty()
@@ -246,6 +266,8 @@ export class BaseEcpayDto {
   @ApiPropertyOptional({
     description: '商品銷售網址',
     example: 'https://your-domain.com/product/123',
+    maxLength: 200,
+    minLength: 1,
   })
   @IsOptional()
   @IsNotEmpty()
@@ -256,6 +278,8 @@ export class BaseEcpayDto {
   @ApiPropertyOptional({
     description: '備註欄位',
     example: '活動專用',
+    maxLength: 100,
+    minLength: 1,
   })
   @IsOptional()
   @IsNotEmpty()
@@ -268,6 +292,8 @@ export class BaseEcpayDto {
     若設定此參數，建立訂單將轉導至綠界訂單成立頁，依設定的付款方式及付款子項目帶入訂單，無法選擇其他付款子項目。請參考付款方式一覽表<br>
     注意事項：因板信銀行會於每月進行例行維護，當遇銀行維護時，將會建立訂單失敗。`,
     example: 'Visa',
+    maxLength: 20,
+    minLength: 1,
   })
   @IsOptional()
   @IsNotEmpty()
@@ -286,6 +312,8 @@ export class BaseEcpayDto {
     <li>參數內容若有包含 %26(&) 及 %3C(<) 這二個值時，請先進行 urldecode() 避免呼叫 API 失敗。</li>
     </ol>`,
     example: 'https://your-domain.com/ecpay/result',
+    maxLength: 200,
+    minLength: 1,
   })
   @IsOptional()
   @IsNotEmpty()
@@ -303,6 +331,8 @@ export class BaseEcpayDto {
     注意事項：回傳額外付款資訊參數請參考-額外回傳的參數`,
     enum: BaseEcpayNeedExtraPaidInfo,
     example: BaseEcpayNeedExtraPaidInfo.No,
+    maxLength: 1,
+    minLength: 1,
   })
   @IsOptional()
   @IsNotEmpty()
@@ -328,6 +358,8 @@ export class BaseEcpayDto {
     </ul>
     注意事項：綠界付款方式會不斷增加及調整，為避免因新付款方式造成接收付款結果通知失敗，建議串接時付款方式 [ChoosePayment] 固定指定付款方式。`,
     example: 'WebATM#ATM',
+    maxLength: 100,
+    minLength: 1,
   })
   @IsOptional()
   @IsString()
@@ -338,6 +370,8 @@ export class BaseEcpayDto {
     description: `特約合作平台商代號<br>
     為專案合作的平台商使用。`,
     example: 'PLT123',
+    maxLength: 10,
+    minLength: 1,
   })
   @IsOptional()
   @IsString()
@@ -348,6 +382,8 @@ export class BaseEcpayDto {
     description: `自訂名稱欄位 1<br>
     提供廠商使用記錄客製化欄位。`,
     example: 'Custom1',
+    maxLength: 50,
+    minLength: 1,
   })
   @IsOptional()
   @IsNotEmpty()
@@ -359,6 +395,8 @@ export class BaseEcpayDto {
     description: `自訂名稱欄位 2<br>
     提供廠商使用記錄客製化欄位。`,
     example: 'Custom2',
+    maxLength: 50,
+    minLength: 1,
   })
   @IsOptional()
   @IsNotEmpty()
@@ -370,6 +408,8 @@ export class BaseEcpayDto {
     description: `自訂名稱欄位 3<br>
     提供廠商使用記錄客製化欄位。`,
     example: 'Custom3',
+    maxLength: 50,
+    minLength: 1,
   })
   @IsOptional()
   @IsNotEmpty()
@@ -381,6 +421,8 @@ export class BaseEcpayDto {
     description: `自訂名稱欄位 4<br>
     提供廠商使用記錄客製化欄位。`,
     example: 'Custom4',
+    maxLength: 50,
+    minLength: 1,
   })
   @IsOptional()
   @IsNotEmpty()
@@ -399,6 +441,8 @@ export class BaseEcpayDto {
     </ul>`,
     enum: BaseEcpayLanguage,
     example: BaseEcpayLanguage.ENG,
+    maxLength: 3,
+    minLength: 3,
   })
   @IsOptional()
   @ValidateIf(({ Language }) => Language !== '')
