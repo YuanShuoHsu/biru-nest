@@ -16,13 +16,12 @@ import {
 
 class IssueInvoiceEcpayEncryptedRequestHeaderDto {
   @ApiProperty({
-    description: `傳入時間（必填）<br>
-    請將傳輸時間轉換為時間戳(GMT+8)，綠界會利用此參數將當下的時間轉為 Unix TimeStamp 來驗證此次介接的時間區間。<br>
-    注意事項：
-    <ul>
-    <li>驗證時間區間暫訂為 10 分鐘內有效，若超過此驗證時間則此次訂單將無法建立，參考資料：http://www.epochconverter.com/。</li>
-    <li>合作特店須進行主機「時間校正」，避免主機產生時差，導致API無法正常運作。</li>
-    </ul>`,
+    description: `傳入時間（必填）  
+請將傳輸時間轉換為時間戳（GMT+8），綠界會利用此參數將當下的時間轉為 Unix TimeStamp 來驗證此次介接的時間區間。
+
+注意事項：
+- 驗證時間區間暫訂為 10 分鐘內有效，若超過此驗證時間則此次訂單將無法建立，參考資料：http://www.epochconverter.com/。
+- 合作特店須進行主機「時間校正」，避免主機產生時差，導致 API 無法正常運作。`,
     example: 1525168923,
   })
   @IsDefined()
@@ -33,12 +32,10 @@ class IssueInvoiceEcpayEncryptedRequestHeaderDto {
 export class IssueInvoiceEcpayEncryptedRequestDto {
   @ApiPropertyOptional({
     description: `特約合作平台商代號
-    <ul>
-    <li>這個參數是專為與綠界簽約的指定平台商所設計，只有在申請開通後才能使用。</li>
-    <li>如果您是一般廠商，請在介接時將此參數欄位保留為空。</li>
-    <li>對於平台商，在使用時需要在 MerchantID（特店編號）欄位中填入與您已經完成綁定子廠商的 MerchantID（特定編號）。</li>
-    </ul>
-    請注意，只能使用已綁定的子廠商編號，以避免操作失敗。綁定作業請洽所屬業務。`,
+- 這個參數是專為與綠界簽約的指定平台商所設計，只有在申請開通後才能使用。
+- 如果您是一般廠商，請在介接時將此參數欄位保留為空。
+- 對於平台商，在使用時需要在 MerchantID（特店編號）欄位中填入與您已經完成綁定子廠商的 MerchantID（特定編號）。  
+請注意，只能使用已綁定的子廠商編號，以避免操作失敗。綁定作業請洽所屬業務。`,
     example: '',
     maxLength: 10,
     minLength: 1,
@@ -50,10 +47,8 @@ export class IssueInvoiceEcpayEncryptedRequestDto {
 
   @ApiProperty({
     description: `特店編號（必填）
-    <ul>
-    <li>測試環境合作特店編號</li>
-    <li>正式環境金鑰取得</li>
-    </ul>`,
+- 測試環境合作特店編號
+- 正式環境金鑰取得`,
     example: '2000132',
     maxLength: 10,
     minLength: 1,
@@ -74,8 +69,8 @@ export class IssueInvoiceEcpayEncryptedRequestDto {
   RqHeader: IssueInvoiceEcpayEncryptedRequestHeaderDto;
 
   @ApiProperty({
-    description: `加密資料（必填）<br>
-    此為加密過JSON格式的資料。加密方法說明`,
+    description: `加密資料（必填）  
+此為加密過JSON格式的資料。加密方法說明`,
     example: '加密資料',
   })
   @IsDefined()
@@ -102,14 +97,12 @@ export class IssueInvoiceEcpayDecryptedRequestDto {
   MerchantID: string;
 
   @ApiProperty({
-    description: `特店自訂編號（必填）<br>
-    需為唯一值不可重複使用<br>
-    注意事項：
-    <ul>
-    <li>請勿使用特殊符號</li>
-    <li>大小寫英文視為相同 (e.g. 123abc456=123ABC456)</li>
-    </ul>
-    `,
+    description: `特店自訂編號（必填）  
+需為唯一值不可重複使用
+
+注意事項：
+- 請勿使用特殊符號
+- 大小寫英文視為相同 (e.g. 123abc456=123ABC456)`,
     example: '20181028000000001',
     maxLength: 50,
     minLength: 1,
@@ -121,9 +114,9 @@ export class IssueInvoiceEcpayDecryptedRequestDto {
   RelateNumber: string;
 
   @ApiPropertyOptional({
-    description: `通路商編號<br>
-    1：蝦皮<br>
-    其餘數值忽略無效`,
+    description: `通路商編號  
+1：蝦皮  
+其餘數值忽略無效`,
     example: '',
     maxLength: 1,
     minLength: 1,
@@ -134,8 +127,8 @@ export class IssueInvoiceEcpayDecryptedRequestDto {
   ChannelPartner?: string;
 
   @ApiPropertyOptional({
-    description: `客戶編號<br>
-    格式為『英文、數字、下底線』等字元`,
+    description: `客戶編號  
+格式為『英文、數字、下底線』等字元`,
     example: '',
     maxLength: 20,
     minLength: 1,
@@ -147,17 +140,13 @@ export class IssueInvoiceEcpayDecryptedRequestDto {
 
   @ApiPropertyOptional({
     description: `產品服務別代號
-    <ul>
-    <li>該參數必須由英文字母（A-Z, a-z）和數字（0-9）組成，其長度必須在 1 到 10 個字符之間。</li>
-    <li>此參數只有在【B2C 系統多組字軌】開關為【啟用】時，帶入值才會進行處理，否則會忽略此參數。如需啟用請洽所屬業務。</li>
-    <li>具體步驟參考如下：
-    <ol>
-    <li>聯繫所屬業務 <啟用> B2C 系統多組字軌功能</li>
-    <li>至廠商後台 <字軌分類管理> 節點，新增商品/服務別，例如 A0001-餐具、A0002-清潔用品，可參考 電子發票系統操作手冊 <字軌分類管理> 章節說明</li>
-    <li>至廠商後台 <字軌與配號設定> 節點，新增字軌配號，可參考 電子發票系統操作手冊 <字軌與配號設定> 章節說明</li>
-    <li>透過開立發票 API，此參數 [ProductServiceID] 帶入先前廠商後台設定的 A0001 或 A0002，即可完成發票開立</li>
-    </ol></li>
-    </ul>`,
+- 該參數必須由英文字母（A-Z, a-z）和數字（0-9）組成，其長度必須在 1 到 10 個字符之間。
+- 此參數只有在【B2C 系統多組字軌】開關為【啟用】時，帶入值才會進行處理，否則會忽略此參數。如需啟用請洽所屬業務。
+- 具體步驟參考如下：
+1. 聯繫所屬業務 <啟用> B2C 系統多組字軌功能
+2. 至廠商後台 <字軌分類管理> 節點，新增商品/服務別，例如 A0001-餐具、A0002-清潔用品，可參考 電子發票系統操作手冊 <字軌分類管理> 章節說明
+3. 至廠商後台 <字軌與配號設定> 節點，新增字軌配號，可參考 電子發票系統操作手冊 <字軌與配號設定> 章節說明
+4. 透過開立發票 API，此參數 [ProductServiceID] 帶入先前廠商後台設定的 A0001 或 A0002，即可完成發票開立`,
     example: '',
     maxLength: 20,
     minLength: 1,
@@ -169,14 +158,12 @@ export class IssueInvoiceEcpayDecryptedRequestDto {
 
   @ApiPropertyOptional({
     description: `統一編號
-    <ul>
-    <li>格式為數字，固定長度為 8 碼</li>
-    <li>根據財政部的最新公告，針對統一編號的檢核方式做了調整。<br>
-    您可以點擊以下連結查看：<br>
-    [財政部財政資訊中心營利事業統一編號檢查碼邏輯修正說明]</li>
-    <li>如未符合上述檢核邏輯，則開立發票、設定交易對象維護資料時將會失敗，請營業人務必提供正確的統一編號</li>
-    <li>只會做格式邏輯檢核，不會去查詢公開資料庫是否存在</li>
-    </ul>`,
+- 格式為數字，固定長度為 8 碼
+- 根據財政部的最新公告，針對統一編號的檢核方式做了調整。  
+您可以點擊以下連結查看：  
+[財政部財政資訊中心營利事業統一編號檢查碼邏輯修正說明]
+- 如未符合上述檢核邏輯，則開立發票、設定交易對象維護資料時將會失敗，請營業人務必提供正確的統一編號
+- 只會做格式邏輯檢核，不會去查詢公開資料庫是否存在`,
     example: '',
     maxLength: 8,
     minLength: 1,
