@@ -4,7 +4,7 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 import {
   IsDefined,
-  IsIn,
+  IsEnum,
   IsInt,
   IsNotEmpty,
   IsOptional,
@@ -14,6 +14,39 @@ import {
   Matches,
   ValidateIf,
 } from 'class-validator';
+
+enum BaseEcpayPaymentType {
+  AIO = 'aio',
+}
+
+enum BaseEcpayChoosePayment {
+  Credit = 'Credit',
+  TWQR = 'TWQR',
+  WebATM = 'WebATM',
+  ATM = 'ATM',
+  CVS = 'CVS',
+  BARCODE = 'BARCODE',
+  ApplePay = 'ApplePay',
+  BNPL = 'BNPL',
+  WeiXin = 'WeiXin',
+  ALL = 'ALL',
+}
+
+enum BaseEcpayEncryptType {
+  SHA256 = 1,
+}
+
+enum BaseEcpayNeedExtraPaidInfo {
+  Yes = 'Y',
+  No = 'N',
+}
+
+enum BaseEcpayLanguage {
+  ENG = 'ENG',
+  KOR = 'KOR',
+  JPN = 'JPN',
+  CHI = 'CHI',
+}
 
 export class BaseEcpayDto {
   @ApiProperty({
@@ -55,14 +88,15 @@ export class BaseEcpayDto {
   @ApiProperty({
     description: `交易類型
     請固定填入 aio`,
-    example: 'aio',
+    enum: BaseEcpayPaymentType,
+    example: BaseEcpayPaymentType.AIO,
   })
   @IsDefined()
   @IsNotEmpty()
   @IsString()
   @Length(1, 20)
-  @IsIn(['aio'])
-  PaymentType: string;
+  @IsEnum(BaseEcpayPaymentType)
+  PaymentType: BaseEcpayPaymentType;
 
   @ApiProperty({
     description: `交易金額
@@ -131,25 +165,15 @@ export class BaseEcpayDto {
     若為手機版時不支援下列付款方式：WebATM
     如需要不透過綠界畫面取得 ATM、CVS、BARCODE 的繳費代碼，請參考如何不經過綠界畫面取得 ATM、CVS、BARCODE 的繳費代碼。
     當瀏覽器不為 Safari 時，不會顯示 Apple Pay 付款功能。`,
-    example: 'ALL',
+    enum: BaseEcpayChoosePayment,
+    example: BaseEcpayChoosePayment.ALL,
   })
   @IsDefined()
   @IsNotEmpty()
   @IsString()
   @Length(1, 20)
-  @IsIn([
-    'Credit',
-    'TWQR',
-    'WebATM',
-    'ATM',
-    'CVS',
-    'BARCODE',
-    'ApplePay',
-    'BNPL',
-    'WeiXin',
-    'ALL',
-  ])
-  ChoosePayment: string;
+  @IsEnum(BaseEcpayChoosePayment)
+  ChoosePayment: BaseEcpayChoosePayment;
 
   @ApiProperty({
     description: `檢查碼
@@ -164,12 +188,13 @@ export class BaseEcpayDto {
   @ApiProperty({
     description: `CheckMacValue 加密類型
     請固定填入 1，使用 SHA256 加密。`,
-    example: 1,
+    enum: BaseEcpayEncryptType,
+    example: BaseEcpayEncryptType.SHA256,
   })
   @IsDefined()
   @IsInt()
-  @IsIn([1])
-  EncryptType: number;
+  @IsEnum(BaseEcpayEncryptType)
+  EncryptType: BaseEcpayEncryptType;
 
   @ApiPropertyOptional({
     description: `特店旗下店舖代號
@@ -253,14 +278,15 @@ export class BaseEcpayDto {
     額外的付款資訊
     若不回傳額外的付款資訊時，參數值請傳：Ｎ；
     若要回傳額外的付款資訊時，參數值請傳：Ｙ ，付款完成後綠界後端會以 POST 方式回傳額外付款資訊到特店的 ReturnURL 與 OrderResultURL。`,
-    example: 'N',
+    enum: BaseEcpayNeedExtraPaidInfo,
+    example: BaseEcpayNeedExtraPaidInfo.No,
   })
   @IsOptional()
   @IsNotEmpty()
   @IsString()
   @Length(1, 1)
-  @IsIn(['Y', 'N'])
-  NeedExtraPaidInfo?: string;
+  @IsEnum(BaseEcpayNeedExtraPaidInfo)
+  NeedExtraPaidInfo?: BaseEcpayNeedExtraPaidInfo;
 
   @ApiPropertyOptional({
     description: `隱藏付款方式
@@ -344,12 +370,13 @@ export class BaseEcpayDto {
     KOR：韓語
     JPN：日語
     CHI：簡體中文`,
-    example: 'ENG',
+    enum: BaseEcpayLanguage,
+    example: BaseEcpayLanguage.ENG,
   })
   @IsOptional()
   @ValidateIf(({ Language }) => Language !== '')
   @IsString()
   @Length(3, 3)
-  @IsIn(['ENG', 'KOR', 'JPN', 'CHI'])
-  Language?: string;
+  @IsEnum(BaseEcpayLanguage)
+  Language?: BaseEcpayLanguage;
 }
