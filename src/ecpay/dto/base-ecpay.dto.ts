@@ -423,8 +423,8 @@ export class BaseEcpayDto {
     minLength: 3,
   })
   @IsOptional()
-  @ValidateIf(({ Language }) => Language !== '')
   @IsString()
+  @ValidateIf((_, value) => value !== '')
   @Length(3, 3)
   @IsEnum(BaseEcpayLanguage)
   Language?: BaseEcpayLanguage;
