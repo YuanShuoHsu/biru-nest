@@ -175,11 +175,9 @@ export class IssueInvoiceEcpayDecryptedRequestDto {
 
   @ApiPropertyOptional({
     description: `客戶名稱
-    <ul>
-    <li>當列印註記 [Print]=1（列印）時，此參數為必填</li>
-    <li>格式為中、英文及數字等。</li>
-    <li>當統一編號 [CustomerIdentifier] 有值時，請帶入相對應的營業人名稱，可參照以下 API 取得多數的對應公司名稱統一編號驗證 API</li>
-    </ul>`,
+- 當列印註記 [Print]=1（列印）時，此參數為必填
+- 格式為中、英文及數字等。
+- 當統一編號 [CustomerIdentifier] 有值時，請帶入相對應的營業人名稱，可參照以下 API 取得多數的對應公司名稱統一編號驗證 API`,
     example: '綠界科技股份有限公司',
     maxLength: 60,
     minLength: 1,
@@ -203,11 +201,8 @@ export class IssueInvoiceEcpayDecryptedRequestDto {
 
   @ApiPropertyOptional({
     description: `客戶手機號碼
-    <ul>
-    <li>當客戶電子信箱[CustomerEmail]為空字串時，為必填。</li>
-    <li>格式為數字</li>
-    </ul>
-    `,
+- 當客戶電子信箱[CustomerEmail]為空字串時，為必填。
+- 格式為數字`,
     example: '',
     maxLength: 20,
     minLength: 1,
