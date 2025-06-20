@@ -5,12 +5,16 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
   IsDefined,
+  IsEmpty,
+  IsEnum,
   IsNotEmpty,
   IsNumber,
+  IsNumberString,
   IsOptional,
   IsString,
   Length,
   Matches,
+  ValidateIf,
   ValidateNested,
 } from 'class-validator';
 
@@ -82,6 +86,30 @@ export class IssueInvoiceEcpayEncryptedRequestDto {
 const ISSUE_INVOICE_ECPAY_CUSTOMER_EMAIL_REGEX =
   // eslint-disable-next-line
   /^((([A-Za-z]|\d|[!#\$%&’\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+(\.([A-Za-z]|\d|[!#\$%&’\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+)*)|((\x22)((((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(([\x01-\x08\x0b\x0c\x0e-\x1f\x7f]|\x21|[\x23-\x5b]|[\x5d-\x7e]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(\\([\x01-\x09\x0b\x0c\x0d-\x7f]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))))*(((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(\x22)))@((([A-Za-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([A-Za-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([A-Za-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([A-Za-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([A-Za-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([A-Za-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([A-Za-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([A-Za-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.?$/u;
+
+enum IssueInvoiceEcpayClearanceMark {
+  Taxable = '1',
+  ZeroTaxRate = '2',
+}
+
+enum IssueInvoiceEcpayPrint {
+  No = '0',
+  Yes = '1',
+}
+
+enum IssueInvoiceEcpayDonation {
+  No = '0',
+  Yes = '1',
+}
+
+enum IssueInvoiceEcpayCarrierType {
+  None = '',
+  EcpayCarrier = '1',
+  Citizen = '2',
+  MobileBarcode = '3',
+  EasyCard = '4',
+  iPass = '5',
+}
 
 export class IssueInvoiceEcpayDecryptedRequestDto {
   @ApiProperty({
@@ -188,8 +216,8 @@ export class IssueInvoiceEcpayDecryptedRequestDto {
   CustomerName?: string;
 
   @ApiPropertyOptional({
-    description: `客戶地址<br>
-    當列印註記 [Print]=1（列印）時，此參數為必填`,
+    description: `客戶地址  
+當列印註記 [Print]=1（列印）時，此參數為必填`,
     example: '106台北市南港區發票一街1號1樓',
     maxLength: 100,
     minLength: 1,
@@ -232,13 +260,175 @@ export class IssueInvoiceEcpayDecryptedRequestDto {
   @Matches(ISSUE_INVOICE_ECPAY_CUSTOMER_EMAIL_REGEX)
   CustomerEmail?: string;
 
-  ClearanceMark?: '1' | '2';
-  Print: '0' | '1';
-  Donation: '0' | '1';
+  @ApiPropertyOptional({
+    description: `通關方式
+- 當課稅類別 [TaxType] 為 2（零稅率）或 9（混合應稅與零稅率）時，為必填  
+1：非經海關出口  
+2：經海關出口`,
+    enum: IssueInvoiceEcpayClearanceMark,
+    example: IssueInvoiceEcpayClearanceMark.Taxable,
+    maxLength: 1,
+    minLength: 1,
+  })
+  @IsOptional()
+  @IsNumberString()
+  @Length(1, 1)
+  @IsEnum(IssueInvoiceEcpayClearanceMark)
+  ClearanceMark?: IssueInvoiceEcpayClearanceMark;
+
+  @ApiProperty({
+    description: `列印註記（必填）  
+0：不列印  
+1：列印
+
+注意事項：
+1. 請注意此參數的意義為註記這張發票之後會被廠商自行印出紙本，綠界上傳財政部時也會提供這個參數讓財政部知道這張發票是被列印成紙本的，並不是指由綠界代為列印與寄送
+2. 當捐贈註記 [Donation]=1（要捐贈），此參數請帶 0
+3. 當統一編號 [CustomerIdentifier] 有值時  
+2.a 載具類別 [CarrierType] 為空值時，此參數請帶 1  
+2.b 載具類別 [CarrierType]=1 或 2 時，此參數請帶 0  
+2.c 載具類別 [CarrierType]=3 時，此參數可帶 0 或 1
+
+注意事項：
+
+超商 KIOSK 事務機列印注意事項（除須向業務申請開通外，請按以下需求帶入參數）
+1. 要列印消費發票（ibon）  
+Print=1，CarrierType=””，CustomerIdentifier=””，Donation=0，只能列印一次（之後中獎也無法再次列印）
+2. 要列印中獎發票（ibon, FamiPort）  
+Print=0，CarrierType=1，CustomerIdentifier=””，Donation=0，只能列印一次
+3. 折讓後發票金額為 0 元，不可列印`,
+    enum: IssueInvoiceEcpayPrint,
+    example: IssueInvoiceEcpayPrint.Yes,
+    maxLength: 1,
+    minLength: 1,
+  })
+  @IsDefined()
+  @IsNumberString()
+  @Length(1, 1)
+  @IsEnum(IssueInvoiceEcpayPrint)
+  Print: IssueInvoiceEcpayPrint;
+
+  @ApiProperty({
+    description: `捐贈註記（必填）  
+0：不捐贈  
+1：捐贈
+
+注意事項：
+1. 當統一編號 [CustomerIdentifier] 有值時，此參數請帶 0
+2. 當載具類別 [CarrierType] 不為空字串且捐贈註記 [Donation]=1 時，代表此張發票開立當下是存在載具內，之後消費者將此張發票進行捐贈成功，所以此張發票最終狀態是捐贈成功`,
+    enum: IssueInvoiceEcpayDonation,
+    example: IssueInvoiceEcpayDonation.No,
+    maxLength: 1,
+    minLength: 1,
+  })
+  @IsDefined()
+  @IsNumberString()
+  @Length(1, 1)
+  @IsEnum(IssueInvoiceEcpayDonation)
+  Donation: IssueInvoiceEcpayDonation;
+
+  @ApiPropertyOptional({
+    description: `捐贈碼
+- 當捐贈註記 [Donation]=1（要捐贈）時，為必填。
+- 格式為阿拉伯數字為限，最少三碼，最多七碼，首位可以為零。
+
+注意事項：使用捐贈碼時，請先呼叫捐贈碼驗證進行檢核，避免輸入錯誤。
+
+推薦捐贈碼 168001  
+OMG 關懷社會愛心基金會  
+成立於 2009 年，希望能集結網友族群的心意，將愛傳遞到社會的每一個角落。  
+本基金會致力於：清寒學生及偏遠學校助學、流浪動物與動物保育議題、老人及弱勢團體、急難救助、人道救援、社會公益活動推廣及廣告贊助…等。`,
+    example: '',
+    maxLength: 7,
+    minLength: 3,
+  })
+  @IsOptional()
+  @IsNumberString()
+  @Length(3, 7)
   LoveCode?: string;
-  CarrierType?: '' | '1' | '2' | '3' | '4' | '5';
+
+  @ApiPropertyOptional({
+    description: `載具類別  
+空字串：無載具  
+1：綠界電子發票載具  
+2：自然人憑證號碼  
+3：手機條碼載具  
+4：悠遊卡  
+5：一卡通
+
+注意事項：
+- 當列印參數 [Print]=1（需列印）且發票含統編時，若同時需存放載具，則僅能使用手機條碼載具（值為 3）；若不使用載具，則請傳入空字串。
+- 當列印註記 [Print]=0（不列印），且統一編號 [CustomerIdentifier] 有值時，此參數不可帶空字串。
+- 只有存在綠界電子發票載具（此參數帶 1）的發票，中獎後才能在 ibon 列印領取必填`,
+    enum: IssueInvoiceEcpayCarrierType,
+    example: IssueInvoiceEcpayCarrierType.None,
+    maxLength: 1,
+    minLength: 1,
+  })
+  @IsOptional()
+  @IsNumberString()
+  @Length(1, 1)
+  @IsEnum(IssueInvoiceEcpayCarrierType)
+  CarrierType?: IssueInvoiceEcpayCarrierType;
+
+  @ApiPropertyOptional({
+    description: `載具編號 
+- 當 [CarrierType]=”” 時，請帶空字串。
+- 當[CarrierType]=1  
+請帶空字串，系統會自動帶入值，為客戶電子信箱或客戶手機號碼擇一（以客戶電子信箱優先），請注意，綠界會重新編碼後產出綠界載具編號。
+- [CarrierType]=2  
+請帶固定長度為 16 且格式為 2 碼大寫英文字母加上 14 碼數字
+- [CarrierType]=3  
+請帶固定長度為 8 碼字元，第 1 碼為【/】; 其餘 7 碼則由數字【0-9】、大寫英文【A-Z】與特殊符號【+】【-】【.】這 39 個字元組成的編號。
+- 當[CarrierType]=4 或 5  
+必填，請帶入實體卡片的 <隱碼id>，不會檢核。
+
+注意事項：
+1. 英文、數字、符號僅接受半形字元，格式錯誤會造成開立失敗
+2. 若為手機條碼載具時，請先呼叫手機條碼驗證進行檢核，一旦手機條碼有誤，會造成發票歸戶失敗。
+3. 針對悠遊卡或一卡通如何取得卡片隱碼（內碼）：您的設備需配備能讀取悠遊卡或一卡通的讀卡機，並確保該設備能讀取卡片內碼
+4. 查詢發票 API，當載具類別為悠遊卡/一卡通，因有資安考量，不會回傳 <隱碼id>`,
+    example: '',
+    maxLength: 64,
+    minLength: 0,
+  })
+  @IsOptional()
+  @IsString()
+  @ValidateIf(({ CarrierType }) => CarrierType === '' || CarrierType === '1')
+  @IsEmpty()
+  @ValidateIf(({ CarrierType }) => CarrierType === '2')
+  @Length(16, 16)
+  @Matches(/^[A-Z]{2}[0-9]{14}$/)
+  @ValidateIf(({ CarrierType }) => CarrierType === '3')
+  @Length(8, 8)
+  @Matches(/^\/[A-Z0-9+\-.]{7}$/)
+  @ValidateIf(({ CarrierType }) => CarrierType === '4' || CarrierType === '5')
+  @Length(1, 64)
   CarrierNum?: string;
+
+  @ApiPropertyOptional({
+    description: `第二載具編號
+- 當 [CarrierType]=4 或 5  
+必填，請帶入實體卡片的 <顯碼id>，以便發票查詢可以顯示用來識別不同的實體卡片，不會檢核。
+- 當 [CarrierType]=不等於 4 或 5 時，此參數不須帶入。
+
+注意事項：
+1. 英文、數字、符號僅接受半形字元，格式錯誤會造成開立失敗
+2. 當 CarrierType 數值為 1、2 或 3 時，請廠商無須填入此欄位，以避免系統阻擋。
+3. 針對悠遊卡或一卡通的顯碼（外碼）指的是卡片上外顯的號碼，用來方便持有卡片者區別不同的實體卡片
+4. 查詢發票 API，會於參數 IIS_Carrier_Num 內回傳 <顯碼id>`,
+    example: '',
+    maxLength: 64,
+    minLength: 0,
+  })
+  @IsOptional()
+  @IsString()
+  @ValidateIf(({ CarrierType }) => CarrierType === '4' || CarrierType === '5')
+  @Length(1, 64)
+  @ValidateIf(({ CarrierType }) => CarrierType !== '4' && CarrierType !== '5')
+  @IsEmpty()
   CarrierNum2?: string;
+
   TaxType: '1' | '2' | '3' | '4' | '9';
   ZeroTaxRateReason?: string;
   SpecialTaxType?: number;
