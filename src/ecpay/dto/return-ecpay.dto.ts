@@ -12,6 +12,7 @@ import {
   IsString,
   Length,
   Matches,
+  ValidateIf,
 } from 'class-validator';
 
 export class ReturnEcpayDto {
@@ -152,12 +153,11 @@ export class ReturnEcpayDto {
   @ApiPropertyOptional({
     description: `特約合作平台商代號  
 為專案合作的平台商使用。`,
-    example: '',
     maxLength: 10,
-    minLength: 1,
   })
   @IsOptional()
   @IsString()
+  @ValidateIf((_, value) => value !== '')
   @Length(1, 10)
   PlatformID?: string;
 

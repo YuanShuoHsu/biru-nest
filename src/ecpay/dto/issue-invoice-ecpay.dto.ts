@@ -7,6 +7,7 @@ import {
   IsDefined,
   IsEmpty,
   IsEnum,
+  IsIn,
   IsNotEmpty,
   IsNumber,
   IsNumberString,
@@ -14,6 +15,8 @@ import {
   IsString,
   Length,
   Matches,
+  Max,
+  Min,
   ValidateIf,
   ValidateNested,
 } from 'class-validator';
@@ -40,12 +43,11 @@ export class IssueInvoiceEcpayEncryptedRequestDto {
 - 如果您是一般廠商，請在介接時將此參數欄位保留為空。
 - 對於平台商，在使用時需要在 MerchantID（特店編號）欄位中填入與您已經完成綁定子廠商的 MerchantID（特定編號）。  
 請注意，只能使用已綁定的子廠商編號，以避免操作失敗。綁定作業請洽所屬業務。`,
-    example: '',
     maxLength: 10,
-    minLength: 1,
   })
   @IsOptional()
   @IsString()
+  @ValidateIf((_, value) => value !== '')
   @Length(1, 10)
   PlatformID?: string;
 
@@ -111,6 +113,37 @@ enum IssueInvoiceEcpayCarrierType {
   iPass = '5',
 }
 
+enum IssueInvoiceEcpayTaxType {
+  Taxable = '1',
+  ZeroRated = '2',
+  Exempted = '3',
+  SpecialTaxable = '4',
+  Mixed = '9',
+}
+
+enum IssueInvoiceEcpayZeroTaxRateReason {
+  ExportGoods = '71',
+  ExportServices = '72',
+  DutyFreeStore = '73',
+  BondedAreaSales = '74',
+  InternationalTransport = '75',
+  ShipAircraftFishing = '76',
+  Maintenance = '77',
+  BondedDirectExport = '78',
+  BondedToWarehouse = '79',
+}
+
+enum IssueInvoiceEcpaySpecialTaxType {
+  Type1 = 1,
+  Type2 = 2,
+  Type3 = 3,
+  Type4 = 4,
+  Type5 = 5,
+  Type6 = 6,
+  Type7 = 7,
+  Type8 = 8,
+}
+
 export class IssueInvoiceEcpayDecryptedRequestDto {
   @ApiProperty({
     description: '特店編號（必填）',
@@ -145,7 +178,6 @@ export class IssueInvoiceEcpayDecryptedRequestDto {
     description: `通路商編號  
 1：蝦皮  
 其餘數值忽略無效`,
-    example: '',
     maxLength: 1,
     minLength: 1,
   })
@@ -159,11 +191,11 @@ export class IssueInvoiceEcpayDecryptedRequestDto {
 格式為『英文、數字、下底線』等字元`,
     example: '',
     maxLength: 20,
-    minLength: 1,
+    minLength: 0,
   })
   @IsOptional()
   @IsString()
-  @Length(1, 20)
+  @Length(0, 20)
   CustomerID?: string;
 
   @ApiPropertyOptional({
@@ -175,7 +207,6 @@ export class IssueInvoiceEcpayDecryptedRequestDto {
 2. 至廠商後台 <字軌分類管理> 節點，新增商品/服務別，例如 A0001-餐具、A0002-清潔用品，可參考 電子發票系統操作手冊 <字軌分類管理> 章節說明
 3. 至廠商後台 <字軌與配號設定> 節點，新增字軌配號，可參考 電子發票系統操作手冊 <字軌與配號設定> 章節說明
 4. 透過開立發票 API，此參數 [ProductServiceID] 帶入先前廠商後台設定的 A0001 或 A0002，即可完成發票開立`,
-    example: '',
     maxLength: 20,
     minLength: 1,
   })
@@ -194,13 +225,15 @@ export class IssueInvoiceEcpayDecryptedRequestDto {
 - 只會做格式邏輯檢核，不會去查詢公開資料庫是否存在`,
     example: '',
     maxLength: 8,
-    minLength: 1,
+    minLength: 0,
   })
   @IsOptional()
   @IsString()
-  @Length(1, 8)
+  @Length(0, 8)
   CustomerIdentifier?: string;
 
+  // 這邊要寫 api
+  // https://developers.ecpay.com.tw/?p=32089
   @ApiPropertyOptional({
     description: `客戶名稱
 - 當列印註記 [Print]=1（列印）時，此參數為必填
@@ -212,6 +245,9 @@ export class IssueInvoiceEcpayDecryptedRequestDto {
   })
   @IsOptional()
   @IsString()
+  @ValidateIf(
+    ({ CustomerIdentifier, Print }) => Print === '1' || !!CustomerIdentifier,
+  )
   @Length(1, 60)
   CustomerName?: string;
 
@@ -417,7 +453,6 @@ OMG 關懷社會愛心基金會
 2. 當 CarrierType 數值為 1、2 或 3 時，請廠商無須填入此欄位，以避免系統阻擋。
 3. 針對悠遊卡或一卡通的顯碼（外碼）指的是卡片上外顯的號碼，用來方便持有卡片者區別不同的實體卡片
 4. 查詢發票 API，會於參數 IIS_Carrier_Num 內回傳 <顯碼id>`,
-    example: '',
     maxLength: 64,
     minLength: 0,
   })
@@ -429,11 +464,110 @@ OMG 關懷社會愛心基金會
   @IsEmpty()
   CarrierNum2?: string;
 
-  TaxType: '1' | '2' | '3' | '4' | '9';
+  @ApiProperty({
+    description: `課稅類別（必填）
+- 當字軌類別 [InvType] 為 07 時，則此欄位請填入 1、2、3 或 9
+- 當字軌類別 [InvType] 為 08 時，則此欄位請填入 3 或 4
+1：應稅。  
+2：零稅率。  
+3：免稅。  
+4：應稅（特種稅率）  
+9：混合應稅與免稅或零稅率，必需通過申請核可。
+- 綠界稅額計算方式  
+一般發票（非混稅、非特種）：  
+（發票金額 / 1.05）* 0.05 並四捨五入至整數  
+混稅發票：  
+（應稅品項小計總和 / 1.05）* 0.05 並四捨五入至整數`,
+    enum: IssueInvoiceEcpayTaxType,
+    example: IssueInvoiceEcpayTaxType.Taxable,
+    maxLength: 1,
+    minLength: 1,
+  })
+  @IsDefined()
+  @IsNumberString()
+  @Length(1, 1)
+  @IsEnum(IssueInvoiceEcpayTaxType)
+  TaxType: IssueInvoiceEcpayTaxType;
+
+  @ApiPropertyOptional({
+    description: `零稅率原因
+- 自 115 年 1 月 1 日起，當課稅類別 [TaxType] 為 2（零稅率）或 9（混合應稅與零稅率）時，此欄位必填或廠商後台必須設定以便程式抓取，否則將會開立失敗，其值如下  
+71：第一款 外銷貨物  
+72：第二款 與外銷有關之勞務，或在國內提供而在國外使用之勞務  
+73：第三款 依法設立之免稅商店銷售與過境或出境旅客之貨物  
+74：第四款 銷售與保稅區營業人供營運之貨物或勞務  
+75：第五款 國際間之運輸。但外國運輸事業在中華民國境內經營國際運輸業務者，應以各該國對中華民國國際運輸事業予以相等待遇或免徵類似稅捐者為限  
+76：第六款 國際運輸用之船舶、航空器及遠洋漁船  
+77：第七款 銷售與國際運輸用之船舶、航空器及遠洋漁船所使用之貨物或修繕勞務  
+78：第八款 保稅區營業人銷售與課稅區營業人未輸往課稅區而直接出口之貨物  
+79：第九款 保稅區營業人銷售與課稅區營業人存入自由港區事業或海關管理之保稅倉庫、物流中心以供外銷之貨物`,
+    enum: IssueInvoiceEcpayZeroTaxRateReason,
+    maxLength: 2,
+    minLength: 2,
+  })
+  @IsOptional()
+  @IsNumberString()
+  @ValidateIf(({ TaxType }) => TaxType === '2' || TaxType === '9')
+  @Length(2, 2)
+  @IsEnum(IssueInvoiceEcpayZeroTaxRateReason)
   ZeroTaxRateReason?: string;
-  SpecialTaxType?: number;
+
+  @ApiPropertyOptional({
+    description: `特種稅額類別
+- 當課稅類別 [TaxType] 為 1 / 2 / 9 時，系統將會自動帶入數字【0】
+- 當課稅類別 [TaxType] 為 3 時，則該參數必填，請填入數字【8】
+- 當課稅類別 [TaxType] 為 4 時，則該參數必填，可填入數字【1-8】
+- 並分別代表以下類別與稅率  
+1：代表酒家及有陪侍服務之茶室、咖啡廳、酒吧之營業稅稅率，稅率為 25 %  
+2：代表夜總會、有娛樂節目之餐飲店之營業稅稅率，稅率為 15 %  
+3：代表銀行業、保險業、信託投資業、證券業、期貨業、票券業及典當業之專屬本業收入（不含銀行業、保險業經營銀行、保險本業收入）之營業稅稅率，稅率為 2 %  
+4：代表保險業之再保費收入之營業稅稅率，稅率為 1 %  
+5：代表銀行業、保險業、信託投資業、證券業、期貨業、票券業及典當業之非專屬本業收入之營業稅稅率，稅率為 5 %  
+6：代表銀行業、保險業經營銀行、保險本業收入之營業稅稅率（適用於民國 103 年 07 月以後銷售額），稅率為 5 %  
+7：代表銀行業、保險業經營銀行、保險本業收入之營業稅稅率（適用於民國 103 年 06 月以前銷售額），稅率為 5 %  
+8：代表空白為免稅或非銷項特種稅額之資料`,
+    enum: IssueInvoiceEcpaySpecialTaxType,
+  })
+  @IsOptional()
+  @IsNumber()
+  @ValidateIf(
+    ({ TaxType }) => TaxType === '1' || TaxType === '2' || TaxType === '9',
+  )
+  @IsEmpty()
+  @ValidateIf(({ TaxType }) => TaxType === '3')
+  @IsIn([IssueInvoiceEcpaySpecialTaxType.Type8])
+  @ValidateIf(({ TaxType }) => TaxType === '4')
+  @IsEnum(IssueInvoiceEcpaySpecialTaxType)
+  SpecialTaxType?: IssueInvoiceEcpaySpecialTaxType;
+
+  @ApiProperty({
+    description: `發票總金額（含稅）（必填）
+- 請帶整數，支援至12位，不可有小數點。
+- 僅限新台幣。`,
+    example: 100,
+    maximum: 999999999999,
+    minimum: 1,
+  })
+  @IsDefined()
+  @IsNumber()
+  @Max(999999999999)
+  @Min(1)
   SalesAmount: number;
+
+  @ApiPropertyOptional({
+    description: `發票備註  
+由於配合 MIG 4.0 改版，  
+系統暫時性限制接受字元長度為 100 字元 – String(100)，  
+將於 Q2 搭配 MIG 4.0 上線後重新恢復支援 200 字元 – String(200)。`,
+    example: '發票備註',
+    maxLength: 200,
+    minLength: 0,
+  })
+  @IsOptional()
+  @IsString()
+  @Length(0, 100)
   InvoiceRemark?: string;
+
   Items: {
     ItemSeq: number;
     ItemName: string;

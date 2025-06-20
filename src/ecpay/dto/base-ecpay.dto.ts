@@ -349,12 +349,12 @@ export class BaseEcpayDto {
   @ApiPropertyOptional({
     description: `特約合作平台商代號  
 為專案合作的平台商使用。`,
-    example: 'PLT123',
+    example: '',
     maxLength: 10,
-    minLength: 1,
   })
   @IsOptional()
   @IsString()
+  @ValidateIf((_, value) => value !== '')
   @Length(1, 10)
   PlatformID?: string;
 
