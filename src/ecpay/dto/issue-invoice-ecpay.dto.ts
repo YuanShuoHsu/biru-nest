@@ -50,8 +50,7 @@ export class IssueInvoiceEcpayEncryptedRequestDto {
   })
   @IsOptional()
   @IsString()
-  @ValidateIf((_, value) => value !== '')
-  @Length(1, 10)
+  @Length(0, 10)
   PlatformID?: string;
 
   @ApiProperty({
@@ -86,6 +85,10 @@ export class IssueInvoiceEcpayEncryptedRequestDto {
   @IsNotEmpty()
   @IsString()
   Data: string;
+}
+
+enum IssueInvoiceEcpayChannelPartner {
+  Shopee = '1',
 }
 
 const ISSUE_INVOICE_ECPAY_CUSTOMER_EMAIL_REGEX =
@@ -246,9 +249,8 @@ class IssueInvoiceEcpayItemDto {
     maxLength: 1,
     minLength: 1,
   })
-  @IsOptional()
-  @IsNumberString()
   @ValidateIf(({ TaxType }) => TaxType === '9')
+  @IsNumberString()
   @Length(1, 1)
   @IsEnum(IssueInvoiceEcpayItemTaxType)
   ItemTaxType?: IssueInvoiceEcpayItemTaxType;
@@ -322,13 +324,15 @@ export class IssueInvoiceEcpayDecryptedRequestDto {
     description: `通路商編號  
 1：蝦皮  
 其餘數值忽略無效`,
+    enum: IssueInvoiceEcpayChannelPartner,
     maxLength: 1,
     minLength: 1,
   })
   @IsOptional()
-  @IsString()
+  @IsNumberString()
   @Length(1, 1)
-  ChannelPartner?: string;
+  @IsEnum(IssueInvoiceEcpayChannelPartner)
+  ChannelPartner?: IssueInvoiceEcpayChannelPartner;
 
   @ApiPropertyOptional({
     description: `客戶編號  
@@ -357,6 +361,7 @@ export class IssueInvoiceEcpayDecryptedRequestDto {
   @IsOptional()
   @IsString()
   @Length(1, 10)
+  @Matches(/^[A-Za-z0-9]+$/)
   ProductServiceID?: string;
 
   @ApiPropertyOptional({
@@ -387,11 +392,10 @@ export class IssueInvoiceEcpayDecryptedRequestDto {
     maxLength: 60,
     minLength: 1,
   })
-  @IsOptional()
-  @IsString()
   @ValidateIf(
     ({ CustomerIdentifier, Print }) => Print === '1' || !!CustomerIdentifier,
   )
+  @IsString()
   @Length(1, 60)
   CustomerName?: string;
 
@@ -402,39 +406,40 @@ export class IssueInvoiceEcpayDecryptedRequestDto {
     maxLength: 100,
     minLength: 1,
   })
-  @IsOptional()
+  @ValidateIf(({ Print }) => Print === '1')
   @IsString()
   @Length(1, 100)
   CustomerAddr?: string;
 
   @ApiPropertyOptional({
     description: `客戶手機號碼
-- 當客戶電子信箱[CustomerEmail]為空字串時，為必填。
+- 當客戶電子信箱 [CustomerEmail] 為空字串時，為必填。
 - 格式為數字`,
     example: '',
     maxLength: 20,
     minLength: 1,
   })
-  @IsOptional()
-  @IsString()
+  @ValidateIf(({ CustomerEmail }) => CustomerEmail === '')
+  @IsNumberString()
   @Length(1, 20)
+  @Matches(/^\d+$/)
   CustomerPhone?: string;
 
   @ApiPropertyOptional({
     description: `客戶電子信箱
-- 當客戶手機號碼[CustomerPhone]為空字串時，為必填。
-- 需為有效的Email格式，且僅可填寫一組Email。
+- 當客戶手機號碼 [CustomerPhone] 為空字串時，為必填。
+- 需為有效的 Email 格式，且僅可填寫一組 Email。
 - 格式檢核正規表達式為：
 
 注意事項：
 - 測試環境請勿帶入之真實電子信箱，避免個資外洩。
-- 測試環境僅作API串接測試使用，僅以API回覆成功或失敗；不提供發信測試，僅驗規則。
+- 測試環境僅作 API 串接測試使用，僅以 API 回覆成功或失敗；不提供發信測試，僅驗規則。
 - 格式檢核正規表達式為：\`\`\`${ISSUE_INVOICE_ECPAY_CUSTOMER_EMAIL_REGEX}\`\`\``,
     example: 'test@ecpay.com.tw',
     maxLength: 80,
     minLength: 1,
   })
-  @IsOptional()
+  @ValidateIf(({ CustomerPhone }) => CustomerPhone === '')
   @IsString()
   @Length(1, 80)
   @Matches(ISSUE_INVOICE_ECPAY_CUSTOMER_EMAIL_REGEX)
@@ -450,7 +455,7 @@ export class IssueInvoiceEcpayDecryptedRequestDto {
     maxLength: 1,
     minLength: 1,
   })
-  @IsOptional()
+  @ValidateIf(({ TaxType }) => TaxType === '2' || TaxType === '9')
   @IsNumberString()
   @Length(1, 1)
   @IsEnum(IssueInvoiceEcpayClearanceMark)
@@ -502,6 +507,7 @@ Print=0，CarrierType=1，CustomerIdentifier=””，Donation=0，只能列印�
     minLength: 1,
   })
   @IsDefined()
+  @IsNotEmpty()
   @IsNumberString()
   @Length(1, 1)
   @IsEnum(IssueInvoiceEcpayDonation)
@@ -543,11 +549,10 @@ OMG 關懷社會愛心基金會
     enum: IssueInvoiceEcpayCarrierType,
     example: IssueInvoiceEcpayCarrierType.None,
     maxLength: 1,
-    minLength: 1,
   })
   @IsOptional()
   @IsNumberString()
-  @Length(1, 1)
+  @Length(0, 1)
   @IsEnum(IssueInvoiceEcpayCarrierType)
   CarrierType?: IssueInvoiceEcpayCarrierType;
 
@@ -628,6 +633,7 @@ OMG 關懷社會愛心基金會
     minLength: 1,
   })
   @IsDefined()
+  @IsNotEmpty()
   @IsNumberString()
   @Length(1, 1)
   @IsEnum(IssueInvoiceEcpayTaxType)
@@ -765,9 +771,8 @@ export class IssueInvoiceEcpayEncryptedResponseDto {
   })
   @IsOptional()
   @IsString()
-  @ValidateIf((_, value) => value !== '')
-  @Length(1, 10)
-  PlatformID: string;
+  @Length(0, 10)
+  PlatformID?: string;
 
   @ApiProperty({
     description: '特店編號',

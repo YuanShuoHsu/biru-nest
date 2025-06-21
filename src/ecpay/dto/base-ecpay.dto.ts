@@ -339,11 +339,10 @@ export class BaseEcpayDto {
 注意事項：綠界付款方式會不斷增加及調整，為避免因新付款方式造成接收付款結果通知失敗，建議串接時付款方式 [ChoosePayment] 固定指定付款方式。`,
     example: 'WebATM#ATM',
     maxLength: 100,
-    minLength: 1,
   })
   @IsOptional()
   @IsString()
-  @Length(1, 100)
+  @Length(0, 100)
   IgnorePayment?: string;
 
   @ApiPropertyOptional({
@@ -354,8 +353,7 @@ export class BaseEcpayDto {
   })
   @IsOptional()
   @IsString()
-  @ValidateIf((_, value) => value !== '')
-  @Length(1, 10)
+  @Length(0, 10)
   PlatformID?: string;
 
   @ApiPropertyOptional({

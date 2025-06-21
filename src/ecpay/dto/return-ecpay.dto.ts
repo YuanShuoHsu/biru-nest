@@ -12,7 +12,6 @@ import {
   IsString,
   Length,
   Matches,
-  ValidateIf,
 } from 'class-validator';
 
 export class ReturnEcpayDto {
@@ -157,8 +156,7 @@ export class ReturnEcpayDto {
   })
   @IsOptional()
   @IsString()
-  @ValidateIf((_, value) => value !== '')
-  @Length(1, 10)
+  @Length(0, 10)
   PlatformID?: string;
 
   @ApiPropertyOptional({
