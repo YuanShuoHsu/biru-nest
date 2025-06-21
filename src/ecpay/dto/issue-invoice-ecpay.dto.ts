@@ -19,7 +19,6 @@ import {
   Length,
   Matches,
   Max,
-  MaxLength,
   Min,
   ValidateIf,
   ValidateNested,
@@ -148,6 +147,22 @@ enum IssueInvoiceEcpaySpecialTaxType {
   Type8 = 8,
 }
 
+enum IssueInvoiceEcpayItemTaxType {
+  Taxable = '1',
+  ZeroRated = '2',
+  Exempt = '3',
+}
+
+enum IssueInvoiceEcpayInvType {
+  CommonTax = '07',
+  SpecialTax = '08',
+}
+
+enum IssueInvoiceEcpayVatType {
+  TaxIncluded = '1',
+  TaxExcluded = '0',
+}
+
 class IssueInvoiceEcpayItemDto {
   @ApiPropertyOptional({
     description: `商品序號  
@@ -222,26 +237,54 @@ class IssueInvoiceEcpayItemDto {
 3：免稅
 
 注意事項：
-當課稅類別[TaxType] = 9時，免稅和零稅率發票不能同時開立。商品課稅類別[ItemTaxType]只能為以下組合:
-(應稅+免稅) 或 (應稅+零稅率)
-當課稅類別[TaxType]不等於9(混稅)時，商品課稅類別[ItemTaxType]無效不需填寫
+- 當課稅類別 [TaxType] = 9 時，免稅和零稅率發票不能同時開立。商品課稅類別 [ItemTaxType] 只能為以下組合：  
+（應稅 + 免稅）或（應稅 + 零稅率）
+- 當課稅類別 [TaxType] 不等於 9（混稅）時，商品課稅類別 [ItemTaxType] 無效不需填寫
 `,
-    enum: ['1', '2', '3'],
-    example: '1',
+    enum: IssueInvoiceEcpayItemTaxType,
+    example: IssueInvoiceEcpayItemTaxType.Taxable,
+    maxLength: 1,
+    minLength: 1,
   })
   @IsOptional()
-  @IsIn(['1', '2', '3'])
-  ItemTaxType?: '1' | '2' | '3';
+  @IsNumberString()
+  @ValidateIf(({ TaxType }) => TaxType === '9')
+  @Length(1, 1)
+  @IsEnum(IssueInvoiceEcpayItemTaxType)
+  ItemTaxType?: IssueInvoiceEcpayItemTaxType;
 
-  @ApiProperty({ description: '商品總金額（含稅）（必填）', example: 200 })
+  @ApiProperty({
+    description: `商品合計（必填）
+- 支援整數 12 位，小數 7 位
+- 此為含稅小計金額
+- 所有商品的 ItemAmount 加總後四捨五入=SalesAmount（含稅）
+
+注意事項：
+- ItemAmount 需統一為含稅金額，且商品金額需符合以下規則：
+1. 當 vat = 1, 且 TaxType = 1：  
+ItemPrice（含稅）* ItemCount = ItemAmount（含稅）  
+ex: 500 * 5 = 2500
+2. 當 vat = 0, 且 TaxType = 1（稅率5%）：  
+ItemPrice（不含稅）* ItemCount * 1.05 = ItemAmount（含稅）
+ex: 500 * 5 * 1.05 = 2625`,
+    example: 50,
+    maximum: 9.99999999999999e11,
+    minimum: 0.0000001,
+  })
   @IsDefined()
-  @IsInt()
+  @IsNumber({ maxDecimalPlaces: 7 })
+  @Max(9.99999999999999e11)
+  @Min(0.0000001)
   ItemAmount: number;
 
-  @ApiPropertyOptional({ description: '商品備註', example: '大杯少冰' })
+  @ApiPropertyOptional({
+    description: '商品備註',
+    example: 'item01_desc',
+    maxLength: 120,
+  })
   @IsOptional()
   @IsString()
-  @MaxLength(100)
+  @Length(0, 120)
   ItemRemark?: string;
 }
 
@@ -681,13 +724,63 @@ OMG 關懷社會愛心基金會
   @ArrayMinSize(1)
   Items: IssueInvoiceEcpayItemDto[];
 
-  InvType: '07' | '08';
-  vat?: '0' | '1';
+  @ApiProperty({
+    description: `字軌類別（必填）  
+- 該張發票的字軌類型  
+07：一般稅額  
+08：特種稅額`,
+    enum: IssueInvoiceEcpayInvType,
+    example: IssueInvoiceEcpayInvType.CommonTax,
+    minLength: 2,
+    maxLength: 2,
+  })
+  @IsDefined()
+  @IsNumberString()
+  @Length(2, 2)
+  @IsEnum(IssueInvoiceEcpayInvType)
+  InvType: IssueInvoiceEcpayInvType;
+
+  @ApiPropertyOptional({
+    description: `商品單價是否含稅  
+- 預設為含稅價  
+1：含稅  
+0：未稅`,
+    enum: IssueInvoiceEcpayVatType,
+    example: IssueInvoiceEcpayVatType.TaxIncluded,
+    minLength: 1,
+    maxLength: 1,
+  })
+  @IsOptional()
+  @IsNumberString()
+  @ValidateIf((_, value) => value !== '')
+  @Length(1, 1)
+  @IsEnum(IssueInvoiceEcpayVatType)
+  vat?: IssueInvoiceEcpayVatType;
 }
 
 export class IssueInvoiceEcpayEncryptedResponseDto {
+  @ApiPropertyOptional({
+    description: `特約合作平台商代號`,
+    maxLength: 10,
+  })
+  @IsOptional()
+  @IsString()
+  @ValidateIf((_, value) => value !== '')
+  @Length(1, 10)
   PlatformID: string;
+
+  @ApiProperty({
+    description: '特店編號',
+    example: '2000132',
+    maxLength: 10,
+    minLength: 1,
+  })
+  @IsDefined()
+  @IsNotEmpty()
+  @IsString()
+  @Length(1, 10)
   MerchantID: string;
+
   RpHeader: {
     Timestamp: number;
   };
