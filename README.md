@@ -103,6 +103,17 @@ import * as cookieParser from 'cookie-parser';
 app.use(cookieParser());
 ```
 
+```bash
+# https://docs.nestjs.com/techniques/http-module
+pnpm add @nestjs/axios axios
+
+@Module({
+  imports: [HttpModule],
+  providers: [CatsService],
+})
+export class CatsModule {}
+```
+
 ## Helmet
 
 ```bash
