@@ -78,6 +78,7 @@ export class ReturnEcpayDto {
     minLength: 1,
   })
   @IsDefined()
+  @IsNotEmpty()
   @IsString()
   @Length(1, 200)
   RtnMsg: string;

@@ -24,7 +24,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 
-class IssueInvoiceEcpayEncryptedRequestRqHeaderDto {
+class IssueInvoiceEcpayEncryptedRequestHeaderDto {
   @ApiProperty({
     description: `傳入時間（必填）  
 請將傳輸時間轉換為時間戳（GMT+8），綠界會利用此參數將當下的時間轉為 Unix TimeStamp 來驗證此次介接的時間區間。
@@ -69,12 +69,12 @@ export class IssueInvoiceEcpayEncryptedRequestDto {
 
   @ApiProperty({
     description: '傳入資料（必填）',
-    type: () => IssueInvoiceEcpayEncryptedRequestRqHeaderDto,
+    type: () => IssueInvoiceEcpayEncryptedRequestHeaderDto,
   })
   @IsDefined()
-  @Type(() => IssueInvoiceEcpayEncryptedRequestRqHeaderDto)
+  @Type(() => IssueInvoiceEcpayEncryptedRequestHeaderDto)
   @ValidateNested()
-  RqHeader: IssueInvoiceEcpayEncryptedRequestRqHeaderDto;
+  RqHeader: IssueInvoiceEcpayEncryptedRequestHeaderDto;
 
   @ApiProperty({
     description: `加密資料（必填）  
@@ -763,7 +763,7 @@ OMG 關懷社會愛心基金會
   vat?: IssueInvoiceEcpayVatType;
 }
 
-class IssueInvoiceEcpayEncryptedResponseRpHeaderDto {
+class IssueInvoiceEcpayEncryptedResponseHeaderDto {
   @ApiProperty({
     description: `回傳時間  
 Unix timestamp(GMT+8)`,
@@ -798,12 +798,12 @@ export class IssueInvoiceEcpayEncryptedResponseDto {
 
   @ApiProperty({
     description: '回傳資料',
-    type: () => IssueInvoiceEcpayEncryptedResponseRpHeaderDto,
+    type: () => IssueInvoiceEcpayEncryptedResponseHeaderDto,
   })
   @IsDefined()
   @ValidateNested()
-  @Type(() => IssueInvoiceEcpayEncryptedResponseRpHeaderDto)
-  RpHeader: IssueInvoiceEcpayEncryptedResponseRpHeaderDto;
+  @Type(() => IssueInvoiceEcpayEncryptedResponseHeaderDto)
+  RpHeader: IssueInvoiceEcpayEncryptedResponseHeaderDto;
 
   @ApiProperty({
     description: `回傳代碼  
@@ -834,9 +834,62 @@ export class IssueInvoiceEcpayEncryptedResponseDto {
 }
 
 export class IssueInvoiceEcpayDecryptedResponseDto {
+  @ApiProperty({
+    description: `回應代碼  
+1 代表 API 執行成功，其餘代碼均為失敗。`,
+    example: 1,
+  })
+  @IsDefined()
+  @IsInt()
   RtnCode: number;
+
+  @ApiProperty({
+    description: '回應訊息',
+    example: '開立發票成功',
+    maxLength: 200,
+    minLength: 1,
+  })
+  @IsDefined()
+  @IsNotEmpty()
+  @IsString()
+  @Length(1, 200)
   RtnMsg: string;
+
+  @ApiProperty({
+    description: `發票號碼
+- 若開立成功，則會回傳一組發票號碼
+- 若開立失敗，則會回傳空值`,
+    example: 'UV11100012',
+    maxLength: 10,
+  })
+  @IsDefined()
+  @IsString()
+  @Length(0, 10)
   InvoiceNo: string;
-  InvoiceDate: string;
-  RandomNumber: string;
+
+  @ApiPropertyOptional({
+    description: `發票開立時間  
+格式為「yyyy-MM-dd HH:mm:ss」或「 yyyy/MM/dd HH:mm:ss」`,
+    example: '2019-09-17 17:17:31',
+    maxLength: 20,
+    minLength: 19,
+  })
+  @IsOptional()
+  @IsString()
+  @Length(19, 20)
+  @Matches(
+    /^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}|\d{4}\/\d{2}\/\d{2} \d{2}:\d{2}:\d{2})$/,
+  )
+  InvoiceDate?: string;
+
+  @ApiPropertyOptional({
+    description: '隨機碼',
+    example: '6866',
+    maxLength: 4,
+    minLength: 4,
+  })
+  @IsOptional()
+  @IsNumberString()
+  @Length(4, 4)
+  RandomNumber?: string;
 }
