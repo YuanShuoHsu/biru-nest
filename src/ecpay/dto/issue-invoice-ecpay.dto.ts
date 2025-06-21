@@ -24,7 +24,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 
-class IssueInvoiceEcpayEncryptedRequestHeaderDto {
+class IssueInvoiceEcpayEncryptedRequestRqHeaderDto {
   @ApiProperty({
     description: `傳入時間（必填）  
 請將傳輸時間轉換為時間戳（GMT+8），綠界會利用此參數將當下的時間轉為 Unix TimeStamp 來驗證此次介接的時間區間。
@@ -69,12 +69,12 @@ export class IssueInvoiceEcpayEncryptedRequestDto {
 
   @ApiProperty({
     description: '傳入資料（必填）',
-    type: () => IssueInvoiceEcpayEncryptedRequestHeaderDto,
+    type: () => IssueInvoiceEcpayEncryptedRequestRqHeaderDto,
   })
   @IsDefined()
-  @Type(() => IssueInvoiceEcpayEncryptedRequestHeaderDto)
+  @Type(() => IssueInvoiceEcpayEncryptedRequestRqHeaderDto)
   @ValidateNested()
-  RqHeader: IssueInvoiceEcpayEncryptedRequestHeaderDto;
+  RqHeader: IssueInvoiceEcpayEncryptedRequestRqHeaderDto;
 
   @ApiProperty({
     description: `加密資料（必填）  
@@ -355,7 +355,7 @@ export class IssueInvoiceEcpayDecryptedRequestDto {
 2. 至廠商後台 <字軌分類管理> 節點，新增商品/服務別，例如 A0001-餐具、A0002-清潔用品，可參考 電子發票系統操作手冊 <字軌分類管理> 章節說明
 3. 至廠商後台 <字軌與配號設定> 節點，新增字軌配號，可參考 電子發票系統操作手冊 <字軌與配號設定> 章節說明
 4. 透過開立發票 API，此參數 [ProductServiceID] 帶入先前廠商後台設定的 A0001 或 A0002，即可完成發票開立`,
-    maxLength: 20,
+    maxLength: 10,
     minLength: 1,
   })
   @IsOptional()
@@ -422,7 +422,6 @@ export class IssueInvoiceEcpayDecryptedRequestDto {
   @ValidateIf(({ CustomerEmail }) => CustomerEmail === '')
   @IsNumberString()
   @Length(1, 20)
-  @Matches(/^\d+$/)
   CustomerPhone?: string;
 
   @ApiPropertyOptional({
@@ -764,6 +763,17 @@ OMG 關懷社會愛心基金會
   vat?: IssueInvoiceEcpayVatType;
 }
 
+class IssueInvoiceEcpayEncryptedResponseRpHeaderDto {
+  @ApiProperty({
+    description: `回傳時間  
+Unix timestamp(GMT+8)`,
+    example: 1525169058,
+  })
+  @IsDefined()
+  @IsNumber()
+  Timestamp: number;
+}
+
 export class IssueInvoiceEcpayEncryptedResponseDto {
   @ApiPropertyOptional({
     description: `特約合作平台商代號`,
@@ -786,11 +796,40 @@ export class IssueInvoiceEcpayEncryptedResponseDto {
   @Length(1, 10)
   MerchantID: string;
 
-  RpHeader: {
-    Timestamp: number;
-  };
+  @ApiProperty({
+    description: '回傳資料',
+    type: () => IssueInvoiceEcpayEncryptedResponseRpHeaderDto,
+  })
+  @IsDefined()
+  @ValidateNested()
+  @Type(() => IssueInvoiceEcpayEncryptedResponseRpHeaderDto)
+  RpHeader: IssueInvoiceEcpayEncryptedResponseRpHeaderDto;
+
+  @ApiProperty({
+    description: `回傳代碼  
+1 代表 API 傳輸資料（MerchantID, RqHeader, Data）接收成功，實際的 API 執行結果狀態請參考 RtnCode。`,
+    example: 1,
+  })
+  @IsInt()
   TransCode: number;
+
+  @ApiProperty({
+    description: '回傳訊息',
+    example: '',
+    maxLength: 200,
+  })
+  @IsString()
+  @Length(0, 200)
   TransMsg: string;
+
+  @ApiProperty({
+    description: `加密資料  
+回傳相關資料，此為加密過 JSON 格式的資料。加密方法說明`,
+    example: '加密資料',
+  })
+  @IsDefined()
+  @IsNotEmpty()
+  @IsString()
   Data: string;
 }
 
