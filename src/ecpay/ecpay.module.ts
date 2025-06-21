@@ -1,8 +1,11 @@
+import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
-import { EcpayService } from './ecpay.service';
+
 import { EcpayController } from './ecpay.controller';
+import { EcpayService } from './ecpay.service';
 
 @Module({
+  imports: [HttpModule],
   controllers: [EcpayController],
   providers: [EcpayService],
 })

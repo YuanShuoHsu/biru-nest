@@ -17,16 +17,11 @@ export class EcpayController {
 
   @Post('return')
   return(@Body() returnEcpayDto: ReturnEcpayDto) {
-    console.log(returnEcpayDto);
     return this.ecpayService.isCheckMacValueValid(returnEcpayDto);
   }
 
-  @Post('test')
-  test(
-    @Body()
-    issueInvoiceEcpayDecryptedRequestDto: IssueInvoiceEcpayDecryptedRequestDto,
-  ) {
-    console.log(issueInvoiceEcpayDecryptedRequestDto);
-    return issueInvoiceEcpayDecryptedRequestDto;
+  @Post('invoice')
+  issueInvoice(@Body() dto: IssueInvoiceEcpayDecryptedRequestDto) {
+    return this.ecpayService.issueInvoice(dto);
   }
 }
