@@ -528,6 +528,7 @@ OMG 關懷社會愛心基金會
     minLength: 3,
   })
   @IsOptional()
+  @ValidateIf((_, value) => value !== '')
   @IsNumberString()
   @Length(3, 7)
   LoveCode?: string;
@@ -550,8 +551,9 @@ OMG 關懷社會愛心基金會
     maxLength: 1,
   })
   @IsOptional()
+  @ValidateIf((_, value) => value !== '')
   @IsNumberString()
-  @Length(0, 1)
+  @Length(1, 1)
   @IsEnum(IssueInvoiceEcpayCarrierType)
   CarrierType?: IssueInvoiceEcpayCarrierType;
 
@@ -579,7 +581,7 @@ OMG 關懷社會愛心基金會
   @IsOptional()
   @IsString()
   @ValidateIf(({ CarrierType }) => CarrierType === '' || CarrierType === '1')
-  @IsEmpty()
+  @Length(0, 0)
   @ValidateIf(({ CarrierType }) => CarrierType === '2')
   @Length(16, 16)
   @Matches(/^[A-Z]{2}[0-9]{14}$/)
