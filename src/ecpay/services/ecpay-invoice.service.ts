@@ -13,9 +13,9 @@ import {
 import { EcpayMode } from '../types/ecpay.types';
 
 const getEcpayInvoiceApiUrl = (mode: EcpayMode): string => {
-  return mode === 'Production'
-    ? 'https://einvoice.ecpay.com.tw/B2CInvoice/Issue'
-    : 'https://einvoice-stage.ecpay.com.tw/B2CInvoice/Issue';
+  return mode === 'Test'
+    ? 'https://einvoice-stage.ecpay.com.tw/B2CInvoice/Issue'
+    : 'https://einvoice.ecpay.com.tw/B2CInvoice/Issue';
 };
 
 @Injectable()

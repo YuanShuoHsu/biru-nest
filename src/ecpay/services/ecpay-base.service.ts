@@ -9,9 +9,9 @@ import { ReturnEcpayDto } from '../dto/return-ecpay.dto';
 import { EcpayMode } from '../types/ecpay.types';
 
 const getEcpayBaseApiUrl = (mode: EcpayMode): string => {
-  return mode === 'Production'
-    ? 'https://payment.ecpay.com.tw/Cashier/AioCheckOut/V5'
-    : 'https://payment-stage.ecpay.com.tw/Cashier/AioCheckOut/V5';
+  return mode === 'Test'
+    ? 'https://payment-stage.ecpay.com.tw/Cashier/AioCheckOut/V5'
+    : 'https://payment.ecpay.com.tw/Cashier/AioCheckOut/V5';
 };
 
 const toStringRecord = (input: Record<string, any>): Record<string, string> =>
