@@ -81,7 +81,7 @@ export class EcpayInvoiceService {
         }),
       );
     } catch (error) {
-      throw new Error(`發票開立失敗：${msg}`);
+      throw new Error(`發票開立失敗：${error}`);
     }
 
     const responseBody = response.data as IssueInvoiceEcpayEncryptedResponseDto;
