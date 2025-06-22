@@ -4,6 +4,7 @@ import { ConfigService } from '@nestjs/config';
 
 import * as crypto from 'crypto';
 import { firstValueFrom } from 'rxjs';
+import { v4 as uuidv4 } from 'uuid';
 
 import {
   IssueInvoiceEcpayDecryptedRequestDto,
@@ -42,71 +43,63 @@ export class EcpayInvoiceService {
   private encryptData(plaintext: string): string {
     const cipher = crypto.createCipheriv(
       'aes-128-cbc',
-      Buffer.from(this.hashKey, 'ascii'),
-      Buffer.from(this.hashIV, 'ascii'),
+      Buffer.from(this.hashKey, 'utf8'),
+      Buffer.from(this.hashIV, 'utf8'),
     );
-    let encrypted = cipher.update(plaintext, 'utf8', 'hex');
-    encrypted += cipher.final('hex');
+    let encrypted = cipher.update(plaintext, 'utf8', 'base64');
+    encrypted += cipher.final('base64');
     return encrypted;
   }
 
-  private decryptData(hexData: string): string {
+  private decryptData(base64Data: string): string {
     const decipher = crypto.createDecipheriv(
       'aes-128-cbc',
-      Buffer.from(this.hashKey, 'ascii'),
-      Buffer.from(this.hashIV, 'ascii'),
+      Buffer.from(this.hashKey, 'utf8'),
+      Buffer.from(this.hashIV, 'utf8'),
     );
-    let decrypted = decipher.update(hexData, 'hex', 'utf8');
+    let decrypted = decipher.update(base64Data, 'base64', 'utf8');
     decrypted += decipher.final('utf8');
     return decrypted;
   }
 
   async issueInvoice(dto: IssueInvoiceEcpayDecryptedRequestDto) {
     const timestamp = Math.floor(Date.now() / 1000);
-    const encrypted = this.encryptData(JSON.stringify(dto));
+
+    const relateNumber = uuidv4().replace(/-/g, '');
+    dto.RelateNumber = relateNumber;
+
+    const plainText = JSON.stringify(dto);
+    const urlEncoded = encodeURIComponent(plainText);
+    const encryptedData = this.encryptData(urlEncoded);
 
     const requestPayload = {
+      // PlatformID: '',
       MerchantID: this.merchantId,
       RqHeader: {
         Timestamp: timestamp,
       },
-      Data: encrypted,
+      Data: encryptedData,
     };
 
-    let response;
-    try {
-      response = await firstValueFrom(
-        this.httpService.post(this.invoiceApiUrl, requestPayload, {
+    const {
+      data: { Data },
+    } = await firstValueFrom(
+      this.httpService.post<IssueInvoiceEcpayEncryptedResponseDto>(
+        this.invoiceApiUrl,
+        requestPayload,
+        {
           headers: { 'Content-Type': 'application/json' },
-        }),
-      );
-    } catch (error) {
-      throw new Error(`發票開立失敗：${error}`);
-    }
+        },
+      ),
+    );
 
-    const responseBody = response.data as IssueInvoiceEcpayEncryptedResponseDto;
-
-    if (responseBody.TransCode !== 1 || !responseBody.Data) {
-      throw new Error('ECPay 發票傳輸失敗');
-    }
-
-    let decrypted: string;
-    try {
-      decrypted = this.decryptData(responseBody.Data);
-    } catch {
-      throw new Error('資料解密失敗');
-    }
-
-    let parsed: IssueInvoiceEcpayDecryptedResponseDto;
-    try {
-      parsed = JSON.parse(decrypted) as IssueInvoiceEcpayDecryptedResponseDto;
-    } catch {
-      throw new Error('解密後資料 JSON 格式錯誤');
-    }
+    const decryptedData = this.decryptData(Data);
+    const urlDecoded = decodeURIComponent(decryptedData);
+    const decryptedPayload: IssueInvoiceEcpayDecryptedResponseDto =
+      JSON.parse(urlDecoded);
 
     return {
-      ...responseBody,
-      Decrypted: parsed,
+      ...decryptedPayload,
     };
   }
 }

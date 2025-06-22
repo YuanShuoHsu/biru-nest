@@ -869,29 +869,31 @@ export class IssueInvoiceEcpayDecryptedResponseDto {
   @Length(0, 10)
   InvoiceNo: string;
 
-  @ApiPropertyOptional({
+  @ApiProperty({
     description: `發票開立時間  
 格式為「yyyy-MM-dd HH:mm:ss」或「 yyyy/MM/dd HH:mm:ss」`,
     example: '2019-09-17 17:17:31',
     maxLength: 20,
     minLength: 19,
   })
-  @IsOptional()
+  @IsDefined()
+  @ValidateIf((_, value) => value !== '')
   @IsString()
   @Length(19, 20)
   @Matches(
     /^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}|\d{4}\/\d{2}\/\d{2} \d{2}:\d{2}:\d{2})$/,
   )
-  InvoiceDate?: string;
+  InvoiceDate: string;
 
-  @ApiPropertyOptional({
+  @ApiProperty({
     description: '隨機碼',
     example: '6866',
     maxLength: 4,
     minLength: 4,
   })
-  @IsOptional()
+  @IsDefined()
+  @ValidateIf((_, value) => value !== '')
   @IsNumberString()
   @Length(4, 4)
-  RandomNumber?: string;
+  RandomNumber: string;
 }
