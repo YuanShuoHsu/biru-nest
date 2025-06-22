@@ -277,12 +277,10 @@ export class BaseEcpayDto {
 注意事項：因板信銀行會於每月進行例行維護，當遇銀行維護時，將會建立訂單失敗。`,
     example: 'Visa',
     maxLength: 20,
-    minLength: 1,
   })
   @IsOptional()
-  @IsNotEmpty()
   @IsString()
-  @Length(1, 20)
+  @Length(0, 20)
   ChooseSubPayment?: string;
 
   @ApiPropertyOptional({
