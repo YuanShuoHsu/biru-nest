@@ -1,7 +1,6 @@
 import { Body, Controller, Header, Post } from '@nestjs/common';
 
 import { BaseEcpayDto } from './dto/base-ecpay.dto';
-import { GetGovInvoiceWordSettingEcpayDecryptedRequestDto } from './dto/get-gov-invoice-word-setting-ecpay.dto';
 import { IssueInvoiceEcpayDecryptedRequestDto } from './dto/issue-invoice-ecpay.dto';
 import { ReturnEcpayDto } from './dto/return-ecpay.dto';
 import { EcpayBaseService } from './services/ecpay-base.service';
@@ -28,12 +27,8 @@ export class EcpayController {
   }
 
   @Post('get-gov-invoice-word-setting')
-  getGovInvoiceWordSetting(
-    @Body() dto: GetGovInvoiceWordSettingEcpayDecryptedRequestDto,
-  ) {
-    return this.ecpayGetGovInvoiceWordSettingService.getGovInvoiceWordSetting(
-      dto,
-    );
+  getGovInvoiceWordSetting() {
+    return this.ecpayGetGovInvoiceWordSettingService.getGovInvoiceWordSetting();
   }
 
   @Post('issue-invoice')

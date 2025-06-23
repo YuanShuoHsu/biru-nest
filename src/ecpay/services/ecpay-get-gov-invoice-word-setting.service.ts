@@ -6,7 +6,6 @@ import { ConfigService } from '@nestjs/config';
 import { firstValueFrom } from 'rxjs';
 
 import {
-  GetGovInvoiceWordSettingEcpayDecryptedRequestDto,
   GetGovInvoiceWordSettingEcpayDecryptedResponseDto,
   GetGovInvoiceWordSettingEcpayEncryptedResponseDto,
 } from '../dto/get-gov-invoice-word-setting-ecpay.dto';
@@ -39,14 +38,13 @@ export class EcpayGetGovInvoiceWordSettingService {
     this.apiUrl = getGovInvoiceWordSettingApiUrl(mode);
   }
 
-  async getGovInvoiceWordSetting(
-    dto: GetGovInvoiceWordSettingEcpayDecryptedRequestDto,
-  ) {
+  async getGovInvoiceWordSetting() {
     const timestamp = Math.floor(Date.now() / 1000);
+    const rocYear = (new Date().getFullYear() - 1911).toString();
 
     const payload = {
-      ...dto,
       MerchantID: this.merchantId,
+      InvoiceYear: rocYear,
     };
 
     const plainText = JSON.stringify(payload);
