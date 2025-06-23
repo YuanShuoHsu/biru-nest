@@ -1,4 +1,3 @@
-// src/ecpay/ecpay-get-gov-invoice-word-setting.service.ts
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -6,24 +5,31 @@ import { ConfigService } from '@nestjs/config';
 import { firstValueFrom } from 'rxjs';
 
 import {
+  AddInvoiceWordSettingEcpayDecryptedResponseDto,
+  AddInvoiceWordSettingEcpayEncryptedResponseDto,
+} from '../dto/add-invoice-word-setting-ecpay.dto';
+import {
   GetGovInvoiceWordSettingEcpayDecryptedResponseDto,
-  GetGovInvoiceWordSettingEcpayEncryptedResponseDto,
+  GetGovInvoiceWordSettingEcpayInvoiceTerm,
+  GetGovInvoiceWordSettingEcpayInvType,
 } from '../dto/get-gov-invoice-word-setting-ecpay.dto';
 import { EcpayMode } from '../types/ecpay.types';
 import { decryptData, encryptData } from '../utils/ecpay';
 
-const getEcpayGetGovInvoiceWordSettingApiUrl = (mode: EcpayMode): string =>
+const getEcpayAddInvoiceWordSettingApiUrl = (mode: EcpayMode): string =>
   mode === 'Test'
-    ? 'https://einvoice-stage.ecpay.com.tw/B2CInvoice/GetGovInvoiceWordSetting'
-    : 'https://einvoice.ecpay.com.tw/B2CInvoice/GetGovInvoiceWordSetting';
+    ? 'https://einvoice-stage.ecpay.com.tw/B2CInvoice/AddInvoiceWordSetting'
+    : 'https://einvoice.ecpay.com.tw/B2CInvoice/AddInvoiceWordSetting';
 
-interface GetGovInvoiceWordSettingParams {
-  timestamp: number;
+interface AddInvoiceWordSettingParams {
+  invoiceInfo: GetGovInvoiceWordSettingEcpayDecryptedResponseDto['InvoiceInfo'];
+  invoiceTerm: GetGovInvoiceWordSettingEcpayInvoiceTerm;
   rocYear: string;
+  timestamp: number;
 }
 
 @Injectable()
-export class EcpayGetGovInvoiceWordSettingService {
+export class EcpayAddInvoiceWordSettingService {
   private readonly merchantId: string;
   private readonly hashKey: string;
   private readonly hashIV: string;
@@ -40,16 +46,32 @@ export class EcpayGetGovInvoiceWordSettingService {
     const mode = this.configService.getOrThrow<EcpayMode>(
       'ECPAY_OPERATION_MODE',
     );
-    this.apiUrl = getEcpayGetGovInvoiceWordSettingApiUrl(mode);
+    this.apiUrl = getEcpayAddInvoiceWordSettingApiUrl(mode);
   }
 
-  async getGovInvoiceWordSetting({
-    timestamp,
+  async addInvoiceWordSetting({
+    invoiceInfo,
+    invoiceTerm,
     rocYear,
-  }: GetGovInvoiceWordSettingParams) {
+    timestamp,
+  }: AddInvoiceWordSettingParams) {
+    const match = invoiceInfo.find(
+      ({ InvoiceTerm, InvType }) =>
+        InvoiceTerm === invoiceTerm &&
+        InvType === GetGovInvoiceWordSettingEcpayInvType.GeneralTax,
+    );
+    if (!match) throw new Error();
+
     const payload = {
       MerchantID: this.merchantId,
+      InvoiceTerm: match.InvoiceTerm,
       InvoiceYear: rocYear,
+      InvType: match.InvType,
+      InvoiceCategory: '1',
+      ProductServiceId: '',
+      InvoiceHeader: match.InvoiceHeader,
+      InvoiceStart: match.InvoiceStart,
+      InvoiceEnd: match.InvoiceEnd,
     };
 
     const plainText = JSON.stringify(payload);
@@ -57,7 +79,7 @@ export class EcpayGetGovInvoiceWordSettingService {
     const encryptedData = encryptData(encodedUrl, this.hashKey, this.hashIV);
 
     const requestPayload = {
-      // PlatformID: '',
+      // PlatformID:'',
       MerchantID: this.merchantId,
       RqHeader: {
         Timestamp: timestamp,
@@ -68,7 +90,7 @@ export class EcpayGetGovInvoiceWordSettingService {
     const {
       data: { Data },
     } = await firstValueFrom(
-      this.httpService.post<GetGovInvoiceWordSettingEcpayEncryptedResponseDto>(
+      this.httpService.post<AddInvoiceWordSettingEcpayEncryptedResponseDto>(
         this.apiUrl,
         requestPayload,
         { headers: { 'Content-Type': 'application/json' } },
@@ -79,7 +101,7 @@ export class EcpayGetGovInvoiceWordSettingService {
     const decodedUrl = decodeURIComponent(decryptedData);
     const decryptedPayload = JSON.parse(
       decodedUrl,
-    ) as GetGovInvoiceWordSettingEcpayDecryptedResponseDto;
+    ) as AddInvoiceWordSettingEcpayDecryptedResponseDto;
 
     return decryptedPayload;
   }

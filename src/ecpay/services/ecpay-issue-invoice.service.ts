@@ -13,7 +13,7 @@ import {
 import { EcpayMode } from '../types/ecpay.types';
 import { decryptData, encryptData } from '../utils/ecpay';
 
-const getIssueInvoiceApiUrl = (mode: EcpayMode): string => {
+const getEcpayIssueInvoiceApiUrl = (mode: EcpayMode): string => {
   return mode === 'Test'
     ? 'https://einvoice-stage.ecpay.com.tw/B2CInvoice/Issue'
     : 'https://einvoice.ecpay.com.tw/B2CInvoice/Issue';
@@ -37,7 +37,7 @@ export class EcpayIssueInvoiceService {
     const mode = this.configService.getOrThrow<EcpayMode>(
       'ECPAY_OPERATION_MODE',
     );
-    this.apiUrl = getIssueInvoiceApiUrl(mode);
+    this.apiUrl = getEcpayIssueInvoiceApiUrl(mode);
   }
 
   async issueInvoice(dto: IssueInvoiceEcpayDecryptedRequestDto) {

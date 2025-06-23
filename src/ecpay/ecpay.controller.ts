@@ -3,6 +3,7 @@ import { Body, Controller, Header, Post } from '@nestjs/common';
 import { BaseEcpayDto } from './dto/base-ecpay.dto';
 import { IssueInvoiceEcpayDecryptedRequestDto } from './dto/issue-invoice-ecpay.dto';
 import { ReturnEcpayDto } from './dto/return-ecpay.dto';
+import { EcpayAddInvoiceWordSettingService } from './services/ecpay-add-invoice-word-setting.service';
 import { EcpayBaseService } from './services/ecpay-base.service';
 import { EcpayGetGovInvoiceWordSettingService } from './services/ecpay-get-gov-invoice-word-setting.service';
 import { EcpayIssueInvoiceService } from './services/ecpay-issue-invoice.service';
@@ -12,6 +13,7 @@ export class EcpayController {
   constructor(
     private readonly ecpayBaseService: EcpayBaseService,
     private readonly ecpayGetGovInvoiceWordSettingService: EcpayGetGovInvoiceWordSettingService,
+    private readonly ecpayAddInvoiceWordSettingService: EcpayAddInvoiceWordSettingService,
     private readonly ecpayIssueInvoiceService: EcpayIssueInvoiceService,
   ) {}
 
@@ -27,8 +29,27 @@ export class EcpayController {
   }
 
   @Post('get-gov-invoice-word-setting')
-  getGovInvoiceWordSetting() {
-    return this.ecpayGetGovInvoiceWordSettingService.getGovInvoiceWordSetting();
+  async getGovInvoiceWordSetting() {
+    const now = new Date();
+    const timestamp = Math.floor(now.getTime() / 1000);
+    const invoiceTerm = Math.floor(now.getMonth() / 2) + 1;
+    const rocYear = (now.getFullYear() - 1911).toString();
+
+    const { InvoiceInfo } =
+      await this.ecpayGetGovInvoiceWordSettingService.getGovInvoiceWordSetting({
+        timestamp,
+        rocYear,
+      });
+
+    const result =
+      await this.ecpayAddInvoiceWordSettingService.addInvoiceWordSetting({
+        invoiceInfo: InvoiceInfo,
+        invoiceTerm,
+        rocYear,
+        timestamp,
+      });
+
+    return result;
   }
 
   @Post('issue-invoice')

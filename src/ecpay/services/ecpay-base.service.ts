@@ -8,7 +8,7 @@ import { BaseEcpayDto } from '../dto/base-ecpay.dto';
 import { ReturnEcpayDto } from '../dto/return-ecpay.dto';
 import { EcpayMode } from '../types/ecpay.types';
 
-const getBaseApiUrl = (mode: EcpayMode): string => {
+const getEcpayBaseApiUrl = (mode: EcpayMode): string => {
   return mode === 'Test'
     ? 'https://payment-stage.ecpay.com.tw/Cashier/AioCheckOut/V5'
     : 'https://payment.ecpay.com.tw/Cashier/AioCheckOut/V5';
@@ -35,7 +35,7 @@ export class EcpayBaseService {
     const mode = this.configService.getOrThrow<EcpayMode>(
       'ECPAY_OPERATION_MODE',
     );
-    this.apiUrl = getBaseApiUrl(mode);
+    this.apiUrl = getEcpayBaseApiUrl(mode);
 
     this.returnUrl = configService.getOrThrow('ECPAY_BASE_RETURN_URL');
   }
