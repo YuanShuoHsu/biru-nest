@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 
 import { EcpayIssueInvoiceService } from './ecpay-issue-invoice.service';
 
-describe('EcpayService', () => {
+describe('EcpayIssueInvoiceService', () => {
   let service: EcpayIssueInvoiceService;
 
   beforeEach(async () => {

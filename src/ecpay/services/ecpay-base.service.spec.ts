@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 
 import { EcpayBaseService } from './ecpay-base.service';
 
-describe('EcpayService', () => {
+describe('EcpayBaseService', () => {
   let service: EcpayBaseService;
 
   beforeEach(async () => {
