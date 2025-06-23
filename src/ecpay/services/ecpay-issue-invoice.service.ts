@@ -20,7 +20,7 @@ const getEcpayInvoiceApiUrl = (mode: EcpayMode): string => {
 };
 
 @Injectable()
-export class EcpayInvoiceService {
+export class EcpayIssueInvoiceService {
   private readonly merchantId: string;
   private readonly hashKey: string;
   private readonly hashIV: string;

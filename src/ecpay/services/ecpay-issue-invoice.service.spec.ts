@@ -1,16 +1,16 @@
 import { Test, TestingModule } from '@nestjs/testing';
 
-import { EcpayInvoiceService } from './ecpay-invoice.service';
+import { EcpayIssueInvoiceService } from './ecpay-issue-invoice.service';
 
 describe('EcpayService', () => {
-  let service: EcpayInvoiceService;
+  let service: EcpayIssueInvoiceService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [EcpayInvoiceService],
+      providers: [EcpayIssueInvoiceService],
     }).compile();
 
-    service = module.get<EcpayInvoiceService>(EcpayInvoiceService);
+    service = module.get<EcpayIssueInvoiceService>(EcpayIssueInvoiceService);
   });
 
   it('should be defined', () => {

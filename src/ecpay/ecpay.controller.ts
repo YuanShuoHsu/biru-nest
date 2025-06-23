@@ -4,13 +4,13 @@ import { BaseEcpayDto } from './dto/base-ecpay.dto';
 import { IssueInvoiceEcpayDecryptedRequestDto } from './dto/issue-invoice-ecpay.dto';
 import { ReturnEcpayDto } from './dto/return-ecpay.dto';
 import { EcpayBaseService } from './services/ecpay-base.service';
-import { EcpayInvoiceService } from './services/ecpay-invoice.service';
+import { EcpayIssueInvoiceService } from './services/ecpay-issue-invoice.service';
 
 @Controller('ecpay')
 export class EcpayController {
   constructor(
     private readonly ecpayBaseService: EcpayBaseService,
-    private readonly ecpayInvoiceService: EcpayInvoiceService,
+    private readonly EcpayIssueInvoiceService: EcpayIssueInvoiceService,
   ) {}
 
   @Post()
@@ -26,6 +26,6 @@ export class EcpayController {
 
   @Post('invoice')
   issueInvoice(@Body() dto: IssueInvoiceEcpayDecryptedRequestDto) {
-    return this.ecpayInvoiceService.issueInvoice(dto);
+    return this.EcpayIssueInvoiceService.issueInvoice(dto);
   }
 }
