@@ -6,6 +6,7 @@ import { Type } from 'class-transformer';
 import {
   ArrayMaxSize,
   ArrayMinSize,
+  IsArray,
   IsDefined,
   IsEmpty,
   IsEnum,
@@ -727,6 +728,8 @@ OMG 關懷社會愛心基金會
   })
   @Type(() => IssueInvoiceEcpayItemDto)
   @ValidateNested({ each: true })
+  @IsDefined()
+  @IsArray()
   @ArrayMaxSize(999)
   @ArrayMinSize(1)
   Items: IssueInvoiceEcpayItemDto[];
@@ -738,8 +741,8 @@ OMG 關懷社會愛心基金會
 08：特種稅額`,
     enum: IssueInvoiceEcpayInvType,
     example: IssueInvoiceEcpayInvType.CommonTax,
-    minLength: 2,
     maxLength: 2,
+    minLength: 2,
   })
   @IsDefined()
   @IsNumberString()
