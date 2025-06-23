@@ -78,7 +78,7 @@ export class IssueInvoiceEcpayEncryptedRequestDto {
 
   @ApiProperty({
     description: `加密資料（必填）  
-此為加密過JSON格式的資料。加密方法說明`,
+此為加密過 JSON 格式的資料。加密方法說明`,
     example: '加密資料',
   })
   @IsDefined()
