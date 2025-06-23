@@ -6,9 +6,9 @@ import { ConfigService } from '@nestjs/config';
 import { firstValueFrom } from 'rxjs';
 
 import {
+  GetGovInvoiceWordSettingEcpayDecryptedRequestDto,
   GetGovInvoiceWordSettingEcpayDecryptedResponseDto,
   GetGovInvoiceWordSettingEcpayEncryptedResponseDto,
-  GetGovInvoiceWordSettingEcpayRequestDto,
 } from '../dto/get-gov-invoice-word-setting-ecpay.dto';
 import { EcpayMode } from '../types/ecpay.types';
 import { decryptData, encryptData } from '../utils/ecpay';
@@ -39,10 +39,17 @@ export class EcpayGetGovInvoiceWordSettingService {
     this.apiUrl = getGovInvoiceWordSettingApiUrl(mode);
   }
 
-  async getGovInvoiceWordSetting(dto: GetGovInvoiceWordSettingEcpayRequestDto) {
+  async getGovInvoiceWordSetting(
+    dto: GetGovInvoiceWordSettingEcpayDecryptedRequestDto,
+  ) {
     const timestamp = Math.floor(Date.now() / 1000);
 
-    const plainText = JSON.stringify(dto);
+    const payload = {
+      ...dto,
+      MerchantID: this.merchantId,
+    };
+
+    const plainText = JSON.stringify(payload);
     const encodedUrl = encodeURIComponent(plainText);
     const encryptedData = encryptData(encodedUrl, this.hashKey, this.hashIV);
 

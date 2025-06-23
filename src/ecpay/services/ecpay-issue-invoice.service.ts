@@ -42,11 +42,15 @@ export class EcpayIssueInvoiceService {
 
   async issueInvoice(dto: IssueInvoiceEcpayDecryptedRequestDto) {
     const timestamp = Math.floor(Date.now() / 1000);
-
     const relateNumber = uuidv4().replace(/-/g, '');
-    dto.RelateNumber = relateNumber;
 
-    const plainText = JSON.stringify(dto);
+    const payload = {
+      ...dto,
+      MerchantID: this.merchantId,
+      RelateNumber: relateNumber,
+    };
+
+    const plainText = JSON.stringify(payload);
     const encodedUrl = encodeURIComponent(plainText);
     const encryptedData = encryptData(encodedUrl, this.hashKey, this.hashIV);
 
