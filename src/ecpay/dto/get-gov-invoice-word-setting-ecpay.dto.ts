@@ -105,7 +105,7 @@ export class GetGovInvoiceWordSettingEcpayDecryptedRequestDto {
   })
   @IsDefined()
   @IsNotEmpty()
-  @IsString()
+  @IsNumberString()
   @Length(3, 3)
   InvoiceYear: string;
 }

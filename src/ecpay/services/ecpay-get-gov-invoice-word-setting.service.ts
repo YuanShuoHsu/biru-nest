@@ -29,15 +29,9 @@ export class EcpayGetGovInvoiceWordSettingService {
     private readonly configService: ConfigService,
     private readonly httpService: HttpService,
   ) {
-    this.merchantId = this.configService.getOrThrow<string>(
-      'ECPAY_INVOICE_MERCHANT_ID',
-    );
-    this.hashKey = this.configService.getOrThrow<string>(
-      'ECPAY_INVOICE_HASH_KEY',
-    );
-    this.hashIV = this.configService.getOrThrow<string>(
-      'ECPAY_INVOICE_HASH_IV',
-    );
+    this.merchantId = configService.getOrThrow('ECPAY_INVOICE_MERCHANT_ID');
+    this.hashKey = configService.getOrThrow('ECPAY_INVOICE_HASH_KEY');
+    this.hashIV = configService.getOrThrow('ECPAY_INVOICE_HASH_IV');
 
     const mode = this.configService.getOrThrow<EcpayMode>(
       'ECPAY_OPERATION_MODE',
@@ -45,9 +39,7 @@ export class EcpayGetGovInvoiceWordSettingService {
     this.apiUrl = getGovInvoiceWordSettingApiUrl(mode);
   }
 
-  async getGovInvoiceWordSetting(
-    dto: GetGovInvoiceWordSettingEcpayRequestDto,
-  ): Promise<GetGovInvoiceWordSettingEcpayDecryptedResponseDto> {
+  async getGovInvoiceWordSetting(dto: GetGovInvoiceWordSettingEcpayRequestDto) {
     const timestamp = Math.floor(Date.now() / 1000);
 
     const plainText = JSON.stringify(dto);

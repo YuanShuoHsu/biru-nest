@@ -8,7 +8,7 @@ import { BaseEcpayDto } from '../dto/base-ecpay.dto';
 import { ReturnEcpayDto } from '../dto/return-ecpay.dto';
 import { EcpayMode } from '../types/ecpay.types';
 
-const getEcpayBaseApiUrl = (mode: EcpayMode): string => {
+const getBaseApiUrl = (mode: EcpayMode): string => {
   return mode === 'Test'
     ? 'https://payment-stage.ecpay.com.tw/Cashier/AioCheckOut/V5'
     : 'https://payment.ecpay.com.tw/Cashier/AioCheckOut/V5';
@@ -24,7 +24,7 @@ export class EcpayBaseService {
   private readonly merchantId: string;
   private readonly hashKey: string;
   private readonly hashIV: string;
-  private readonly baseApiUrl: string;
+  private readonly apiUrl: string;
   private readonly returnUrl: string;
 
   constructor(private readonly configService: ConfigService) {
@@ -35,7 +35,7 @@ export class EcpayBaseService {
     const mode = this.configService.getOrThrow<EcpayMode>(
       'ECPAY_OPERATION_MODE',
     );
-    this.baseApiUrl = getEcpayBaseApiUrl(mode);
+    this.apiUrl = getBaseApiUrl(mode);
 
     this.returnUrl = configService.getOrThrow('ECPAY_BASE_RETURN_URL');
   }
@@ -94,7 +94,7 @@ export class EcpayBaseService {
       .map(([k, v]) => `<input type="hidden" name="${k}" value="${v}" />`)
       .join('\n');
 
-    return `<form id="ecpayForm" method="POST" action="${this.baseApiUrl}">
+    return `<form id="ecpayForm" method="POST" action="${this.apiUrl}">
     ${inputs}
     </form>
     <script>document.getElementById('ecpayForm').submit();</script>`;
