@@ -806,8 +806,8 @@ export class IssueInvoiceEcpayEncryptedResponseDto {
     type: () => IssueInvoiceEcpayEncryptedResponseHeaderDto,
   })
   @IsDefined()
-  @ValidateNested()
   @Type(() => IssueInvoiceEcpayEncryptedResponseHeaderDto)
+  @ValidateNested()
   RpHeader: IssueInvoiceEcpayEncryptedResponseHeaderDto;
 
   @ApiProperty({

@@ -98,7 +98,7 @@ export class GetGovInvoiceWordSettingEcpayDecryptedRequestDto {
   @ApiProperty({
     description: `發票年度（必填）  
 - 僅可查詢去年、當年與明年的發票年度
-- 格式為民國年 ex： 110`,
+- 格式為民國年 ex：110`,
     example: '110',
     maxLength: 3,
     minLength: 3,
@@ -254,7 +254,7 @@ export class GetGovInvoiceWordSettingEcpayInvoiceInfoDto {
   @IsDefined()
   @IsNumberString()
   @Length(8, 8)
-  @Matches(/^\d{6}(?:00|50)$/)
+  @Matches(/^\d{6}(00|50)$/)
   InvoiceStart: string;
 
   @ApiProperty({
@@ -267,7 +267,7 @@ export class GetGovInvoiceWordSettingEcpayInvoiceInfoDto {
   @IsDefined()
   @IsNumberString()
   @Length(8, 8)
-  @Matches(/^\d{6}(?:49|99)$/)
+  @Matches(/^\d{6}(49|99)$/)
   InvoiceEnd: string;
 
   @ApiProperty({
@@ -308,9 +308,9 @@ export class GetGovInvoiceWordSettingEcpayDecryptedResponseDto {
     description: '發票配號結果清單',
     type: () => [GetGovInvoiceWordSettingEcpayInvoiceInfoDto],
   })
-  @Type(() => GetGovInvoiceWordSettingEcpayInvoiceInfoDto)
-  @ValidateNested({ each: true })
   @IsDefined()
   @IsArray()
+  @Type(() => GetGovInvoiceWordSettingEcpayInvoiceInfoDto)
+  @ValidateNested({ each: true })
   InvoiceInfo: GetGovInvoiceWordSettingEcpayInvoiceInfoDto[];
 }
