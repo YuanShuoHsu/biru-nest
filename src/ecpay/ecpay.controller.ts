@@ -37,7 +37,7 @@ export class EcpayController {
     const invoiceTerm = Math.floor(now.getMonth() / 2) + 1;
     const rocYear = (now.getFullYear() - 1911).toString();
 
-    const { InvoiceInfo } =
+    const { InvoiceInfo: govInvoiceInfo } =
       await this.ecpayGetGovInvoiceWordSettingService.getGovInvoiceWordSetting({
         rocYear,
         timestamp,
@@ -50,17 +50,39 @@ export class EcpayController {
         timestamp,
       });
 
-    console.log(existingInvoiceInfo);
+    const buildInvoiceKey = (item: {
+      InvoiceTerm: number;
+      InvType: string;
+      InvoiceHeader: string;
+      InvoiceStart: string;
+      InvoiceEnd: string;
+    }): string => {
+      return JSON.stringify({
+        InvoiceTerm: item.InvoiceTerm,
+        InvType: item.InvType,
+        InvoiceHeader: item.InvoiceHeader,
+        InvoiceStart: item.InvoiceStart,
+        InvoiceEnd: item.InvoiceEnd,
+      });
+    };
 
-    // const existingTrackIDs = new Set(existingInvoiceInfo.map((i) => i.TrackID));
+    const existingMap = new Map<string, true>();
 
-    // const toBeAdded = govInvoiceInfo.filter(
-    //   (item) => !existingTrackIDs.has(item.TrackID),
-    // );
+    for (const item of existingInvoiceInfo) {
+      const key = buildInvoiceKey(item);
+      existingMap.set(key, true);
+    }
+
+    const toBeAdded = govInvoiceInfo.filter((item) => {
+      const key = buildInvoiceKey(item);
+      return !existingMap.has(key);
+    });
+
+    console.log(toBeAdded);
 
     const result =
       await this.ecpayAddInvoiceWordSettingService.addInvoiceWordSetting({
-        invoiceInfo: InvoiceInfo,
+        invoiceInfo: toBeAdded,
         invoiceTerm,
         rocYear,
         timestamp,
