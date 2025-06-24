@@ -1,29 +1,31 @@
-// src/ecpay/ecpay-get-gov-invoice-word-setting.service.ts
+// src/ecpay/ecpay-get-invoice-word-setting.service.ts
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 import { firstValueFrom } from 'rxjs';
 
+import { GetGovInvoiceWordSettingEcpayInvoiceTerm } from '../dto/get-gov-invoice-word-setting-ecpay.dto';
 import {
-  GetGovInvoiceWordSettingEcpayDecryptedResponseDto,
-  GetGovInvoiceWordSettingEcpayEncryptedResponseDto,
-} from '../dto/get-gov-invoice-word-setting-ecpay.dto';
+  GetInvoiceWordSettingEcpayDecryptedResponseDto,
+  GetInvoiceWordSettingEcpayEncryptedResponseDto,
+} from '../dto/get-invoice-word-setting-ecpay.dto';
 import { EcpayMode } from '../types/ecpay.types';
 import { decryptData, encryptData } from '../utils/ecpay';
 
-const getEcpayGetGovInvoiceWordSettingApiUrl = (mode: EcpayMode): string =>
+const getEcpayGetInvoiceWordSettingApiUrl = (mode: EcpayMode): string =>
   mode === 'Test'
-    ? 'https://einvoice-stage.ecpay.com.tw/B2CInvoice/GetGovInvoiceWordSetting'
-    : 'https://einvoice.ecpay.com.tw/B2CInvoice/GetGovInvoiceWordSetting';
+    ? 'https://einvoice-stage.ecpay.com.tw/B2CInvoice/GetInvoiceWordSetting'
+    : 'https://einvoice.ecpay.com.tw/B2CInvoice/GetInvoiceWordSetting';
 
-interface GetGovInvoiceWordSettingParams {
-  rocYear: string;
+interface GetInvoiceWordSettingParams {
+  invoiceTerm: GetGovInvoiceWordSettingEcpayInvoiceTerm;
   timestamp: number;
+  rocYear: string;
 }
 
 @Injectable()
-export class EcpayGetGovInvoiceWordSettingService {
+export class EcpayGetInvoiceWordSettingService {
   private readonly merchantId: string;
   private readonly hashKey: string;
   private readonly hashIV: string;
@@ -40,16 +42,23 @@ export class EcpayGetGovInvoiceWordSettingService {
     const mode = this.configService.getOrThrow<EcpayMode>(
       'ECPAY_OPERATION_MODE',
     );
-    this.apiUrl = getEcpayGetGovInvoiceWordSettingApiUrl(mode);
+    this.apiUrl = getEcpayGetInvoiceWordSettingApiUrl(mode);
   }
 
-  async getGovInvoiceWordSetting({
+  async getInvoiceWordSetting({
     rocYear,
+    invoiceTerm,
     timestamp,
-  }: GetGovInvoiceWordSettingParams) {
+  }: GetInvoiceWordSettingParams) {
     const payload = {
       MerchantID: this.merchantId,
       InvoiceYear: rocYear,
+      InvoiceTerm: invoiceTerm,
+      UseStatus: 0,
+      InvoiceCategory: 1,
+      InvType: '07',
+      //   ProductServiceId: '',
+      //   InvoiceHeader: '',
     };
 
     const plainText = JSON.stringify(payload);
@@ -68,7 +77,7 @@ export class EcpayGetGovInvoiceWordSettingService {
     const {
       data: { Data },
     } = await firstValueFrom(
-      this.httpService.post<GetGovInvoiceWordSettingEcpayEncryptedResponseDto>(
+      this.httpService.post<GetInvoiceWordSettingEcpayEncryptedResponseDto>(
         this.apiUrl,
         requestPayload,
         { headers: { 'Content-Type': 'application/json' } },
@@ -79,7 +88,7 @@ export class EcpayGetGovInvoiceWordSettingService {
     const decodedUrl = decodeURIComponent(decryptedData);
     const decryptedPayload = JSON.parse(
       decodedUrl,
-    ) as GetGovInvoiceWordSettingEcpayDecryptedResponseDto;
+    ) as GetInvoiceWordSettingEcpayDecryptedResponseDto;
 
     return decryptedPayload;
   }

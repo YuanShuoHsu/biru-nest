@@ -6,6 +6,7 @@ import { ReturnEcpayDto } from './dto/return-ecpay.dto';
 import { EcpayAddInvoiceWordSettingService } from './services/ecpay-add-invoice-word-setting.service';
 import { EcpayBaseService } from './services/ecpay-base.service';
 import { EcpayGetGovInvoiceWordSettingService } from './services/ecpay-get-gov-invoice-word-setting.service';
+import { EcpayGetInvoiceWordSettingService } from './services/ecpay-get-invoice-word-setting.service';
 import { EcpayIssueInvoiceService } from './services/ecpay-issue-invoice.service';
 
 @Controller('ecpay')
@@ -13,6 +14,7 @@ export class EcpayController {
   constructor(
     private readonly ecpayBaseService: EcpayBaseService,
     private readonly ecpayGetGovInvoiceWordSettingService: EcpayGetGovInvoiceWordSettingService,
+    private readonly ecpayGetInvoiceWordSettingService: EcpayGetInvoiceWordSettingService,
     private readonly ecpayAddInvoiceWordSettingService: EcpayAddInvoiceWordSettingService,
     private readonly ecpayIssueInvoiceService: EcpayIssueInvoiceService,
   ) {}
@@ -37,9 +39,24 @@ export class EcpayController {
 
     const { InvoiceInfo } =
       await this.ecpayGetGovInvoiceWordSettingService.getGovInvoiceWordSetting({
-        timestamp,
         rocYear,
+        timestamp,
       });
+
+    const { InvoiceInfo: existingInvoiceInfo } =
+      await this.ecpayGetInvoiceWordSettingService.getInvoiceWordSetting({
+        invoiceTerm,
+        rocYear,
+        timestamp,
+      });
+
+    console.log(existingInvoiceInfo);
+
+    // const existingTrackIDs = new Set(existingInvoiceInfo.map((i) => i.TrackID));
+
+    // const toBeAdded = govInvoiceInfo.filter(
+    //   (item) => !existingTrackIDs.has(item.TrackID),
+    // );
 
     const result =
       await this.ecpayAddInvoiceWordSettingService.addInvoiceWordSetting({
