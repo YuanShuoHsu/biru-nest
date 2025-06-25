@@ -74,9 +74,9 @@ export class EcpayAddInvoiceWordSettingService {
       InvoiceEnd: match.InvoiceEnd,
     };
 
-    const plainText = JSON.stringify(payload);
-    const encodedUrl = encodeURIComponent(plainText);
-    const encryptedData = encryptData(encodedUrl, this.hashKey, this.hashIV);
+    const json = JSON.stringify(payload);
+    const encoded = encodeURIComponent(json);
+    const encrypted = encryptData(encoded, this.hashKey, this.hashIV);
 
     const requestPayload = {
       // PlatformID:'',
@@ -84,7 +84,7 @@ export class EcpayAddInvoiceWordSettingService {
       RqHeader: {
         Timestamp: timestamp,
       },
-      Data: encryptedData,
+      Data: encrypted,
     };
 
     const {
@@ -97,12 +97,12 @@ export class EcpayAddInvoiceWordSettingService {
       ),
     );
 
-    const decryptedData = decryptData(Data, this.hashKey, this.hashIV);
-    const decodedUrl = decodeURIComponent(decryptedData);
-    const decryptedPayload = JSON.parse(
-      decodedUrl,
+    const decrypted = decryptData(Data, this.hashKey, this.hashIV);
+    const decoded = decodeURIComponent(decrypted);
+    const parsed = JSON.parse(
+      decoded,
     ) as AddInvoiceWordSettingEcpayDecryptedResponseDto;
 
-    return decryptedPayload;
+    return parsed;
   }
 }

@@ -8,6 +8,7 @@ import { EcpayBaseService } from './services/ecpay-base.service';
 import { EcpayGetGovInvoiceWordSettingService } from './services/ecpay-get-gov-invoice-word-setting.service';
 import { EcpayGetInvoiceWordSettingService } from './services/ecpay-get-invoice-word-setting.service';
 import { EcpayIssueInvoiceService } from './services/ecpay-issue-invoice.service';
+import { EcpayUpdateInvoiceWordStatusService } from './services/ecpay-update-invoice-word-status.service';
 
 @Module({
   imports: [HttpModule],
@@ -17,6 +18,7 @@ import { EcpayIssueInvoiceService } from './services/ecpay-issue-invoice.service
     EcpayGetGovInvoiceWordSettingService,
     EcpayGetInvoiceWordSettingService,
     EcpayAddInvoiceWordSettingService,
+    EcpayUpdateInvoiceWordStatusService,
     EcpayIssueInvoiceService,
   ],
 })

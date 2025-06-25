@@ -1,26 +1,24 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-
 import { firstValueFrom } from 'rxjs';
-import { v4 as uuidv4 } from 'uuid';
 
 import {
-  IssueInvoiceEcpayDecryptedRequestDto,
-  IssueInvoiceEcpayDecryptedResponseDto,
-  IssueInvoiceEcpayEncryptedResponseDto,
-} from '../dto/issue-invoice-ecpay.dto';
+  UpdateInvoiceWordStatusEcpayDecryptedRequestDto,
+  UpdateInvoiceWordStatusEcpayDecryptedResponseDto,
+  UpdateInvoiceWordStatusEcpayEncryptedResponseDto,
+} from '../dto/update-invoice-word-status-ecpay.dto';
 import { EcpayMode } from '../types/ecpay.types';
 import { decryptData, encryptData } from '../utils/ecpay';
 
-const getEcpayIssueInvoiceApiUrl = (mode: EcpayMode): string => {
+const getEcpayUpdateInvoiceWordStatusApiUrl = (mode: EcpayMode): string => {
   return mode === 'Test'
-    ? 'https://einvoice-stage.ecpay.com.tw/B2CInvoice/Issue'
-    : 'https://einvoice.ecpay.com.tw/B2CInvoice/Issue';
+    ? 'https://einvoice-stage.ecpay.com.tw/B2CInvoice/UpdateInvoiceWordSetting'
+    : 'https://einvoice.ecpay.com.tw/B2CInvoice/UpdateInvoiceWordSetting';
 };
 
 @Injectable()
-export class EcpayIssueInvoiceService {
+export class EcpayUpdateInvoiceWordStatusService {
   private readonly merchantId: string;
   private readonly hashKey: string;
   private readonly hashIV: string;
@@ -30,32 +28,33 @@ export class EcpayIssueInvoiceService {
     private readonly configService: ConfigService,
     private readonly httpService: HttpService,
   ) {
-    this.merchantId = configService.getOrThrow('ECPAY_INVOICE_MERCHANT_ID');
-    this.hashKey = configService.getOrThrow('ECPAY_INVOICE_HASH_KEY');
-    this.hashIV = configService.getOrThrow('ECPAY_INVOICE_HASH_IV');
+    this.merchantId = this.configService.getOrThrow(
+      'ECPAY_INVOICE_MERCHANT_ID',
+    );
+    this.hashKey = this.configService.getOrThrow('ECPAY_INVOICE_HASH_KEY');
+    this.hashIV = this.configService.getOrThrow('ECPAY_INVOICE_HASH_IV');
 
     const mode = this.configService.getOrThrow<EcpayMode>(
       'ECPAY_OPERATION_MODE',
     );
-    this.apiUrl = getEcpayIssueInvoiceApiUrl(mode);
+    this.apiUrl = getEcpayUpdateInvoiceWordStatusApiUrl(mode);
   }
 
-  async issueInvoice(dto: IssueInvoiceEcpayDecryptedRequestDto) {
+  async updateInvoiceWordStatus(
+    dto: UpdateInvoiceWordStatusEcpayDecryptedRequestDto,
+  ): Promise<UpdateInvoiceWordStatusEcpayDecryptedResponseDto> {
     const timestamp = Math.floor(Date.now() / 1000);
-    const relateNumber = uuidv4().replace(/-/g, '');
 
     const payload = {
       ...dto,
       MerchantID: this.merchantId,
-      RelateNumber: relateNumber,
     };
 
     const json = JSON.stringify(payload);
     const encoded = encodeURIComponent(json);
     const encrypted = encryptData(encoded, this.hashKey, this.hashIV);
 
-    const requestPayload = {
-      // PlatformID: '',
+    const requestBody = {
       MerchantID: this.merchantId,
       RqHeader: {
         Timestamp: timestamp,
@@ -66,9 +65,9 @@ export class EcpayIssueInvoiceService {
     const {
       data: { Data },
     } = await firstValueFrom(
-      this.httpService.post<IssueInvoiceEcpayEncryptedResponseDto>(
+      this.httpService.post<UpdateInvoiceWordStatusEcpayEncryptedResponseDto>(
         this.apiUrl,
-        requestPayload,
+        requestBody,
         {
           headers: { 'Content-Type': 'application/json' },
         },
@@ -77,7 +76,9 @@ export class EcpayIssueInvoiceService {
 
     const decrypted = decryptData(Data, this.hashKey, this.hashIV);
     const decoded = decodeURIComponent(decrypted);
-    const parsed = JSON.parse(decoded) as IssueInvoiceEcpayDecryptedResponseDto;
+    const parsed = JSON.parse(
+      decoded,
+    ) as UpdateInvoiceWordStatusEcpayDecryptedResponseDto;
 
     return parsed;
   }

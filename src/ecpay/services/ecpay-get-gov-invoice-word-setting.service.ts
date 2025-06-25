@@ -52,9 +52,9 @@ export class EcpayGetGovInvoiceWordSettingService {
       InvoiceYear: rocYear,
     };
 
-    const plainText = JSON.stringify(payload);
-    const encodedUrl = encodeURIComponent(plainText);
-    const encryptedData = encryptData(encodedUrl, this.hashKey, this.hashIV);
+    const json = JSON.stringify(payload);
+    const encoded = encodeURIComponent(json);
+    const encrypted = encryptData(encoded, this.hashKey, this.hashIV);
 
     const requestPayload = {
       // PlatformID: '',
@@ -62,7 +62,7 @@ export class EcpayGetGovInvoiceWordSettingService {
       RqHeader: {
         Timestamp: timestamp,
       },
-      Data: encryptedData,
+      Data: encrypted,
     };
 
     const {
@@ -75,12 +75,12 @@ export class EcpayGetGovInvoiceWordSettingService {
       ),
     );
 
-    const decryptedData = decryptData(Data, this.hashKey, this.hashIV);
-    const decodedUrl = decodeURIComponent(decryptedData);
-    const decryptedPayload = JSON.parse(
-      decodedUrl,
+    const decrypted = decryptData(Data, this.hashKey, this.hashIV);
+    const decoded = decodeURIComponent(decrypted);
+    const parsed = JSON.parse(
+      decoded,
     ) as GetGovInvoiceWordSettingEcpayDecryptedResponseDto;
 
-    return decryptedPayload;
+    return parsed;
   }
 }
