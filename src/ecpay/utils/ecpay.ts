@@ -10,8 +10,10 @@ export const encryptData = (
     Buffer.from(hashKey, 'utf8'),
     Buffer.from(hashIV, 'utf8'),
   );
+
   let encrypted = cipher.update(plaintext, 'utf8', 'base64');
   encrypted += cipher.final('base64');
+
   return encrypted;
 };
 
@@ -25,7 +27,9 @@ export const decryptData = (
     Buffer.from(hashKey, 'utf8'),
     Buffer.from(hashIV, 'utf8'),
   );
+
   let decrypted = decipher.update(base64Data, 'base64', 'utf8');
   decrypted += decipher.final('utf8');
+
   return decrypted;
 };
