@@ -815,6 +815,7 @@ export class IssueInvoiceEcpayEncryptedResponseDto {
 1 代表 API 傳輸資料（MerchantID, RqHeader, Data）接收成功，實際的 API 執行結果狀態請參考 RtnCode。`,
     example: 1,
   })
+  @IsDefined()
   @IsInt()
   TransCode: number;
 
@@ -823,6 +824,7 @@ export class IssueInvoiceEcpayEncryptedResponseDto {
     example: '',
     maxLength: 200,
   })
+  @IsDefined()
   @IsString()
   @Length(0, 200)
   TransMsg: string;

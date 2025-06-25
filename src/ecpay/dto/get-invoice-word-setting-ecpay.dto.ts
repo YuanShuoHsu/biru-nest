@@ -147,10 +147,12 @@ export class GetInvoiceWordSettingEcpayDecryptedRequestDto {
     enum: GetInvoiceWordSettingEcpayInvoiceTerm,
     example: GetInvoiceWordSettingEcpayInvoiceTerm.All,
     maximum: 6,
+    minimum: 0,
   })
   @IsDefined()
   @IsInt()
   @Max(6)
+  @Min(0)
   @IsEnum(GetInvoiceWordSettingEcpayInvoiceTerm)
   InvoiceTerm: GetInvoiceWordSettingEcpayInvoiceTerm;
 
@@ -166,10 +168,12 @@ export class GetInvoiceWordSettingEcpayDecryptedRequestDto {
     enum: GetInvoiceWordSettingEcpayUseStatus,
     example: GetInvoiceWordSettingEcpayUseStatus.NotEnabled,
     maximum: 6,
+    minimum: 0,
   })
   @IsDefined()
   @IsInt()
   @Max(6)
+  @Min(0)
   @IsEnum(GetInvoiceWordSettingEcpayUseStatus)
   UseStatus: GetInvoiceWordSettingEcpayUseStatus;
 
@@ -296,10 +300,6 @@ export class GetInvoiceWordSettingEcpayEncryptedResponseDto {
   @IsNotEmpty()
   @IsString()
   Data: string;
-}
-
-enum GetInvoiceWordSettingEcpayRtnCode {
-  Success = 1,
 }
 
 export class GetInvoiceWordSettingEcpayInvoiceInfoDto {
@@ -459,12 +459,10 @@ export class GetInvoiceWordSettingEcpayDecryptedResponseDto {
   @ApiProperty({
     description: `回應代碼  
 1 代表 API 執行成功，其餘代碼均為失敗。`,
-    enum: GetInvoiceWordSettingEcpayRtnCode,
-    example: GetInvoiceWordSettingEcpayRtnCode.Success,
+    example: 1,
   })
   @IsDefined()
   @IsInt()
-  @IsEnum(GetInvoiceWordSettingEcpayRtnCode)
   RtnCode: number;
 
   @ApiProperty({

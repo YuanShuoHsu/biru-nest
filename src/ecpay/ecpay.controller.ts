@@ -50,38 +50,59 @@ export class EcpayController {
         timestamp,
       });
 
-    const buildInvoiceKey = (item: {
-      InvoiceTerm: number;
-      InvType: string;
-      InvoiceHeader: string;
-      InvoiceStart: string;
-      InvoiceEnd: string;
-    }): string => {
-      return JSON.stringify({
-        InvoiceTerm: item.InvoiceTerm,
-        InvType: item.InvType,
-        InvoiceHeader: item.InvoiceHeader,
-        InvoiceStart: item.InvoiceStart,
-        InvoiceEnd: item.InvoiceEnd,
-      });
-    };
+    const strippedExistingList = existingInvoiceInfo.map(
+      ({ InvoiceTerm, InvType, InvoiceHeader, InvoiceStart, InvoiceEnd }) => ({
+        InvoiceTerm,
+        InvType,
+        InvoiceHeader,
+        InvoiceStart,
+        InvoiceEnd,
+      }),
+    );
 
-    const existingMap = new Map<string, true>();
+    const existingKeySet = new Set(
+      strippedExistingList.map(
+        ({ InvoiceTerm, InvType, InvoiceHeader, InvoiceStart, InvoiceEnd }) =>
+          JSON.stringify({
+            InvoiceTerm,
+            InvType,
+            InvoiceHeader,
+            InvoiceStart,
+            InvoiceEnd,
+          }),
+      ),
+    );
 
-    for (const item of existingInvoiceInfo) {
-      const key = buildInvoiceKey(item);
-      existingMap.set(key, true);
-    }
+    const toBeAdded = govInvoiceInfo.filter(
+      ({ InvoiceTerm, InvType, InvoiceHeader, InvoiceStart, InvoiceEnd }) => {
+        const key = JSON.stringify({
+          InvoiceTerm,
+          InvType,
+          InvoiceHeader,
+          InvoiceStart,
+          InvoiceEnd,
+        });
 
-    const toBeAdded = govInvoiceInfo.filter((item) => {
-      const key = buildInvoiceKey(item);
-      return !existingMap.has(key);
-    });
+        return !existingKeySet.has(key);
+      },
+    );
 
     console.log(toBeAdded);
 
+    if (toBeAdded.length === 0) return;
+
     const result =
       await this.ecpayAddInvoiceWordSettingService.addInvoiceWordSetting({
+        // invoiceInfo: [
+        //   {
+        //     InvoiceTerm: 6,
+        //     InvType: '07',
+        //     InvoiceHeader: 'DM',
+        //     InvoiceStart: '00000000',
+        //     InvoiceEnd: '00000099',
+        //     Number: 2,
+        //   },
+        // ],
         invoiceInfo: toBeAdded,
         invoiceTerm,
         rocYear,
