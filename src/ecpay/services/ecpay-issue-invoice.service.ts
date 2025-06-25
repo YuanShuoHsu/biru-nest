@@ -40,7 +40,9 @@ export class EcpayIssueInvoiceService {
     this.apiUrl = getEcpayIssueInvoiceApiUrl(mode);
   }
 
-  async issueInvoice(dto: IssueInvoiceEcpayDecryptedRequestDto) {
+  async issueInvoice(
+    dto: IssueInvoiceEcpayDecryptedRequestDto,
+  ): Promise<IssueInvoiceEcpayDecryptedResponseDto> {
     const timestamp = Math.floor(Date.now() / 1000);
     const relateNumber = uuidv4().replace(/-/g, '');
 

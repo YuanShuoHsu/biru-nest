@@ -49,7 +49,7 @@ export class EcpayGetInvoiceWordSettingService {
     rocYear,
     invoiceTerm,
     timestamp,
-  }: GetInvoiceWordSettingParams) {
+  }: GetInvoiceWordSettingParams): Promise<GetInvoiceWordSettingEcpayDecryptedResponseDto> {
     const payload = {
       MerchantID: this.merchantId,
       InvoiceYear: rocYear,

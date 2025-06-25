@@ -46,7 +46,7 @@ export class EcpayGetGovInvoiceWordSettingService {
   async getGovInvoiceWordSetting({
     rocYear,
     timestamp,
-  }: GetGovInvoiceWordSettingParams) {
+  }: GetGovInvoiceWordSettingParams): Promise<GetGovInvoiceWordSettingEcpayDecryptedResponseDto> {
     const payload = {
       MerchantID: this.merchantId,
       InvoiceYear: rocYear,

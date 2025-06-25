@@ -54,7 +54,7 @@ export class EcpayAddInvoiceWordSettingService {
     invoiceTerm,
     rocYear,
     timestamp,
-  }: AddInvoiceWordSettingParams) {
+  }: AddInvoiceWordSettingParams): Promise<AddInvoiceWordSettingEcpayDecryptedResponseDto> {
     const match = invoiceInfo.find(
       ({ InvoiceTerm, InvType }) =>
         InvoiceTerm === invoiceTerm &&
