@@ -8,6 +8,7 @@ import { EcpayBaseService } from './services/ecpay-base.service';
 import { EcpayGetGovInvoiceWordSettingService } from './services/ecpay-get-gov-invoice-word-setting.service';
 import { EcpayGetInvoiceWordSettingService } from './services/ecpay-get-invoice-word-setting.service';
 import { EcpayIssueInvoiceService } from './services/ecpay-issue-invoice.service';
+import { EcpayUpdateInvoiceWordStatusService } from './services/ecpay-update-invoice-word-status.service';
 
 @Controller('ecpay')
 export class EcpayController {
@@ -16,6 +17,7 @@ export class EcpayController {
     private readonly ecpayGetGovInvoiceWordSettingService: EcpayGetGovInvoiceWordSettingService,
     private readonly ecpayGetInvoiceWordSettingService: EcpayGetInvoiceWordSettingService,
     private readonly ecpayAddInvoiceWordSettingService: EcpayAddInvoiceWordSettingService,
+    private readonly ecpayUpdateInvoiceWordStatusService: EcpayUpdateInvoiceWordStatusService,
     private readonly ecpayIssueInvoiceService: EcpayIssueInvoiceService,
   ) {}
 
@@ -109,7 +111,12 @@ export class EcpayController {
         timestamp,
       });
 
-    return result;
+    const updateResult =
+      await this.ecpayUpdateInvoiceWordStatusService.updateInvoiceWordStatus(
+        result.TrackID,
+      );
+
+    return updateResult;
   }
 
   @Post('issue-invoice')

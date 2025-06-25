@@ -5,7 +5,6 @@ import { ConfigService } from '@nestjs/config';
 import { firstValueFrom } from 'rxjs';
 
 import {
-  UpdateInvoiceWordStatusEcpayDecryptedRequestDto,
   UpdateInvoiceWordStatusEcpayDecryptedResponseDto,
   UpdateInvoiceWordStatusEcpayEncryptedResponseDto,
 } from '../dto/update-invoice-word-status-ecpay.dto';
@@ -42,13 +41,14 @@ export class EcpayUpdateInvoiceWordStatusService {
   }
 
   async updateInvoiceWordStatus(
-    dto: UpdateInvoiceWordStatusEcpayDecryptedRequestDto,
+    trackId: string,
   ): Promise<UpdateInvoiceWordStatusEcpayDecryptedResponseDto> {
     const timestamp = Math.floor(Date.now() / 1000);
 
     const payload = {
-      ...dto,
       MerchantID: this.merchantId,
+      TrackID: trackId,
+      InvoiceStatus: 2,
     };
 
     const json = JSON.stringify(payload);
