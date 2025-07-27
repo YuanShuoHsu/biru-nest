@@ -1,5 +1,7 @@
 # biru-nest
 
+## NestJS
+
 ```bash
 # https://docs.nestjs.com/
 
@@ -190,6 +192,14 @@ async function bootstrap() {
 void bootstrap();
 
 # http://localhost:3000/api
+```
+
+## Prisma
+
+```bash
+# https://docs.nestjs.com/recipes/prisma
+pnpm add -D prisma
+
 ```
 
 ## Global prefix

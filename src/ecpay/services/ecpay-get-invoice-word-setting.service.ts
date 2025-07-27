@@ -54,9 +54,10 @@ export class EcpayGetInvoiceWordSettingService {
       MerchantID: this.merchantId,
       InvoiceYear: rocYear,
       InvoiceTerm: invoiceTerm,
-      UseStatus: 0,
+      UseStatus: 3,
       InvoiceCategory: 1,
       InvType: '07',
+      InvoiceHeader: 'AA',
       //   ProductServiceId: '',
       //   InvoiceHeader: '',
     };

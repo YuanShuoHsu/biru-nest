@@ -8,12 +8,9 @@ import {
   AddInvoiceWordSettingEcpayDecryptedResponseDto,
   AddInvoiceWordSettingEcpayEncryptedResponseDto,
 } from '../dto/add-invoice-word-setting-ecpay.dto';
-import {
-  GetGovInvoiceWordSettingEcpayDecryptedResponseDto,
-  GetGovInvoiceWordSettingEcpayInvoiceTerm,
-  GetGovInvoiceWordSettingEcpayInvType,
-} from '../dto/get-gov-invoice-word-setting-ecpay.dto';
+import { GetGovInvoiceWordSettingEcpayDecryptedResponseDto } from '../dto/get-gov-invoice-word-setting-ecpay.dto';
 import { EcpayMode } from '../types/ecpay.types';
+
 import { decryptData, encryptData } from '../utils/ecpay';
 
 const getEcpayAddInvoiceWordSettingApiUrl = (mode: EcpayMode): string =>
@@ -22,8 +19,7 @@ const getEcpayAddInvoiceWordSettingApiUrl = (mode: EcpayMode): string =>
     : 'https://einvoice.ecpay.com.tw/B2CInvoice/AddInvoiceWordSetting';
 
 interface AddInvoiceWordSettingParams {
-  invoiceInfo: GetGovInvoiceWordSettingEcpayDecryptedResponseDto['InvoiceInfo'];
-  invoiceTerm: GetGovInvoiceWordSettingEcpayInvoiceTerm;
+  invoiceInfo: GetGovInvoiceWordSettingEcpayDecryptedResponseDto['InvoiceInfo'][0];
   rocYear: string;
   timestamp: number;
 }
@@ -51,27 +47,19 @@ export class EcpayAddInvoiceWordSettingService {
 
   async addInvoiceWordSetting({
     invoiceInfo,
-    invoiceTerm,
     rocYear,
     timestamp,
   }: AddInvoiceWordSettingParams): Promise<AddInvoiceWordSettingEcpayDecryptedResponseDto> {
-    const match = invoiceInfo.find(
-      ({ InvoiceTerm, InvType }) =>
-        InvoiceTerm === invoiceTerm &&
-        InvType === GetGovInvoiceWordSettingEcpayInvType.GeneralTax,
-    );
-    if (!match) throw new Error();
-
     const payload = {
       MerchantID: this.merchantId,
-      InvoiceTerm: match.InvoiceTerm,
+      InvoiceTerm: invoiceInfo.InvoiceTerm,
       InvoiceYear: rocYear,
-      InvType: match.InvType,
+      InvType: invoiceInfo.InvType,
       InvoiceCategory: '1',
       ProductServiceId: '',
-      InvoiceHeader: match.InvoiceHeader,
-      InvoiceStart: match.InvoiceStart,
-      InvoiceEnd: match.InvoiceEnd,
+      InvoiceHeader: invoiceInfo.InvoiceHeader,
+      InvoiceStart: invoiceInfo.InvoiceStart,
+      InvoiceEnd: invoiceInfo.InvoiceEnd,
     };
 
     const json = JSON.stringify(payload);

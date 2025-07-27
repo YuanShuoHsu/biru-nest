@@ -52,71 +52,108 @@ export class EcpayController {
         timestamp,
       });
 
-    const strippedExistingList = existingInvoiceInfo.map(
-      ({ InvoiceTerm, InvType, InvoiceHeader, InvoiceStart, InvoiceEnd }) => ({
-        InvoiceTerm,
-        InvType,
-        InvoiceHeader,
-        InvoiceStart,
-        InvoiceEnd,
-      }),
+    // const existingKeySet = new Set(
+    //   existingInvoiceInfo.map(
+    //     ({ InvoiceTerm, InvType, InvoiceHeader, InvoiceStart, InvoiceEnd }) =>
+    //       JSON.stringify({
+    //         InvoiceTerm,
+    //         InvType,
+    //         InvoiceHeader,
+    //         InvoiceStart,
+    //         InvoiceEnd,
+    //       }),
+    //   ),
+    // );
+
+    // console.log(existingKeySet);
+
+    // const toBeAdded = govInvoiceInfo
+    //   .filter(({ InvoiceTerm }) => Number(InvoiceTerm) === invoiceTerm)
+    //   .filter(
+    //     ({ InvoiceTerm, InvType, InvoiceHeader, InvoiceStart, InvoiceEnd }) =>
+    //       !existingKeySet.has(
+    //         JSON.stringify({
+    //           InvoiceTerm,
+    //           InvType,
+    //           InvoiceHeader,
+    //           InvoiceStart,
+    //           InvoiceEnd,
+    //         }),
+    //       ),
+    //   );
+
+    const makeKey = (item: {
+      InvoiceTerm: string | number;
+      InvType: string;
+      InvoiceHeader: string;
+      InvoiceStart: string;
+      InvoiceEnd: string;
+    }) =>
+      JSON.stringify({
+        InvoiceTerm: String(item.InvoiceTerm),
+        InvType: String(item.InvType),
+        InvoiceHeader: String(item.InvoiceHeader),
+        InvoiceStart: String(item.InvoiceStart),
+        InvoiceEnd: String(item.InvoiceEnd),
+      });
+
+    const existingMap = new Map(
+      existingInvoiceInfo.map((item) => [
+        makeKey({
+          InvoiceTerm: item.InvoiceTerm,
+          InvType: item.InvType,
+          InvoiceHeader: item.InvoiceHeader,
+          InvoiceStart: item.InvoiceStart,
+          InvoiceEnd: item.InvoiceEnd,
+        }),
+        item.TrackID,
+      ]),
     );
 
-    const existingKeySet = new Set(
-      strippedExistingList.map(
-        ({ InvoiceTerm, InvType, InvoiceHeader, InvoiceStart, InvoiceEnd }) =>
-          JSON.stringify({
-            InvoiceTerm,
-            InvType,
-            InvoiceHeader,
-            InvoiceStart,
-            InvoiceEnd,
-          }),
-      ),
-    );
+    const toBeAdded = govInvoiceInfo
+      .filter(({ InvoiceTerm }) => Number(InvoiceTerm) === invoiceTerm)
+      .map((item) => {
+        const key = makeKey(item);
+        console.log(item, key);
+        const trackID = existingMap.get(key);
+        return {
+          ...item,
+          TrackID: trackID,
+        };
+      });
 
-    const toBeAdded = govInvoiceInfo.filter(
-      ({ InvoiceTerm, InvType, InvoiceHeader, InvoiceStart, InvoiceEnd }) => {
-        const key = JSON.stringify({
-          InvoiceTerm,
-          InvType,
-          InvoiceHeader,
-          InvoiceStart,
-          InvoiceEnd,
-        });
+    // console.log(existingInvoiceInfo);
 
-        return !existingKeySet.has(key);
-      },
-    );
-
-    console.log(toBeAdded);
+    console.log(existingInvoiceInfo.length);
 
     if (toBeAdded.length === 0) return;
 
-    const result =
-      await this.ecpayAddInvoiceWordSettingService.addInvoiceWordSetting({
-        // invoiceInfo: [
-        //   {
-        //     InvoiceTerm: 6,
-        //     InvType: '07',
-        //     InvoiceHeader: 'DM',
-        //     InvoiceStart: '00000000',
-        //     InvoiceEnd: '00000099',
-        //     Number: 2,
-        //   },
-        // ],
-        invoiceInfo: toBeAdded,
-        invoiceTerm,
-        rocYear,
-        timestamp,
-      });
+    // const addResults = [];
 
-    const updateResult =
-      await this.ecpayUpdateInvoiceWordStatusService.updateInvoiceWordStatus(
-        result.TrackID,
-      );
+    // for (const info of toBeAdded) {
+    //   const result =
+    //     await this.ecpayAddInvoiceWordSettingService.addInvoiceWordSetting({
+    //       invoiceInfo: info,
+    //       rocYear,
+    //       timestamp,
+    //     });
+    //   console.log(result);
 
-    return updateResult;
+    // const updateResult =
+    //   await this.ecpayUpdateInvoiceWordStatusService.updateInvoiceWordStatus(
+    //     result.TrackID,
+    //   );
+
+    // console.log(updateResult);
+
+    // addResults.push({
+    //   InvoiceHeader: info.InvoiceHeader,
+    //   AddResult: result,
+    //   UpdateResult: updateResult,
+    // });
+    // }
+
+    // return addResults;
   }
 
   @Post('issue-invoice')
