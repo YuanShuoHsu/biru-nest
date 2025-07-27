@@ -198,8 +198,10 @@ void bootstrap();
 
 ```bash
 # https://docs.nestjs.com/recipes/prisma
-pnpm add -D prisma
-
+# https://www.prisma.io/docs/orm/tools/prisma-cli
+pnpm install prisma --save-dev
+pnpm dlx prisma
+pnpm dlx prisma init
 ```
 
 ## Global prefix
