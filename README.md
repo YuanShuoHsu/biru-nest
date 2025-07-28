@@ -205,6 +205,7 @@ pnpm dlx prisma init
 pnpm dlx prisma migrate dev --name init
 tree prisma
 pnpm add @prisma/client
+pnpm dlx prisma generate
 ```
 
 ## Global prefix

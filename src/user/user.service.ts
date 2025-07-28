@@ -1,29 +1,57 @@
 import { Injectable } from '@nestjs/common';
+import { Prisma, User } from '@prisma/client';
 
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
-export class UserService {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  create(createUserDto: CreateUserDto) {
-    return 'This action adds a new user';
+export class UsersService {
+  constructor(private prisma: PrismaService) {}
+
+  async user(
+    userWhereUniqueInput: Prisma.UserWhereUniqueInput,
+  ): Promise<User | null> {
+    return await this.prisma.user.findUnique({
+      where: userWhereUniqueInput,
+    });
   }
 
-  findAll() {
-    return `This action returns all user`;
+  async users(params: {
+    skip?: number;
+    take?: number;
+    cursor?: Prisma.UserWhereUniqueInput;
+    where?: Prisma.UserWhereInput;
+    orderBy?: Prisma.UserOrderByWithRelationInput;
+  }): Promise<User[]> {
+    const { skip, take, cursor, where, orderBy } = params;
+    return await this.prisma.user.findMany({
+      skip,
+      take,
+      cursor,
+      where,
+      orderBy,
+    });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  async createUser(data: Prisma.UserCreateInput): Promise<User> {
+    return await this.prisma.user.create({
+      data,
+    });
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async updateUser(params: {
+    where: Prisma.UserWhereUniqueInput;
+    data: Prisma.UserUpdateInput;
+  }): Promise<User> {
+    const { where, data } = params;
+    return await this.prisma.user.update({
+      data,
+      where,
+    });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async deleteUser(where: Prisma.UserWhereUniqueInput): Promise<User> {
+    return await this.prisma.user.delete({
+      where,
+    });
   }
 }
