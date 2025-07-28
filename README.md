@@ -202,6 +202,9 @@ void bootstrap();
 pnpm install prisma --save-dev
 pnpm dlx prisma
 pnpm dlx prisma init
+pnpm dlx prisma migrate dev --name init
+tree prisma
+pnpm add @prisma/client
 ```
 
 ## Global prefix
