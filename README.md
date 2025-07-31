@@ -200,12 +200,12 @@ void bootstrap();
 # https://docs.nestjs.com/recipes/prisma
 # https://www.prisma.io/docs/orm/tools/prisma-cli
 pnpm install prisma --save-dev
-pnpm dlx prisma
-pnpm dlx prisma init
-pnpm dlx prisma migrate dev --name init
+pnpm prisma
+pnpm prisma init
+pnpm prisma migrate dev --name init
 tree prisma
-pnpm add @prisma/client
-pnpm dlx prisma generate
+pnpm @prisma/client
+pnpm prisma generate
 ```
 
 ## Global prefix
