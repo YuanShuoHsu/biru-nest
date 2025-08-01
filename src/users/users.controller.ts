@@ -9,22 +9,23 @@ import {
 } from '@nestjs/common';
 import { User as UserModel } from '@prisma/client';
 
+import { UsersService } from './users.service';
+
 import {
   ApiCreateResponse,
   ApiDeleteResponse,
   ApiReadResponse,
   ApiUpdateResponse,
-} from 'src/common/decorators/api-response.decorator';
-import { UsersService } from './user.service';
+} from '../common/decorators/api-response.decorator';
 
-@Controller('user')
-export class UserController {
+@Controller('users')
+export class UsersController {
   constructor(private readonly userService: UsersService) {}
 
   @Post()
   @ApiCreateResponse()
   signup(
-    @Body() userData: { name?: string; email: string },
+    @Body() userData: { name?: string; email: string; password: string },
   ): Promise<UserModel> {
     return this.userService.createUser(userData);
   }

@@ -116,6 +116,14 @@ pnpm add @nestjs/axios axios
 export class CatsModule {}
 ```
 
+## Authentication
+
+```bash
+# https://docs.nestjs.com/security/authentication
+pnpm add @nestjs/jwt
+
+```
+
 ## Helmet
 
 ```bash
@@ -192,6 +200,14 @@ async function bootstrap() {
 void bootstrap();
 
 # http://localhost:3000/api
+```
+
+## Passport (authentication)
+
+```bash
+# https://docs.nestjs.com/recipes/passport
+pnpm add @nestjs/passport passport passport-local
+pnpm add -D @types/passport-local
 ```
 
 ## Prisma

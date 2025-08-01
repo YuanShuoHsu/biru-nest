@@ -5,13 +5,15 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { AuthModule } from './auth/auth.module';
 import { EcpayModule } from './ecpay/ecpay.module';
 import { PostModule } from './post/post.module';
 import { PrismaModule } from './prisma/prisma.module';
-import { UserModule } from './user/user.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
+    AuthModule,
     ConfigModule.forRoot({ isGlobal: true }),
     EcpayModule,
     PrismaModule,
@@ -23,8 +25,8 @@ import { UserModule } from './user/user.module';
         },
       ],
     }),
-    UserModule,
     PostModule,
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [
