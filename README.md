@@ -208,6 +208,9 @@ void bootstrap();
 # https://docs.nestjs.com/recipes/passport
 pnpm add @nestjs/passport passport passport-local
 pnpm add -D @types/passport-local
+
+pnpm add @nestjs/jwt passport-jwt
+pnpm add -D @types/passport-jwt
 ```
 
 ## Prisma
