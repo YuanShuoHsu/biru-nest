@@ -1,17 +1,9 @@
-import {
-  Body,
-  Controller,
-  Get,
-  HttpCode,
-  HttpStatus,
-  Post,
-  Request,
-  UseGuards,
-} from '@nestjs/common';
-
+import { Controller, Get, Post, Request, UseGuards } from '@nestjs/common';
 import { User } from '@prisma/client';
-import { AuthGuard } from './auth.guard';
+
 import { AuthService } from './auth.service';
+import { JwtAuthGuard } from './jwt-auth.guard';
+import { LocalAuthGuard } from './local-auth.guard';
 
 interface RequestWithUser extends Request {
   user: User;
@@ -21,19 +13,13 @@ interface RequestWithUser extends Request {
 export class AuthController {
   constructor(private authService: AuthService) {}
 
-  @HttpCode(HttpStatus.OK)
+  @UseGuards(LocalAuthGuard)
   @Post('login')
-  signIn(
-    @Body()
-    signInDto: {
-      username: string;
-      password: string;
-    },
-  ) {
-    return this.authService.signIn(signInDto.username, signInDto.password);
+  async login(@Request() req: RequestWithUser) {
+    return this.authService.login(req.user);
   }
 
-  @UseGuards(AuthGuard)
+  @UseGuards(JwtAuthGuard)
   @Get('profile')
   getProfile(@Request() req: RequestWithUser) {
     return req.user;
