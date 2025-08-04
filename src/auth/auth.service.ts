@@ -12,10 +12,10 @@ export class AuthService {
   ) {}
 
   async validateUser(
-    username: string,
+    email: string,
     pass: string,
   ): Promise<Omit<User, 'password'> | null> {
-    const user = await this.usersService.user({ email: username });
+    const user = await this.usersService.user({ email });
     if (user && user.password === pass) {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { password, ...result } = user;
@@ -25,7 +25,7 @@ export class AuthService {
   }
 
   async login(user: Omit<User, 'password'>): Promise<{ access_token: string }> {
-    const payload = { sub: user.id, username: user.email };
+    const payload = { sub: user.id, email: user.email };
 
     return {
       access_token: await this.jwtService.signAsync(payload),
