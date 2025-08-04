@@ -12,10 +12,7 @@ import { jwtConstants } from './constants';
 
 import { IS_PUBLIC_KEY } from './decorators/public.decorator';
 
-interface JwtPayload {
-  sub: number;
-  username: string;
-}
+import { JwtPayload } from './types';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
