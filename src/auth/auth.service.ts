@@ -1,3 +1,5 @@
+import * as bcrypt from 'bcrypt';
+
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { User } from '@prisma/client';
@@ -16,12 +18,13 @@ export class AuthService {
     pass: string,
   ): Promise<Omit<User, 'password'> | null> {
     const user = await this.usersService.user({ email });
-    if (user && user.password === pass) {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { password, ...result } = user;
-      return result;
-    }
-    return null;
+    if (!user) return null;
+
+    const { password, ...result } = user;
+    const isMatch = await bcrypt.compare(pass, password);
+    if (!isMatch) return null;
+
+    return result;
   }
 
   async login(user: Omit<User, 'password'>): Promise<{ access_token: string }> {

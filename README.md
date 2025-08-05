@@ -121,7 +121,14 @@ export class CatsModule {}
 ```bash
 # https://docs.nestjs.com/security/authentication
 pnpm add @nestjs/jwt
+```
 
+## Encryption and Hashing
+
+```bash
+# https://docs.nestjs.com/security/encryption-and-hashing
+pnpm add bcrypt
+pnpm add -D @types/bcrypt
 ```
 
 ## Helmet

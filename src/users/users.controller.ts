@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common';
 import { User as UserModel } from '@prisma/client';
 
+import { CreateUserDto } from './dto/create-user.dto';
 import { UsersService } from './users.service';
 
 import { Public } from '../auth/decorators/public.decorator';
@@ -26,9 +27,7 @@ export class UsersController {
   @Public()
   @Post()
   @ApiCreateResponse()
-  signup(
-    @Body() userData: { name?: string; email: string; password: string },
-  ): Promise<UserModel> {
+  signup(@Body() userData: CreateUserDto): Promise<UserModel> {
     return this.userService.createUser(userData);
   }
 
