@@ -3,11 +3,9 @@ import {
   ApiBadRequestResponse,
   ApiConflictResponse,
   ApiCreatedResponse,
-  ApiForbiddenResponse,
   ApiNoContentResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
-  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 
 export function ApiCreateResponse() {
@@ -44,9 +42,9 @@ export const ApiDeleteResponse = () => {
   );
 };
 
-export function ApiAuthResponse() {
-  return applyDecorators(
-    ApiUnauthorizedResponse({ description: 'Unauthorized' }), // 401
-    ApiForbiddenResponse({ description: 'Forbidden' }), // 403
-  );
-}
+// export function ApiAuthResponse() {
+//   return applyDecorators(
+//     ApiUnauthorizedResponse({ description: 'Unauthorized' }), // 401
+//     ApiForbiddenResponse({ description: 'Forbidden' }), // 403
+//   );
+// }

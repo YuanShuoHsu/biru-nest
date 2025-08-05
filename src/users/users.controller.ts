@@ -11,6 +11,7 @@ import { User as UserModel } from '@prisma/client';
 
 import { UsersService } from './users.service';
 
+import { Public } from '../auth/decorators/public.decorator';
 import {
   ApiCreateResponse,
   ApiDeleteResponse,
@@ -22,6 +23,7 @@ import {
 export class UsersController {
   constructor(private readonly userService: UsersService) {}
 
+  @Public()
   @Post()
   @ApiCreateResponse()
   signup(

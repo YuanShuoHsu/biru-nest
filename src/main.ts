@@ -37,6 +37,7 @@ async function bootstrap() {
     .setDescription('Biru Coffee API')
     .setVersion('1.0')
     // .addTag('cats')
+    .addBearerAuth()
     .build();
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, documentFactory);
