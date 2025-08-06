@@ -1,18 +1,18 @@
-import { Controller, Get, Post, Request, UseGuards } from '@nestjs/common';
-import { ApiBody, ApiOperation } from '@nestjs/swagger';
-import { User } from '@prisma/client';
-
 import { AuthService } from './auth.service';
+
 import { Public } from './decorators/public.decorator';
+
 import { CreateAuthDto } from './dto/create-auth.dto';
-import { JwtAuthGuard } from './jwt-auth.guard';
-import { LocalAuthGuard } from './local-auth.guard';
+
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { LocalAuthGuard } from './guards/local-auth.guard';
+
+import { RequestWithUser } from './types';
 
 import { ApiCreateResponse } from '../common/decorators/api-response.decorator';
 
-interface RequestWithUser extends Request {
-  user: User;
-}
+import { Controller, Get, Post, Request, UseGuards } from '@nestjs/common';
+import { ApiBody, ApiOperation } from '@nestjs/swagger';
 
 @Controller('auth')
 export class AuthController {
