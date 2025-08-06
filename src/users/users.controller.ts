@@ -1,3 +1,16 @@
+import { CreateUserDto } from './dto/create-user.dto';
+
+import { UsersService } from './users.service';
+
+import { Public } from '../auth/decorators/public.decorator';
+
+import {
+  ApiCreateResponse,
+  ApiDeleteResponse,
+  ApiReadResponse,
+  ApiUpdateResponse,
+} from '../common/decorators/api-response.decorator';
+
 import {
   Body,
   Controller,
@@ -7,18 +20,8 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
+
 import { User as UserModel } from '@prisma/client';
-
-import { CreateUserDto } from './dto/create-user.dto';
-import { UsersService } from './users.service';
-
-import { Public } from '../auth/decorators/public.decorator';
-import {
-  ApiCreateResponse,
-  ApiDeleteResponse,
-  ApiReadResponse,
-  ApiUpdateResponse,
-} from '../common/decorators/api-response.decorator';
 
 @Controller('users')
 export class UsersController {

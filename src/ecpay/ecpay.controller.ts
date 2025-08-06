@@ -1,5 +1,3 @@
-import { Body, Controller, Header, Post } from '@nestjs/common';
-
 import { BaseEcpayDto } from './dto/base-ecpay.dto';
 import { IssueInvoiceEcpayDecryptedRequestDto } from './dto/issue-invoice-ecpay.dto';
 import { ReturnEcpayDto } from './dto/return-ecpay.dto';
@@ -10,6 +8,8 @@ import { EcpayGetGovInvoiceWordSettingService } from './services/ecpay-get-gov-i
 import { EcpayGetInvoiceWordSettingService } from './services/ecpay-get-invoice-word-setting.service';
 import { EcpayIssueInvoiceService } from './services/ecpay-issue-invoice.service';
 import { EcpayUpdateInvoiceWordStatusService } from './services/ecpay-update-invoice-word-status.service';
+
+import { Body, Controller, Header, Post } from '@nestjs/common';
 
 @Controller('ecpay')
 export class EcpayController {

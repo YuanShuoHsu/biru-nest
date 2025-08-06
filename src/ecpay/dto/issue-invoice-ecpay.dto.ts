@@ -1,7 +1,5 @@
 // https://developers.ecpay.com.tw/?p=7896
 
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-
 import { Type } from 'class-transformer';
 import {
   ArrayMaxSize,
@@ -24,6 +22,8 @@ import {
   ValidateIf,
   ValidateNested,
 } from 'class-validator';
+
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 class IssueInvoiceEcpayEncryptedRequestHeaderDto {
   @ApiProperty({

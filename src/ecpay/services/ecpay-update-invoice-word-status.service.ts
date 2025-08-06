@@ -1,15 +1,17 @@
-import { HttpService } from '@nestjs/axios';
-import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-
 import { firstValueFrom } from 'rxjs';
 
 import {
   UpdateInvoiceWordStatusEcpayDecryptedResponseDto,
   UpdateInvoiceWordStatusEcpayEncryptedResponseDto,
 } from '../dto/update-invoice-word-status-ecpay.dto';
+
 import { EcpayMode } from '../types/ecpay.types';
+
 import { decryptData, encryptData } from '../utils/ecpay';
+
+import { HttpService } from '@nestjs/axios';
+import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 
 const getEcpayUpdateInvoiceWordStatusApiUrl = (mode: EcpayMode): string => {
   return mode === 'Test'

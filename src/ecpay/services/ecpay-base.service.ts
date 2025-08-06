@@ -1,12 +1,12 @@
-import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-
 import * as crypto from 'crypto';
 import { v4 as uuidv4 } from 'uuid';
 
 import { BaseEcpayDto } from '../dto/base-ecpay.dto';
 import { ReturnEcpayDto } from '../dto/return-ecpay.dto';
 import { EcpayMode } from '../types/ecpay.types';
+
+import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 
 const getEcpayBaseApiUrl = (mode: EcpayMode): string => {
   return mode === 'Test'

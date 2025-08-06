@@ -1,5 +1,3 @@
-import { Test, TestingModule } from '@nestjs/testing';
-
 import { EcpayController } from './ecpay.controller';
 
 import { EcpayAddInvoiceWordSettingService } from './services/ecpay-add-invoice-word-setting.service';
@@ -8,6 +6,8 @@ import { EcpayGetGovInvoiceWordSettingService } from './services/ecpay-get-gov-i
 import { EcpayGetInvoiceWordSettingService } from './services/ecpay-get-invoice-word-setting.service';
 import { EcpayIssueInvoiceService } from './services/ecpay-issue-invoice.service';
 import { EcpayUpdateInvoiceWordStatusService } from './services/ecpay-update-invoice-word-status.service';
+
+import { Test, TestingModule } from '@nestjs/testing';
 
 describe('EcpayController', () => {
   let controller: EcpayController;

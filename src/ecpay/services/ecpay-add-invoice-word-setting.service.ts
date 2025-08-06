@@ -1,7 +1,3 @@
-import { HttpService } from '@nestjs/axios';
-import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-
 import { firstValueFrom } from 'rxjs';
 
 import {
@@ -9,9 +5,14 @@ import {
   AddInvoiceWordSettingEcpayEncryptedResponseDto,
 } from '../dto/add-invoice-word-setting-ecpay.dto';
 import { GetGovInvoiceWordSettingEcpayDecryptedResponseDto } from '../dto/get-gov-invoice-word-setting-ecpay.dto';
+
 import { EcpayMode } from '../types/ecpay.types';
 
 import { decryptData, encryptData } from '../utils/ecpay';
+
+import { HttpService } from '@nestjs/axios';
+import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 
 const getEcpayAddInvoiceWordSettingApiUrl = (mode: EcpayMode): string =>
   mode === 'Test'

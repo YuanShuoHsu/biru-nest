@@ -1,8 +1,3 @@
-// src/ecpay/ecpay-get-invoice-word-setting.service.ts
-import { HttpService } from '@nestjs/axios';
-import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-
 import { firstValueFrom } from 'rxjs';
 
 import { GetGovInvoiceWordSettingEcpayInvoiceTerm } from '../dto/get-gov-invoice-word-setting-ecpay.dto';
@@ -10,8 +5,14 @@ import {
   GetInvoiceWordSettingEcpayDecryptedResponseDto,
   GetInvoiceWordSettingEcpayEncryptedResponseDto,
 } from '../dto/get-invoice-word-setting-ecpay.dto';
+
 import { EcpayMode } from '../types/ecpay.types';
+
 import { decryptData, encryptData } from '../utils/ecpay';
+
+import { HttpService } from '@nestjs/axios';
+import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 
 const getEcpayGetInvoiceWordSettingApiUrl = (mode: EcpayMode): string =>
   mode === 'Test'

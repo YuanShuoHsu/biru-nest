@@ -1,7 +1,3 @@
-import { HttpService } from '@nestjs/axios';
-import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-
 import { firstValueFrom } from 'rxjs';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -10,8 +6,14 @@ import {
   IssueInvoiceEcpayDecryptedResponseDto,
   IssueInvoiceEcpayEncryptedResponseDto,
 } from '../dto/issue-invoice-ecpay.dto';
+
 import { EcpayMode } from '../types/ecpay.types';
+
 import { decryptData, encryptData } from '../utils/ecpay';
+
+import { HttpService } from '@nestjs/axios';
+import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 
 const getEcpayIssueInvoiceApiUrl = (mode: EcpayMode): string => {
   return mode === 'Test'

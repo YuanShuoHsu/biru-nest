@@ -1,6 +1,3 @@
-import { HttpModule } from '@nestjs/axios';
-import { Module } from '@nestjs/common';
-
 import { EcpayController } from './ecpay.controller';
 
 import { EcpayAddInvoiceWordSettingService } from './services/ecpay-add-invoice-word-setting.service';
@@ -9,6 +6,9 @@ import { EcpayGetGovInvoiceWordSettingService } from './services/ecpay-get-gov-i
 import { EcpayGetInvoiceWordSettingService } from './services/ecpay-get-invoice-word-setting.service';
 import { EcpayIssueInvoiceService } from './services/ecpay-issue-invoice.service';
 import { EcpayUpdateInvoiceWordStatusService } from './services/ecpay-update-invoice-word-status.service';
+
+import { HttpModule } from '@nestjs/axios';
+import { Module } from '@nestjs/common';
 
 @Module({
   imports: [HttpModule],

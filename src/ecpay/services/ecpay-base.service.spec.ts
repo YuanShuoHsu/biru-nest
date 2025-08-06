@@ -1,6 +1,6 @@
-import { Test, TestingModule } from '@nestjs/testing';
-
 import { EcpayBaseService } from './ecpay-base.service';
+
+import { Test, TestingModule } from '@nestjs/testing';
 
 describe('EcpayBaseService', () => {
   let service: EcpayBaseService;

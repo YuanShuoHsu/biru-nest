@@ -1,6 +1,6 @@
-import { Test, TestingModule } from '@nestjs/testing';
-
 import { EcpayUpdateInvoiceWordStatusService } from './ecpay-update-invoice-word-status.service';
+
+import { Test, TestingModule } from '@nestjs/testing';
 
 describe('EcpayUpdateInvoiceWordStatusService', () => {
   let service: EcpayUpdateInvoiceWordStatusService;

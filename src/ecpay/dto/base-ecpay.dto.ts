@@ -1,7 +1,5 @@
 // https://developers.ecpay.com.tw/?p=2864
 
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-
 import {
   IsDefined,
   IsEnum,
@@ -14,6 +12,8 @@ import {
   Matches,
   ValidateIf,
 } from 'class-validator';
+
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 enum BaseEcpayPaymentType {
   AIO = 'aio',

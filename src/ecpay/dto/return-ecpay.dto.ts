@@ -1,7 +1,5 @@
 // https://developers.ecpay.com.tw/?p=2878
 
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-
 import {
   IsDefined,
   IsIn,
@@ -13,6 +11,8 @@ import {
   Length,
   Matches,
 } from 'class-validator';
+
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class ReturnEcpayDto {
   @ApiProperty({

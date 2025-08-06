@@ -1,4 +1,3 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
   IsDefined,
@@ -14,6 +13,8 @@ import {
   Min,
   ValidateNested,
 } from 'class-validator';
+
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 class UpdateInvoiceWordStatusEcpayEncryptedRequestHeaderDto {
   @ApiProperty({

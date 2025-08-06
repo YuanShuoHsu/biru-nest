@@ -1,3 +1,5 @@
+import { PostsService } from './post.service';
+
 import {
   Body,
   Controller,
@@ -7,9 +9,8 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
-import { Post as PostModel } from '@prisma/client';
 
-import { PostsService } from './post.service';
+import { Post as PostModel } from '@prisma/client';
 
 @Controller('post')
 export class PostController {
