@@ -2,6 +2,11 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 import type { LocalizedText } from 'src/db/schema/enums';
 
+export class SupplierIngredientResponseDto {
+  @ApiProperty() id: string;
+  @ApiProperty() name: LocalizedText;
+}
+
 export class SupplierResponseDto {
   @ApiProperty() id: string;
   @ApiProperty() organizationId: string;
@@ -9,8 +14,12 @@ export class SupplierResponseDto {
   @ApiPropertyOptional() telephone: string | null;
   @ApiPropertyOptional() url: string | null;
   @ApiPropertyOptional() note: string | null;
-  @ApiProperty({ description: '此供應商有採購規格的食材' })
-  ingredientNames: LocalizedText[];
+  @ApiProperty({
+    isArray: true,
+    type: SupplierIngredientResponseDto,
+    description: '由這家供應的食材',
+  })
+  ingredients: SupplierIngredientResponseDto[];
   @ApiProperty() createdAt: Date;
   @ApiProperty() updatedAt: Date;
 }

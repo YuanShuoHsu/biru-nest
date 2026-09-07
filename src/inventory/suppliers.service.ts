@@ -8,6 +8,10 @@ import {
   eq,
   ilike,
   inArray,
+  isNull,
+  ne,
+  notInArray,
+  or,
   sql,
   type Column,
   type SQL,
@@ -19,7 +23,6 @@ import {
   localTimeText,
 } from 'src/common/utils/data-grid-filters';
 import { getOrganizationIdBySlug } from 'src/common/utils/organizations';
-import type { LocalizedText } from 'src/db/schema/enums';
 import { ingredient, supplier } from 'src/db/schema/inventory';
 import { DRIZZLE, type DrizzleDB } from 'src/drizzle/drizzle.module';
 
@@ -32,7 +35,12 @@ import {
   SUPPLIER_STRING_FILTER_FIELDS,
   SupplierPaginationQueryDto,
 } from './dto/supplier-pagination-query.dto';
-import { SupplierResponseDto } from './dto/supplier-response.dto';
+import {
+  SupplierIngredientResponseDto,
+  SupplierResponseDto,
+} from './dto/supplier-response.dto';
+
+type Tx = Pick<DrizzleDB, 'update'>;
 
 @Injectable()
 export class SuppliersService {
@@ -102,72 +110,163 @@ export class SuppliersService {
       this.db.select({ total: count() }).from(supplier).where(where),
     ]);
 
-    const names = await this.ingredientNamesOf(data.map(({ id }) => id));
+    const ingredients = await this.ingredientsOf(data.map(({ id }) => id));
 
     return {
       data: data.map((row) => ({
         ...row,
-        ingredientNames: names.get(row.id) ?? [],
+        ingredients: ingredients.get(row.id) ?? [],
       })),
       total,
     };
   }
 
-  private async ingredientNamesOf(
+  private async ingredientsOf(
     supplierIds: string[],
-  ): Promise<Map<string, LocalizedText[]>> {
+  ): Promise<Map<string, SupplierIngredientResponseDto[]>> {
     if (!supplierIds.length) return new Map();
 
     const rows = await this.db
       .select({
-        ingredientName: ingredient.name,
+        id: ingredient.id,
+        name: ingredient.name,
         supplierId: ingredient.supplierId,
       })
       .from(ingredient)
       .where(inArray(ingredient.supplierId, supplierIds))
       .orderBy(asc(sql`${ingredient.name}::text`));
 
-    const names = new Map<string, LocalizedText[]>();
-    for (const { ingredientName, supplierId } of rows) {
+    const ingredients = new Map<string, SupplierIngredientResponseDto[]>();
+    for (const { supplierId, ...row } of rows) {
       if (!supplierId) continue;
 
-      names.set(supplierId, [...(names.get(supplierId) ?? []), ingredientName]);
+      ingredients.set(supplierId, [
+        ...(ingredients.get(supplierId) ?? []),
+        row,
+      ]);
     }
 
-    return names;
+    return ingredients;
   }
 
   async create(
     organizationSlug: string,
-    dto: CreateSupplierDto,
+    { ingredientIds, ...dto }: CreateSupplierDto,
   ): Promise<SupplierResponseDto> {
     const organizationId = await getOrganizationIdBySlug(
       this.db,
       organizationSlug,
     );
 
-    const [created] = await this.db
-      .insert(supplier)
-      .values({ ...dto, id: randomUUID(), organizationId })
-      .returning();
+    await this.assertIngredientsInOrganization(ingredientIds, organizationId);
 
-    return { ...created, ingredientNames: [] };
+    const created = await this.db.transaction(async (tx) => {
+      const [row] = await tx
+        .insert(supplier)
+        .values({ ...dto, id: randomUUID(), organizationId })
+        .returning();
+
+      if (ingredientIds) await this.bindIngredients(tx, row.id, ingredientIds);
+
+      return row;
+    });
+
+    return this.withIngredients(created);
   }
 
   async update(
     supplierId: string,
-    dto: UpdateSupplierDto,
+    { ingredientIds, ...dto }: UpdateSupplierDto,
   ): Promise<SupplierResponseDto> {
-    const [updated] = await this.db
-      .update(supplier)
-      .set(dto)
-      .where(eq(supplier.id, supplierId))
-      .returning();
-    if (!updated) throw new NotFoundException('Supplier not found');
+    const [existing] = await this.db
+      .select({ organizationId: supplier.organizationId })
+      .from(supplier)
+      .where(eq(supplier.id, supplierId));
+    if (!existing) throw new NotFoundException('Supplier not found');
 
-    const names = await this.ingredientNamesOf([supplierId]);
+    await this.assertIngredientsInOrganization(
+      ingredientIds,
+      existing.organizationId,
+    );
 
-    return { ...updated, ingredientNames: names.get(supplierId) ?? [] };
+    const updated = await this.db.transaction(async (tx) => {
+      const [row] = Object.keys(dto).length
+        ? await tx
+            .update(supplier)
+            .set(dto)
+            .where(eq(supplier.id, supplierId))
+            .returning()
+        : await tx.select().from(supplier).where(eq(supplier.id, supplierId));
+      if (!row) throw new NotFoundException('Supplier not found');
+
+      if (ingredientIds)
+        await this.bindIngredients(tx, supplierId, ingredientIds);
+
+      return row;
+    });
+
+    return this.withIngredients(updated);
+  }
+
+  private async withIngredients(
+    row: typeof supplier.$inferSelect,
+  ): Promise<SupplierResponseDto> {
+    const ingredients = await this.ingredientsOf([row.id]);
+
+    return { ...row, ingredients: ingredients.get(row.id) ?? [] };
+  }
+
+  private async assertIngredientsInOrganization(
+    ingredientIds: string[] | undefined,
+    organizationId: string,
+  ): Promise<void> {
+    const unique = [...new Set(ingredientIds)];
+    if (!unique.length) return;
+
+    const found = await this.db
+      .select({ id: ingredient.id })
+      .from(ingredient)
+      .where(
+        and(
+          inArray(ingredient.id, unique),
+          eq(ingredient.organizationId, organizationId),
+        ),
+      );
+    if (found.length !== unique.length)
+      throw new NotFoundException('Ingredient not found');
+  }
+
+  private async bindIngredients(
+    tx: Tx,
+    supplierId: string,
+    ingredientIds: string[],
+  ): Promise<void> {
+    await tx
+      .update(ingredient)
+      .set({ supplierId: null })
+      .where(
+        and(
+          eq(ingredient.supplierId, supplierId),
+          ingredientIds.length
+            ? notInArray(ingredient.id, ingredientIds)
+            : undefined,
+        ),
+      );
+
+    if (!ingredientIds.length) return;
+
+    await tx
+      .update(ingredient)
+      .set({ supplierId })
+      .where(
+        and(
+          inArray(ingredient.id, ingredientIds),
+          or(
+            isNull(ingredient.supplierId),
+            ne(ingredient.supplierId, supplierId),
+          ),
+        ),
+      );
   }
 
   async remove(supplierId: string): Promise<void> {

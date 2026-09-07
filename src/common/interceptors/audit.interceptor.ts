@@ -75,7 +75,7 @@ const resourceColumnOf = (target: AuditTarget) =>
   target.via?.ownerColumn ?? 'id';
 
 const actionOf = (target: AuditTarget, action: AuditAction): AuditAction =>
-  target.via ? 'update' : action;
+  target.action ?? (target.via ? 'update' : action);
 
 const pickId = (value: unknown): string | undefined => {
   if (typeof value !== 'object' || value === null) return undefined;
@@ -113,12 +113,10 @@ const idsFromRequest = (
   return [];
 };
 
-// handler 執行前能定位的列。`response` 來源此時還沒有 id，回 null 代表沒有 before
-const locateBefore = (
-  idSource: AuditIdSource,
-  request: AuditRequest,
-): Locator | null => {
-  const ids = idsFromRequest(idSource, request);
+const sourcesOf = (target: AuditTarget): AuditIdSource[] =>
+  Array.isArray(target.idSource) ? target.idSource : [target.idSource];
+
+const locatorOf = (idSource: AuditIdSource, ids: string[]): Locator | null => {
   if (!ids.length) return null;
 
   return 'column' in idSource
@@ -126,22 +124,27 @@ const locateBefore = (
     : { kind: 'ids', ids };
 };
 
+// handler 執行前能定位的列。`response` 來源此時還沒有 id，所以只剩其他來源
+const locateBefore = (target: AuditTarget, request: AuditRequest): Locator[] =>
+  sourcesOf(target)
+    .map((idSource) => locatorOf(idSource, idsFromRequest(idSource, request)))
+    .filter((locator): locator is Locator => !!locator);
+
 const locateAfter = (
-  idSource: AuditIdSource,
+  target: AuditTarget,
   request: AuditRequest,
   response: unknown,
-): Locator | null => {
-  if ('response' in idSource) {
-    const ids = idsFromResponse(response);
-    if (!ids.length) return null;
-
-    return 'column' in idSource
-      ? { kind: 'column', column: idSource.column, values: ids }
-      : { kind: 'ids', ids };
-  }
-
-  return locateBefore(idSource, request);
-};
+): Locator[] =>
+  sourcesOf(target)
+    .map((idSource) =>
+      locatorOf(
+        idSource,
+        'response' in idSource
+          ? idsFromResponse(response)
+          : idsFromRequest(idSource, request),
+      ),
+    )
+    .filter((locator): locator is Locator => !!locator);
 
 const diff = (
   before: Row | undefined,
@@ -190,7 +193,7 @@ export class AuditInterceptor implements NestInterceptor {
 
     const loadBefore = Promise.all(
       targets.map((target) =>
-        this.snapshot(target, locateBefore(target.idSource, request)),
+        this.snapshot(target, locateBefore(target, request)),
       ),
     );
 
@@ -218,19 +221,20 @@ export class AuditInterceptor implements NestInterceptor {
 
   private async snapshot(
     target: AuditTarget,
-    locator: Locator | null,
+    locators: Locator[],
     // 只有 after 會傳：欄位定位查不到「連結欄位被清空」的列（退券把 userCoupon.orderId
     // 設回 null），漏掉它會把一次更新記成整列消失
     knownIds: string[] = [],
   ): Promise<Map<string, SnapshotRow>> {
     const table = tableOf(target);
-    const located = !locator
-      ? undefined
-      : locator.kind === 'ids'
+    const located = locators.map((locator) =>
+      locator.kind === 'ids'
         ? inArray(table.id, locator.ids)
-        : this.columnCondition(table, locator);
+        : this.columnCondition(table, locator),
+    );
     const where = or(
-      ...[located, knownIds.length ? inArray(table.id, knownIds) : undefined],
+      ...located,
+      knownIds.length ? inArray(table.id, knownIds) : undefined,
     );
     if (!where) return new Map();
 
@@ -292,7 +296,7 @@ export class AuditInterceptor implements NestInterceptor {
           ? new Map<string, SnapshotRow>()
           : await this.snapshot(
               target,
-              locateAfter(target.idSource, request, response),
+              locateAfter(target, request, response),
               [...before.keys()],
             );
 

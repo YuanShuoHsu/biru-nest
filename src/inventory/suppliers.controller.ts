@@ -16,7 +16,17 @@ export class SuppliersController {
 
   @Patch()
   @Roles({ purchasing: ['update'] }, 'supplierId')
-  @Audit('supplier', { param: 'supplierId' })
+  @Audit(
+    { resource: 'supplier', idSource: { param: 'supplierId' } },
+    {
+      resource: 'ingredient',
+      idSource: [
+        { column: 'supplierId', param: 'supplierId' },
+        { body: 'ingredientIds' },
+      ],
+      action: 'update',
+    },
+  )
   @ApiOperation({ summary: '更新供應商' })
   update(
     @Param('supplierId') supplierId: string,
