@@ -137,7 +137,14 @@ export class RolesGuard implements CanActivate {
         const row = await this.db.query.offer.findFirst({
           where: eq(offer.id, params.offerId),
           with: {
-            menuItem: { with: { menu: { columns: { organizationId: true } } } },
+            menuItem: {
+              with: {
+                menu: { columns: { organizationId: true } },
+                menuSection: {
+                  with: { menu: { columns: { organizationId: true } } },
+                },
+              },
+            },
             menuSection: {
               with: { menu: { columns: { organizationId: true } } },
             },
@@ -146,6 +153,7 @@ export class RolesGuard implements CanActivate {
 
         return (
           row?.menuItem?.menu?.organizationId ??
+          row?.menuItem?.menuSection?.menu?.organizationId ??
           row?.menuSection?.menu?.organizationId
         );
       }
@@ -154,11 +162,21 @@ export class RolesGuard implements CanActivate {
         const row = await this.db.query.menuItemAddOn.findFirst({
           where: eq(menuItemAddOn.id, params.addOnId),
           with: {
-            menuItem: { with: { menu: { columns: { organizationId: true } } } },
+            menuItem: {
+              with: {
+                menu: { columns: { organizationId: true } },
+                menuSection: {
+                  with: { menu: { columns: { organizationId: true } } },
+                },
+              },
+            },
           },
         });
 
-        return row?.menuItem?.menu?.organizationId;
+        return (
+          row?.menuItem?.menu?.organizationId ??
+          row?.menuItem?.menuSection?.menu?.organizationId
+        );
       }
 
       case 'groupId': {
