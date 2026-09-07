@@ -1,0 +1,1 @@
+ALTER TABLE "ingredient" ADD COLUMN "inventory_level_unit_text" text;

@@ -90,6 +90,14 @@ export class CreateIngredientDto {
   inventoryLevel?: string | null;
 
   @ApiPropertyOptional({
+    example: '公克',
+    description: 'inventoryLevel 顯示用的單位；不參與 unitCode 的換算',
+  })
+  @IsOptional()
+  @IsString()
+  inventoryLevelUnitText?: string | null;
+
+  @ApiPropertyOptional({
     description: 'inventoryLevel 寫入帳本時的異動原因；不會存到 ingredient',
   })
   @IsOptional()

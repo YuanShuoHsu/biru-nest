@@ -17,6 +17,10 @@ export class IngredientResponseDto {
   @ApiProperty({ enum: Object.keys(UNIT_FACTORS), enumName: 'UnitCode' })
   unitCode: UnitCode;
   @ApiProperty() inventoryLevel: string;
+  @ApiPropertyOptional({
+    description: 'inventoryLevel 顯示用的單位；不參與 unitCode 的換算',
+  })
+  inventoryLevelUnitText: string | null;
   @ApiPropertyOptional() lowStockThreshold: string | null;
   @ApiPropertyOptional({
     description: '一個包裝的價錢；無 purchasing 權限時不回傳',

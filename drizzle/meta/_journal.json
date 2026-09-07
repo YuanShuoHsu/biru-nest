@@ -827,6 +827,13 @@
       "when": 1788760811047,
       "tag": "0117_inventory_transaction_clock_timestamp",
       "breakpoints": true
+    },
+    {
+      "idx": 118,
+      "version": "7",
+      "when": 1788790907809,
+      "tag": "0118_ingredient_inventory_level_unit_text",
+      "breakpoints": true
     }
   ]
 }

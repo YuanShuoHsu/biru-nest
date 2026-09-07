@@ -69,6 +69,7 @@ export const ingredient = pgTable(
     inventoryLevel: numeric('inventory_level', { precision: 12, scale: 3 })
       .notNull()
       .default('0'),
+    inventoryLevelUnitText: text('inventory_level_unit_text'),
     lowStockThreshold: numeric('low_stock_threshold', {
       precision: 12,
       scale: 3,
