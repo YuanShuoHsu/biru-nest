@@ -37,6 +37,7 @@ import { ModifierPaginationQueryDto } from './dto/modifier-pagination-query.dto'
 import { ModifierResponseDto } from './dto/modifier-response.dto';
 import { OfferResponseDto } from './dto/offer-response.dto';
 import { ReorderDto } from './dto/reorder.dto';
+import { UpdateItemAvailabilityDto } from './dto/update-item-availability.dto';
 import { UpdateMenuItemAddOnDto } from './dto/update-menu-item-add-on.dto';
 import { UpdateMenuItemDto } from './dto/update-menu-item.dto';
 import { UpdateMenuSectionDto } from './dto/update-menu-section.dto';
@@ -298,6 +299,24 @@ export class MenusController {
     });
   }
 
+  @Patch('offers/:offerId/availability')
+  @Roles({ itemAvailability: ['update'] }, 'offerId')
+  @Audit({
+    resource: 'menuItem',
+    idSource: { param: 'offerId' },
+    via: { table: 'offer', ownerColumn: 'menuItemId' },
+  })
+  @ApiOperation({ summary: '更新品項供應狀態' })
+  updateOfferAvailability(
+    @Body() updateItemAvailabilityDto: UpdateItemAvailabilityDto,
+    @Param('offerId') offerId: string,
+  ): Promise<OfferResponseDto> {
+    return this.menusService.updateOffer({
+      where: { id: offerId },
+      data: updateItemAvailabilityDto,
+    });
+  }
+
   @Delete('offers/:offerId')
   @Roles({ menu: ['delete'] }, 'offerId')
   @Audit({
@@ -489,6 +508,20 @@ export class MenusController {
     return this.menusService.updateModifier({
       where: { id: modifierId },
       data: updateModifierDto,
+    });
+  }
+
+  @Patch('modifiers/:modifierId/availability')
+  @Roles({ itemAvailability: ['update'] }, 'modifierId')
+  @Audit('modifier', { param: 'modifierId' })
+  @ApiOperation({ summary: '更新選項供應狀態' })
+  updateModifierAvailability(
+    @Body() updateItemAvailabilityDto: UpdateItemAvailabilityDto,
+    @Param('modifierId') modifierId: string,
+  ): Promise<ModifierResponseDto> {
+    return this.menusService.updateModifier({
+      where: { id: modifierId },
+      data: updateItemAvailabilityDto,
     });
   }
 
