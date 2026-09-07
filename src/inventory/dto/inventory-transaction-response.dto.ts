@@ -14,6 +14,7 @@ export class InventoryTransactionResponseDto {
   @ApiProperty() ingredientId: string;
   @ApiProperty() organizationId: string;
   @ApiProperty({ description: '帶正負的異動量' }) quantity: string;
+  @ApiProperty({ description: '這筆異動之後的帳上結存' }) balance: string;
   @ApiProperty({
     enum: INVENTORY_TRANSACTION_REASONS,
     enumName: 'InventoryTransactionReason',

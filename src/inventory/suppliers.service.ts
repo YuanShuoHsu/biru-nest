@@ -190,13 +190,14 @@ export class SuppliersService {
     );
 
     const updated = await this.db.transaction(async (tx) => {
-      const [row] = Object.keys(dto).length
-        ? await tx
-            .update(supplier)
-            .set(dto)
-            .where(eq(supplier.id, supplierId))
-            .returning()
-        : await tx.select().from(supplier).where(eq(supplier.id, supplierId));
+      const [row] =
+        Object.keys(dto).length || ingredientIds
+          ? await tx
+              .update(supplier)
+              .set({ ...dto, updatedAt: new Date() })
+              .where(eq(supplier.id, supplierId))
+              .returning()
+          : await tx.select().from(supplier).where(eq(supplier.id, supplierId));
       if (!row) throw new NotFoundException('Supplier not found');
 
       if (ingredientIds)

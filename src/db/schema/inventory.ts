@@ -4,7 +4,7 @@
 // https://schema.org/Recipe
 // https://schema.org/HowToSupply
 
-import { relations } from 'drizzle-orm';
+import { relations, sql } from 'drizzle-orm';
 import {
   index,
   integer,
@@ -13,6 +13,7 @@ import {
   pgEnum,
   pgTable,
   text,
+  timestamp,
   uniqueIndex,
 } from 'drizzle-orm/pg-core';
 
@@ -111,7 +112,10 @@ export const inventoryTransaction = pgTable(
       .references(() => organization.id, { onDelete: 'cascade' }),
     quantity: numeric('quantity', { precision: 12, scale: 3 }).notNull(),
     unitCost: numeric('unit_cost', { precision: 16, scale: 6 }),
-    ...timestamps,
+    createdAt: timestamp('created_at')
+      .default(sql`clock_timestamp()`)
+      .notNull(),
+    updatedAt: timestamps.updatedAt,
   },
   (table) => [
     index('inventoryTransaction_ingredientId_idx').on(table.ingredientId),

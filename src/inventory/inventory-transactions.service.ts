@@ -79,6 +79,17 @@ export class InventoryTransactionsService {
       else 'restore'
     end`;
 
+    const ledger = this.db
+      .select({
+        id: inventoryTransaction.id,
+        balance: sql<string>`sum(${inventoryTransaction.quantity}) over (
+          order by ${inventoryTransaction.createdAt}, ${inventoryTransaction.id}
+        )`.as('balance'),
+      })
+      .from(inventoryTransaction)
+      .where(eq(inventoryTransaction.ingredientId, ingredientId))
+      .as('ledger');
+
     const fieldMap: Record<string, Column | SQL> = {
       quantity: inventoryTransaction.quantity,
       unitCost: inventoryTransaction.unitCost,
@@ -88,9 +99,13 @@ export class InventoryTransactionsService {
     };
 
     const dir = sortDirection === 'desc' ? desc : asc;
+    const tiebreakers = [
+      dir(inventoryTransaction.createdAt),
+      dir(inventoryTransaction.id),
+    ];
     const orderBy = sortBy
-      ? [dir(fieldMap[sortBy])]
-      : [desc(inventoryTransaction.createdAt)];
+      ? [dir(fieldMap[sortBy]), ...tiebreakers]
+      : tiebreakers;
 
     const where = and(
       eq(inventoryTransaction.ingredientId, ingredientId),
@@ -127,10 +142,12 @@ export class InventoryTransactionsService {
       this.db
         .select({
           inventoryTransaction,
+          balance: ledger.balance,
           orderNumber: order.orderNumber,
           reason,
         })
         .from(inventoryTransaction)
+        .innerJoin(ledger, eq(ledger.id, inventoryTransaction.id))
         .leftJoin(order, eq(order.id, inventoryTransaction.orderId))
         .where(where)
         .orderBy(...orderBy)
@@ -147,11 +164,13 @@ export class InventoryTransactionsService {
       data: rows.map(
         ({
           inventoryTransaction: { unitCost, ...row },
+          balance,
           orderNumber,
           reason,
         }) => ({
           ...row,
           ...(canReadPurchasing && { unitCost }),
+          balance,
           orderNumber,
           reason,
         }),
@@ -212,12 +231,13 @@ export class InventoryTransactionsService {
       })
       .returning();
 
-    await tx
+    const [{ balance }] = await tx
       .update(ingredient)
       .set({ inventoryLevel: String(inventoryLevel) })
-      .where(eq(ingredient.id, ingredientId));
+      .where(eq(ingredient.id, ingredientId))
+      .returning({ balance: ingredient.inventoryLevel });
 
-    return { ...created, orderNumber: null, reason: 'count' };
+    return { ...created, balance, orderNumber: null, reason: 'count' };
   }
 
   async consume(orderId: string, tx: Tx): Promise<void> {
@@ -331,6 +351,18 @@ export class InventoryTransactionsService {
     tx: Tx,
   ): Promise<void> {
     if (!entries.length) return;
+
+    await tx
+      .select({ id: ingredient.id })
+      .from(ingredient)
+      .where(
+        inArray(
+          ingredient.id,
+          entries.map(({ ingredientId }) => ingredientId),
+        ),
+      )
+      .orderBy(asc(ingredient.id))
+      .for('update');
 
     await tx.insert(inventoryTransaction).values(
       entries.map(({ ingredientId, quantity }) => ({

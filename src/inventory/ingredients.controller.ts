@@ -15,8 +15,8 @@ import { Audit } from 'src/common/decorators/audit.decorator';
 import { HasPermission } from 'src/menus/decorators/permission.decorator';
 import { Roles } from 'src/menus/decorators/roles.decorator';
 
-import { CreateInventoryTransactionDto } from './dto/create-inventory-transaction.dto';
 import { UpdateIngredientDto } from './dto/create-ingredient.dto';
+import { CreateInventoryTransactionDto } from './dto/create-inventory-transaction.dto';
 import { IngredientResponseDto } from './dto/ingredient-response.dto';
 import { InventoryTransactionPaginationQueryDto } from './dto/inventory-transaction-pagination-query.dto';
 import { InventoryTransactionResponseDto } from './dto/inventory-transaction-response.dto';
@@ -77,6 +77,11 @@ export class IngredientsController {
 
   @Post('inventory-transactions')
   @Roles({ inventoryTransaction: ['create'] }, 'ingredientId')
+  @Audit({
+    resource: 'ingredient',
+    idSource: { param: 'ingredientId' },
+    action: 'update',
+  })
   @ApiOperation({ summary: '登記食材庫存異動' })
   createTransaction(
     @Param('ingredientId') ingredientId: string,
