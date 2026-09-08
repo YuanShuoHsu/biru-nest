@@ -22,6 +22,7 @@ import {
 import { alias } from 'drizzle-orm/pg-core';
 import { v4 as uuidv4 } from 'uuid';
 
+import { DEFAULT_CURRENCY } from 'src/common/constants/currency';
 import { isSameLocalizedText } from 'src/common/utils/localized-text';
 import type { LocalizedText } from 'src/db/schema/enums';
 import { recipe } from 'src/db/schema/inventory';
@@ -47,6 +48,7 @@ import {
   modifierGroup,
   offer,
 } from 'src/db/schema/menus';
+import { organization } from 'src/db/schema/organizations';
 import type { DrizzleDB } from 'src/drizzle/drizzle.module';
 import { DRIZZLE } from 'src/drizzle/drizzle.module';
 
@@ -114,10 +116,19 @@ type RecipeSummary = {
   recipeYield: number;
 };
 
+type OfferWithCurrency = Offer & { priceCurrency: string };
+
+type ModifierWithCurrency = Modifier & { priceCurrency: string };
+
 type MenuItemWithRecipe = MenuItem & {
-  offer: Offer | null;
+  offer: OfferWithCurrency | null;
   recipe: (RecipeSummary & { cost?: number | null }) | null;
 };
+
+const withCurrency = (
+  row: Offer | null | undefined,
+  priceCurrency: string,
+): OfferWithCurrency | null => (row ? { ...row, priceCurrency } : null);
 
 @Injectable()
 export class MenusService {
@@ -125,6 +136,32 @@ export class MenusService {
     @Inject(DRIZZLE) private readonly db: DrizzleDB,
     private readonly recipesService: RecipesService,
   ) {}
+
+  private async currencyOfMenu(menuId: string | null): Promise<string> {
+    if (!menuId) return DEFAULT_CURRENCY;
+
+    const [row] = await this.db
+      .select({ currency: organization.currency })
+      .from(menu)
+      .innerJoin(organization, eq(organization.id, menu.organizationId))
+      .where(eq(menu.id, menuId));
+
+    return row?.currency ?? DEFAULT_CURRENCY;
+  }
+
+  private async currencyOfMenuChild(
+    table: typeof menuSection | typeof menuItem | typeof modifierGroup,
+    id: string,
+  ): Promise<string> {
+    const [row] = await this.db
+      .select({ currency: organization.currency })
+      .from(table)
+      .innerJoin(menu, eq(menu.id, table.menuId))
+      .innerJoin(organization, eq(organization.id, menu.organizationId))
+      .where(eq(table.id, id));
+
+    return row?.currency ?? DEFAULT_CURRENCY;
+  }
 
   private async recipeWithCost(
     found: RecipeSummary | null | undefined,
@@ -364,7 +401,13 @@ export class MenusService {
       return { ...created, offer: createdOffer, recipe: boundRecipe };
     });
 
-    return { ...result, recipe: await this.recipeWithCost(result.recipe) };
+    return {
+      ...result,
+      offer: result.offer
+        ? withCurrency(result.offer, await this.currencyOfMenu(result.menuId))
+        : null,
+      recipe: await this.recipeWithCost(result.recipe),
+    };
   }
 
   async menuItem(
@@ -395,7 +438,12 @@ export class MenusService {
 
     return {
       ...result,
-      offer: existingOffers[0] || null,
+      offer: existingOffers[0]
+        ? withCurrency(
+            existingOffers[0],
+            await this.currencyOfMenu(result.menuId),
+          )
+        : null,
       recipe: await this.recipeWithCost(recipes[0], canReadPurchasing),
     };
   }
@@ -430,7 +478,6 @@ export class MenusService {
       name: sql`${menuItem.name}::text`,
       recipe: recipeName,
       description: sql`${menuItem.description}::text`,
-      priceCurrency: offerValue(offer.priceCurrency),
       price: offerValue(sql`${offer.price}::numeric`),
       availability: offerValue(sql`${offer.availability}::text`),
       availableModes: menuItem.availableModes,
@@ -487,7 +534,7 @@ export class MenusService {
           ilike(sql`${menuItem.description}::text`, `%${value}%`),
           ilike(
             offerValue(
-              sql`concat_ws(' ', ${offer.priceCurrency}, ${offer.price}::text, ${offer.inventoryLevel}->>'value', ${offer.inventoryLevel}->>'unitText', ${offer.deliveryLeadTimeMinutes}::text, ${offer.priceSpecification}->>'price', ${offer.priceSpecification}->>'validFrom', ${offer.priceSpecification}->>'validThrough')`,
+              sql`concat_ws(' ', ${offer.price}::text, ${offer.inventoryLevel}->>'value', ${offer.inventoryLevel}->>'unitText', ${offer.deliveryLeadTimeMinutes}::text, ${offer.priceSpecification}->>'price', ${offer.priceSpecification}->>'validFrom', ${offer.priceSpecification}->>'validThrough')`,
             ),
             `%${value}%`,
           ),
@@ -505,7 +552,7 @@ export class MenusService {
         : undefined,
     );
 
-    const [data, [{ total }]] = await Promise.all([
+    const [data, [{ total }], priceCurrency] = await Promise.all([
       this.db
         .select()
         .from(menuItem)
@@ -514,6 +561,7 @@ export class MenusService {
         .limit(limit)
         .offset(offset),
       this.db.select({ total: count() }).from(menuItem).where(where),
+      this.currencyOfMenuChild(menuSection, sectionId),
     ]);
 
     const itemIds = data.map((item) => item.id);
@@ -569,7 +617,7 @@ export class MenusService {
     return {
       data: data.map((item) => ({
         ...item,
-        offer: offerByItemId.get(item.id) ?? null,
+        offer: withCurrency(offerByItemId.get(item.id), priceCurrency),
         recipe: recipeByItemId.get(item.id) ?? null,
       })),
       total,
@@ -675,12 +723,18 @@ export class MenusService {
       return { ...updated, offer: resultOffer, recipe: boundRecipe ?? null };
     });
 
-    return { ...result, recipe: await this.recipeWithCost(result.recipe) };
+    return {
+      ...result,
+      offer: result.offer
+        ? withCurrency(result.offer, await this.currencyOfMenu(result.menuId))
+        : null,
+      recipe: await this.recipeWithCost(result.recipe),
+    };
   }
 
   async deleteMenuItem(where: {
     id: string;
-  }): Promise<MenuItem & { offer: Offer | null }> {
+  }): Promise<MenuItem & { offer: OfferWithCurrency | null }> {
     const [deleted] = await this.db
       .delete(menuItem)
       .where(eq(menuItem.id, where.id))
@@ -691,43 +745,71 @@ export class MenusService {
 
   // ── Offer ─────────────────────────────────────────────────────────
 
-  async createOffer(menuItemId: string, data: CreateOfferDto): Promise<Offer> {
+  private currencyOfOffer(row: Offer): Promise<string> {
+    if (row.menuItemId)
+      return this.currencyOfMenuChild(menuItem, row.menuItemId);
+    if (row.menuSectionId)
+      return this.currencyOfMenuChild(menuSection, row.menuSectionId);
+
+    return Promise.resolve(DEFAULT_CURRENCY);
+  }
+
+  async createOffer(
+    menuItemId: string,
+    data: CreateOfferDto,
+  ): Promise<OfferWithCurrency> {
     const [created] = await this.db
       .insert(offer)
       .values({ id: uuidv4(), menuItemId, ...data })
       .returning();
 
-    return created;
+    return {
+      ...created,
+      priceCurrency: await this.currencyOfMenuChild(menuItem, menuItemId),
+    };
   }
 
-  async menuItemOffers(menuItemId: string): Promise<Offer[]> {
-    return this.db
-      .select()
-      .from(offer)
-      .where(eq(offer.menuItemId, menuItemId))
-      .orderBy(asc(offer.createdAt));
+  async menuItemOffers(menuItemId: string): Promise<OfferWithCurrency[]> {
+    const [rows, priceCurrency] = await Promise.all([
+      this.db
+        .select()
+        .from(offer)
+        .where(eq(offer.menuItemId, menuItemId))
+        .orderBy(asc(offer.createdAt)),
+      this.currencyOfMenuChild(menuItem, menuItemId),
+    ]);
+
+    return rows.map((row) => ({ ...row, priceCurrency }));
   }
 
   async updateOffer(params: {
     where: { id: string };
     data: UpdateOfferDto;
-  }): Promise<Offer> {
+  }): Promise<OfferWithCurrency> {
     const [updated] = await this.db
       .update(offer)
       .set({ ...params.data, updatedAt: new Date() })
       .where(eq(offer.id, params.where.id))
       .returning();
+    if (!updated) throw new NotFoundException('Offer not found');
 
-    return updated;
+    return {
+      ...updated,
+      priceCurrency: await this.currencyOfOffer(updated),
+    };
   }
 
-  async deleteOffer(where: { id: string }): Promise<Offer> {
+  async deleteOffer(where: { id: string }): Promise<OfferWithCurrency> {
     const [deleted] = await this.db
       .delete(offer)
       .where(eq(offer.id, where.id))
       .returning();
+    if (!deleted) throw new NotFoundException('Offer not found');
 
-    return deleted;
+    return {
+      ...deleted,
+      priceCurrency: await this.currencyOfOffer(deleted),
+    };
   }
 
   // ── MenuItemAddOn ─────────────────────────────────────────────────
@@ -1180,26 +1262,34 @@ export class MenusService {
   async createModifier(
     modifierGroupId: string,
     data: CreateModifierDto,
-  ): Promise<Modifier> {
-    return this.db.transaction(async (tx) => {
+  ): Promise<ModifierWithCurrency> {
+    const created = await this.db.transaction(async (tx) => {
       await tx
         .update(modifier)
         .set({ sortOrder: sql`${modifier.sortOrder} + 1` })
         .where(eq(modifier.modifierGroupId, modifierGroupId));
 
-      const [created] = await tx
+      const [row] = await tx
         .insert(modifier)
         .values({ id: uuidv4(), modifierGroupId, sortOrder: 0, ...data })
         .returning();
 
-      return created;
+      return row;
     });
+
+    return {
+      ...created,
+      priceCurrency: await this.currencyOfMenuChild(
+        modifierGroup,
+        modifierGroupId,
+      ),
+    };
   }
 
   async modifiers(
     modifierGroupId: string,
     query: ModifierPaginationQueryDto = {},
-  ): Promise<{ data: Modifier[]; total: number }> {
+  ): Promise<{ data: ModifierWithCurrency[]; total: number }> {
     const {
       limit = 10,
       offset = 0,
@@ -1264,7 +1354,7 @@ export class MenusService {
       }),
     );
 
-    const [data, [{ total }]] = await Promise.all([
+    const [data, [{ total }], priceCurrency] = await Promise.all([
       this.db
         .select()
         .from(modifier)
@@ -1273,9 +1363,13 @@ export class MenusService {
         .limit(limit)
         .offset(offset),
       this.db.select({ total: count() }).from(modifier).where(where),
+      this.currencyOfMenuChild(modifierGroup, modifierGroupId),
     ]);
 
-    return { data, total };
+    return {
+      data: data.map((row) => ({ ...row, priceCurrency })),
+      total,
+    };
   }
 
   async reorderModifiers(
@@ -1296,23 +1390,37 @@ export class MenusService {
   async updateModifier(params: {
     where: { id: string };
     data: UpdateModifierDto;
-  }): Promise<Modifier> {
+  }): Promise<ModifierWithCurrency> {
     const [updated] = await this.db
       .update(modifier)
       .set({ ...params.data, updatedAt: new Date() })
       .where(eq(modifier.id, params.where.id))
       .returning();
+    if (!updated) throw new NotFoundException('Modifier not found');
 
-    return updated;
+    return {
+      ...updated,
+      priceCurrency: await this.currencyOfMenuChild(
+        modifierGroup,
+        updated.modifierGroupId,
+      ),
+    };
   }
 
-  async deleteModifier(where: { id: string }): Promise<Modifier> {
+  async deleteModifier(where: { id: string }): Promise<ModifierWithCurrency> {
     const [deleted] = await this.db
       .delete(modifier)
       .where(eq(modifier.id, where.id))
       .returning();
+    if (!deleted) throw new NotFoundException('Modifier not found');
 
-    return deleted;
+    return {
+      ...deleted,
+      priceCurrency: await this.currencyOfMenuChild(
+        modifierGroup,
+        deleted.modifierGroupId,
+      ),
+    };
   }
 
   // ── MenuItemModifierGroup ─────────────────────────────────────────

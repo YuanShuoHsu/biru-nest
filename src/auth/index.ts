@@ -7,6 +7,8 @@
 // https://better-auth.com/docs/plugins/admin
 // https://better-auth.com/docs/plugins/organization
 
+import { Logger } from '@nestjs/common';
+
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { APIError } from 'better-auth/api';
 import { betterAuth } from 'better-auth/minimal';
@@ -24,10 +26,26 @@ import {
   PICKUP_MAX_ADVANCE_DAYS,
   PICKUP_MAX_MINUTES,
 } from '../common/constants/pickup';
+import { diffAuditRows, type AuditRow } from '../common/utils/audit-diff';
+import { isValidCurrency } from '../common/utils/currency';
 import { isValidOpeningHours } from '../common/utils/opening-hours';
 import { db } from '../db';
 import * as schema from '../db/schema';
 import type { MailsService } from '../mails/mails.service';
+
+const organizationSnapshots = new WeakMap<object, AuditRow | undefined>();
+
+const logger = new Logger('OrganizationAudit');
+
+const parseMetadata = (row: AuditRow | undefined): AuditRow | undefined => {
+  if (!row || typeof row.metadata !== 'string') return row;
+
+  try {
+    return { ...row, metadata: JSON.parse(row.metadata) as unknown };
+  } catch {
+    return row;
+  }
+};
 
 const getInitialOrganization = async (userId: string) => {
   const membership = await db.query.member.findFirst({
@@ -51,6 +69,11 @@ const assertValidOrganizationInput = (data: Record<string, unknown>) => {
   )
     throw new APIError('BAD_REQUEST', {
       message: '營業時間格式須為 "Mo-Fr 09:00-12:00,13:00-18:00"',
+    });
+
+  if (Object.hasOwn(data, 'currency') && !isValidCurrency(data.currency))
+    throw new APIError('BAD_REQUEST', {
+      message: 'currency 須為 ISO 4217 三碼大寫字母',
     });
 
   for (const [field, max] of Object.entries(PICKUP_FIELD_MAXIMUMS)) {
@@ -211,15 +234,16 @@ export const createAuth = (mailsService: MailsService) =>
           beforeUpdateOrganization: async ({ organization: data, member }) => {
             assertValidOrganizationInput(data);
 
+            const current = await db.query.organization.findFirst({
+              where: eq(schema.organization.id, member.organizationId),
+            });
+
+            organizationSnapshots.set(member, current);
+
             const touchesPoints =
               Object.hasOwn(data, 'amountPerPoint') ||
               Object.hasOwn(data, 'pointsEnabledAt');
             if (!touchesPoints) return;
-
-            const current = await db.query.organization.findFirst({
-              columns: { amountPerPoint: true, pointsEnabledAt: true },
-              where: eq(schema.organization.id, member.organizationId),
-            });
 
             const enabled = Object.hasOwn(data, 'amountPerPoint')
               ? data.amountPerPoint != null
@@ -232,6 +256,36 @@ export const createAuth = (mailsService: MailsService) =>
             return {
               data: { pointsEnabledAt: current?.pointsEnabledAt ?? new Date() },
             };
+          },
+          afterUpdateOrganization: async ({
+            organization: updated,
+            user,
+            member,
+          }) => {
+            const before = organizationSnapshots.get(member);
+            organizationSnapshots.delete(member);
+            if (!updated) return;
+
+            const changes = diffAuditRows(parseMetadata(before), updated);
+            if (!Object.keys(changes).length) return;
+
+            try {
+              await db.insert(schema.auditLog).values({
+                id: uuidv4(),
+                actorId: user.id,
+                actorName: user.name,
+                actorEmail: user.email,
+                organizationId: member.organizationId,
+                resource: 'organization',
+                resourceId: member.organizationId,
+                resourceLabel: updated.name,
+                ancestorIds: [],
+                action: 'update',
+                changes,
+              });
+            } catch (error) {
+              logger.error('Failed to write audit log', error);
+            }
           },
         },
         requireEmailVerificationOnInvitation: true,
@@ -275,6 +329,11 @@ export const createAuth = (mailsService: MailsService) =>
                 required: false,
               },
               telephone: {
+                type: 'string',
+                required: false,
+              },
+
+              currency: {
                 type: 'string',
                 required: false,
               },

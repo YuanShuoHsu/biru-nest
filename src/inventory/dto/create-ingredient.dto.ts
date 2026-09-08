@@ -2,7 +2,6 @@ import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
 
 import {
   IsIn,
-  IsNotEmpty,
   IsNumberString,
   IsObject,
   IsOptional,
@@ -53,11 +52,6 @@ export class CreateIngredientDto {
   @ApiProperty({ example: '950.00', description: '一個包裝的價錢' })
   @IsNumberString()
   price: string;
-
-  @ApiProperty({ example: 'TWD' })
-  @IsString()
-  @IsNotEmpty()
-  priceCurrency: string;
 
   @ApiProperty({ example: '100.000', description: '一個包裝的量' })
   @IsNumberString()

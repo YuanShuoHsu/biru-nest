@@ -74,6 +74,7 @@ export class OrderPricingService {
     const [orgMenu, menuItems, modifiers, offers] = await Promise.all([
       this.db.query.menu.findFirst({
         where: eq(menu.organizationId, organizationId),
+        with: { organization: { columns: { currency: true } } },
       }),
       this.db.query.menuItem.findMany({
         where: inArray(menuItem.id, allMenuItemIds),
@@ -90,6 +91,8 @@ export class OrderPricingService {
       }),
     ]);
     if (!orgMenu) throw new NotFoundException('Menu not found');
+
+    const priceCurrency = orgMenu.organization.currency;
 
     const menuItemMap = new Map(
       menuItems
@@ -197,8 +200,8 @@ export class OrderPricingService {
           item.menuSection?.parentSectionId,
         ].filter((id): id is string => !!id),
         unitPrice: unitPrice.toFixed(2),
-        priceCurrency:
-          offerMap.get(cartItem.menuItemId)?.priceCurrency ?? 'TWD',
+        // 訂單成立當下的幣別快照；店家日後改幣別不影響已成立的訂單
+        priceCurrency,
         orderQuantity: cartItem.quantity,
         modifiers: itemModifiers,
         addOns,

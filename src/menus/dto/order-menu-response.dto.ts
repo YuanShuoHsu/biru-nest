@@ -27,8 +27,8 @@ export class OrderMenuOfferResponseDto {
   @ApiPropertyOptional()
   price: string | null;
 
-  @ApiPropertyOptional()
-  priceCurrency: string | null;
+  @ApiProperty({ description: 'price 的幣別；來自店家設定' })
+  priceCurrency: string;
 
   @ApiPropertyOptional({
     enum: itemAvailabilityEnum.enumValues,
@@ -67,6 +67,9 @@ export class OrderMenuModifierResponseDto {
 
   @ApiPropertyOptional({ description: '加價金額；null 代表不影響價格' })
   priceAdjustment: string | null;
+
+  @ApiProperty({ description: 'priceAdjustment 的幣別；來自店家設定' })
+  priceCurrency: string;
 
   @ApiPropertyOptional({
     enum: itemAvailabilityEnum.enumValues,
@@ -271,6 +274,9 @@ export class OrderMenuResponseDto {
 
   @ApiPropertyOptional()
   image: string | null;
+
+  @ApiProperty({ description: '店家定價幣別；整份菜單共用一個' })
+  currency: string;
 
   @ApiProperty({ type: [OrderMenuSectionResponseDto] })
   sections: OrderMenuSectionResponseDto[];

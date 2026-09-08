@@ -20,6 +20,9 @@ export class ModifierResponseDto {
   @ApiPropertyOptional({ description: '加價金額；null 代表不影響價格' })
   priceAdjustment: string | null;
 
+  @ApiProperty({ description: 'priceAdjustment 的幣別；來自店家設定' })
+  priceCurrency: string;
+
   @ApiPropertyOptional({
     enum: itemAvailabilityEnum.enumValues,
     enumName: 'ItemAvailability',

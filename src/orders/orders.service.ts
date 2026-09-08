@@ -326,6 +326,7 @@ export class OrdersService {
           ...(applied && {
             discount: applied.discount.toFixed(2),
             discountCode: applied.coupon.code,
+            discountCurrency: org.currency,
           }),
           ...(total <= 0 && {
             orderStatus: 'OrderProcessing' as const,

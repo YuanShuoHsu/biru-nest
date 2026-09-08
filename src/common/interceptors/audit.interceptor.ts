@@ -14,10 +14,10 @@ import { getTableColumns, inArray, or } from 'drizzle-orm';
 import { Request } from 'express';
 import { from, Observable, switchMap, tap } from 'rxjs';
 
+import { diffAuditRows } from 'src/common/utils/audit-diff';
 import {
   auditLog,
   type AuditAction,
-  type AuditChanges,
   type AuditResource,
 } from 'src/db/schema/audit';
 import { DRIZZLE, type DrizzleDB } from 'src/drizzle/drizzle.module';
@@ -56,15 +56,6 @@ const ACTION_BY_METHOD: Record<string, AuditAction> = {
   PUT: 'update',
   DELETE: 'delete',
 };
-
-// id 不會變（建立時列出來也沒有意義），時間戳每次寫入都會變，記錄下來只會淹沒真正的異動。
-// organizationId 由稽核列本身記錄，前提是路由掛了 @Roles 讓 RolesGuard 解析出組織
-const IGNORED_COLUMNS = new Set([
-  'id',
-  'organizationId',
-  'createdAt',
-  'updatedAt',
-]);
 
 const scopeOf = (target: AuditTarget): AuditLabelScope =>
   target.via?.table ?? target.resource;
@@ -124,7 +115,6 @@ const locatorOf = (idSource: AuditIdSource, ids: string[]): Locator | null => {
     : { kind: 'ids', ids };
 };
 
-// handler 執行前能定位的列。`response` 來源此時還沒有 id，所以只剩其他來源
 const locateBefore = (target: AuditTarget, request: AuditRequest): Locator[] =>
   sourcesOf(target)
     .map((idSource) => locatorOf(idSource, idsFromRequest(idSource, request)))
@@ -145,29 +135,6 @@ const locateAfter = (
       ),
     )
     .filter((locator): locator is Locator => !!locator);
-
-const diff = (
-  before: Row | undefined,
-  after: Row | undefined,
-): AuditChanges => {
-  const keys = new Set([
-    ...Object.keys(before ?? {}),
-    ...Object.keys(after ?? {}),
-  ]);
-  const changes: AuditChanges = {};
-
-  for (const key of keys) {
-    if (IGNORED_COLUMNS.has(key)) continue;
-
-    const previous = before?.[key] ?? null;
-    const next = after?.[key] ?? null;
-    if (JSON.stringify(previous) === JSON.stringify(next)) continue;
-
-    changes[key] = { before: previous, after: next };
-  }
-
-  return changes;
-};
 
 @Injectable()
 export class AuditInterceptor implements NestInterceptor {
@@ -306,7 +273,7 @@ export class AuditInterceptor implements NestInterceptor {
         const resourceId = next?.resourceId ?? previous?.resourceId;
         if (!resourceId) continue;
 
-        const changes = diff(previous?.row, next?.row);
+        const changes = diffAuditRows(previous?.row, next?.row);
         if (!Object.keys(changes).length) continue;
 
         const snapshot =

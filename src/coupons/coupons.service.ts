@@ -67,6 +67,7 @@ import {
   localTimeText,
 } from 'src/common/utils/data-grid-filters';
 import { sumOrderItems } from 'src/common/utils/order-items';
+import { getOrganizationCurrency } from 'src/common/utils/organizations';
 import { localize } from 'src/menus/menus-public.service';
 
 import type { ResolvedOrderItem } from '../orders/order-pricing.service';
@@ -235,6 +236,15 @@ export class CouponsService {
       );
   }
 
+  private async resolveDiscountCurrency(
+    applicableOrganizationIds: string[] | null | undefined,
+    declared: string | undefined,
+  ): Promise<string | undefined> {
+    if (applicableOrganizationIds?.length !== 1) return declared;
+
+    return getOrganizationCurrency(this.db, applicableOrganizationIds[0]);
+  }
+
   async create(dto: CreateCouponDto): Promise<CouponResponseDto> {
     const pointsRedeem = dto.pointsCost != null;
     const issueTrigger = pointsRedeem ? null : (dto.issueTrigger ?? null);
@@ -265,7 +275,10 @@ export class CouponsService {
         id: randomUUID(),
         applicableOrganizationIds,
         code,
-        discountCurrency: dto.discountCurrency,
+        discountCurrency: await this.resolveDiscountCurrency(
+          applicableOrganizationIds,
+          dto.discountCurrency,
+        ),
         discountType: dto.discountType,
         discountValue: dto.discountValue.toFixed(2),
         isActive: dto.isActive ?? true,
@@ -686,13 +699,15 @@ export class CouponsService {
       await this.normalizeApplicableOrganizationIds(
         dto.applicableOrganizationIds,
       );
+    const effectiveOrganizationIds =
+      applicableOrganizationIds === undefined
+        ? found.applicableOrganizationIds
+        : applicableOrganizationIds;
     this.assertScopeTargets(
       dto.scope ?? found.scope,
       dto.menuItemIds ?? found.menuItemIds,
       dto.menuSectionIds ?? found.menuSectionIds,
-      applicableOrganizationIds === undefined
-        ? found.applicableOrganizationIds
-        : applicableOrganizationIds,
+      effectiveOrganizationIds,
     );
 
     if (dto.code !== undefined) {
@@ -711,7 +726,10 @@ export class CouponsService {
       .set({
         applicableOrganizationIds,
         code: dto.code?.trim(),
-        discountCurrency: dto.discountCurrency,
+        discountCurrency: await this.resolveDiscountCurrency(
+          effectiveOrganizationIds,
+          dto.discountCurrency,
+        ),
         discountType: dto.discountType,
         discountValue: dto.discountValue?.toFixed(2),
         isActive: dto.isActive,

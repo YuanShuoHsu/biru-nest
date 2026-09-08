@@ -48,6 +48,9 @@ export class OrganizationResponseDto {
   @ApiPropertyOptional()
   telephone: string | null;
 
+  @ApiProperty({ description: '店家目錄定價幣別', example: 'TWD' })
+  currency: string;
+
   @ApiPropertyOptional()
   amountPerPoint: string | null;
 

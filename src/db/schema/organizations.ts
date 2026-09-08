@@ -42,6 +42,8 @@ export const organization = pgTable(
     openingHours: text('opening_hours'),
     telephone: text('telephone'),
 
+    currency: text('currency').notNull().default('TWD'),
+
     amountPerPoint: numeric('amount_per_point', { precision: 10, scale: 2 }),
     pointsEnabledAt: timestamp('points_enabled_at'),
     pointsValidityYears: integer('points_validity_years'),

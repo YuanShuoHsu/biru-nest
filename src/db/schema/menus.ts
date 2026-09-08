@@ -148,7 +148,6 @@ export interface QuantitativeValue {
 // https://schema.org/PriceSpecification
 export interface PriceSpecification {
   price: string;
-  priceCurrency: string;
   validFrom?: string;
   validThrough?: string;
 }
@@ -165,7 +164,6 @@ export const offer = pgTable(
       onDelete: 'cascade',
     }),
     price: numeric('price', { precision: 10, scale: 2 }),
-    priceCurrency: text('price_currency').default('TWD'),
     availability: itemAvailabilityEnum('availability').default('InStock'),
     availableHours: text('available_hours'),
     deliveryLeadTimeMinutes: integer('delivery_lead_time_minutes'),

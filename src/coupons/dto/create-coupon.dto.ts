@@ -9,10 +9,11 @@ import {
   IsNumber,
   IsOptional,
   IsString,
-  Length,
+  Matches,
   MaxLength,
   Min,
 } from 'class-validator';
+import { CURRENCY_REGEX } from 'src/common/utils/currency';
 import {
   couponDiscountTypeEnum,
   couponIssueTriggerEnum,
@@ -39,11 +40,12 @@ export class CreateCouponDto {
   code: string;
 
   @ApiPropertyOptional({
-    description: '幣別（ISO 4217），未帶時預設 TWD；應與店家菜單幣別一致',
+    description:
+      '幣別（ISO 4217）；限定單一店家時一律採用該店設定，此欄只對跨店與全平台券生效',
   })
   @IsOptional()
   @IsString()
-  @Length(3, 3)
+  @Matches(CURRENCY_REGEX)
   discountCurrency?: string;
 
   @ApiProperty({

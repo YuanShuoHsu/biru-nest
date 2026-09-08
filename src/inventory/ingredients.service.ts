@@ -27,7 +27,11 @@ import {
   buildQuickFilterCondition,
   localTimeText,
 } from 'src/common/utils/data-grid-filters';
-import { getOrganizationIdBySlug } from 'src/common/utils/organizations';
+import {
+  getOrganizationBySlug,
+  getOrganizationCurrency,
+  getOrganizationIdBySlug,
+} from 'src/common/utils/organizations';
 import { ingredient, supplier, type Ingredient } from 'src/db/schema/inventory';
 import { DRIZZLE, type DrizzleDB } from 'src/drizzle/drizzle.module';
 
@@ -95,10 +99,8 @@ export class IngredientsService {
     )
       throw new ForbiddenException();
 
-    const organizationId = await getOrganizationIdBySlug(
-      this.db,
-      organizationSlug,
-    );
+    const { id: organizationId, currency: priceCurrency } =
+      await getOrganizationBySlug(this.db, organizationSlug);
 
     const supplierName = sql`(select ${supplier.name} from ${supplier} where ${supplier.id} = ${ingredient.supplierId})`;
 
@@ -181,7 +183,12 @@ export class IngredientsService {
 
     return {
       data: rows.map(({ ingredient: row, supplierName: name }) => {
-        const dto = { ...row, supplierName: name, ...pricingOf(row) };
+        const dto = {
+          ...row,
+          supplierName: name,
+          priceCurrency,
+          ...pricingOf(row),
+        };
 
         return canReadPurchasing ? dto : omitPurchasing(dto);
       }),
@@ -236,11 +243,12 @@ export class IngredientsService {
     });
     if (!found) throw new NotFoundException('Ingredient not found');
 
-    const dto = {
-      ...found,
-      supplierName: await this.supplierNameOf(found.supplierId),
-      ...pricingOf(found),
-    };
+    const [supplierName, priceCurrency] = await Promise.all([
+      this.supplierNameOf(found.supplierId),
+      getOrganizationCurrency(this.db, found.organizationId),
+    ]);
+
+    const dto = { ...found, supplierName, priceCurrency, ...pricingOf(found) };
 
     return canReadPurchasing ? dto : omitPurchasing(dto);
   }
@@ -249,10 +257,8 @@ export class IngredientsService {
     organizationSlug: string,
     { inventoryLevel, transactionNote, ...dto }: CreateIngredientDto,
   ): Promise<IngredientResponseDto> {
-    const organizationId = await getOrganizationIdBySlug(
-      this.db,
-      organizationSlug,
-    );
+    const { id: organizationId, currency: priceCurrency } =
+      await getOrganizationBySlug(this.db, organizationSlug);
 
     this.assertCompatibleUnitCode(dto);
     await this.assertSupplierInOrganization(dto.supplierId, organizationId);
@@ -282,6 +288,7 @@ export class IngredientsService {
     return {
       ...created,
       supplierName: await this.supplierNameOf(created.supplierId),
+      priceCurrency,
       ...pricingOf(created),
     };
   }
@@ -337,11 +344,12 @@ export class IngredientsService {
       return { ...row, inventoryLevel };
     });
 
-    return {
-      ...updated,
-      supplierName: await this.supplierNameOf(updated.supplierId),
-      ...pricingOf(updated),
-    };
+    const [supplierName, priceCurrency] = await Promise.all([
+      this.supplierNameOf(updated.supplierId),
+      getOrganizationCurrency(this.db, existing.organizationId),
+    ]);
+
+    return { ...updated, supplierName, priceCurrency, ...pricingOf(updated) };
   }
 
   async remove(ingredientId: string): Promise<void> {
@@ -375,17 +383,12 @@ export class IngredientsService {
     eligibleQuantity,
     eligibleQuantityUnitCode,
     price,
-    priceCurrency,
     unitCode,
   }: UpdateIngredientDto): void {
     if (
-      [
-        eligibleQuantity,
-        eligibleQuantityUnitCode,
-        price,
-        priceCurrency,
-        unitCode,
-      ].every((value) => value === undefined || value)
+      [eligibleQuantity, eligibleQuantityUnitCode, price, unitCode].every(
+        (value) => value === undefined || value,
+      )
     )
       return;
 

@@ -13,7 +13,6 @@ import {
 export const MENU_ITEM_STRING_FILTER_FIELDS = [
   'name',
   'description',
-  'priceCurrency',
   'recipe',
 ] as const;
 export const MENU_ITEM_NUMBER_FILTER_FIELDS = [
@@ -38,7 +37,6 @@ export const MENU_ITEM_ALL_FILTER_FIELDS = [
   ...MENU_ITEM_PLAIN_DATE_FILTER_FIELDS,
 ] as const;
 
-// availableModes 是陣列,快速搜尋走 customConditions 的 overlap 判定
 export const MENU_ITEM_QUICK_FILTER_ENUM_FIELDS = ['availability'] as const;
 
 export const MENU_ITEM_SEARCH_FIELDS = ['name', 'description'] as const;
@@ -48,7 +46,6 @@ export const MENU_ITEM_SEARCH_OPERATORS = [
   'endsWith',
 ] as const;
 
-// availableModes 是陣列,排序沒有可解釋的順序,不開放
 export const MENU_ITEM_SORT_FIELDS = [
   ...MENU_ITEM_STRING_FILTER_FIELDS,
   ...MENU_ITEM_NUMBER_FILTER_FIELDS,
@@ -56,6 +53,10 @@ export const MENU_ITEM_SORT_FIELDS = [
   ...MENU_ITEM_DATE_FILTER_FIELDS,
   ...MENU_ITEM_PLAIN_DATE_FILTER_FIELDS,
 ] as const;
+
+const REMOVED_FIELDS = new Set(['priceCurrency']);
+const dropRemovedField = ({ value }: { value: unknown }) =>
+  typeof value === 'string' && REMOVED_FIELDS.has(value) ? undefined : value;
 
 export type MenuItemFilterField = (typeof MENU_ITEM_ALL_FILTER_FIELDS)[number];
 export type MenuItemSortField = (typeof MENU_ITEM_SORT_FIELDS)[number];
@@ -79,6 +80,7 @@ export class MenuItemPaginationQueryDto {
     enumName: 'MenuItemFilterField',
   })
   @IsOptional()
+  @Transform(dropRemovedField)
   @IsIn(MENU_ITEM_ALL_FILTER_FIELDS)
   filterField?: MenuItemFilterField;
 
@@ -127,6 +129,7 @@ export class MenuItemPaginationQueryDto {
     enumName: 'MenuItemSortField',
   })
   @IsOptional()
+  @Transform(dropRemovedField)
   @IsIn(MENU_ITEM_SORT_FIELDS)
   sortBy?: MenuItemSortField;
 

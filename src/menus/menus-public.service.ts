@@ -80,6 +80,7 @@ const mapModifierGroups = (
     modifierGroup: ModifierGroup & { modifiers: Modifier[] };
   }[],
   lang: Language,
+  priceCurrency: string,
 ) =>
   modifierGroups
     .map(({ sortOrder, modifierGroup: group }) => ({
@@ -92,6 +93,7 @@ const mapModifierGroups = (
         .filter((mod) => mod.availability !== 'Discontinued')
         .map((mod) => ({
           ...mod,
+          priceCurrency,
           displayName: localize(mod.displayName, lang) || '',
         })),
       createdAt: group.createdAt,
@@ -117,6 +119,7 @@ export class PublicMenusService {
       this.db.query.menu.findFirst({
         where: eq(menu.organizationId, organizationId),
         with: {
+          organization: { columns: { currency: true } },
           menuSections: {
             where: isNull(menuSection.parentSectionId),
             orderBy: [asc(menuSection.sortOrder)],
@@ -184,10 +187,12 @@ export class PublicMenusService {
       addOnRowsByItemId.set(row.menuItemId, rows);
     }
 
+    const priceCurrency = orderMenu.organization.currency;
+
     const addOnModifierGroupsByItemId = new Map(
       [...addOnRowsByItemId].map(([itemId, rows]) => [
         itemId,
-        mapModifierGroups(rows, lang),
+        mapModifierGroups(rows, lang, priceCurrency),
       ]),
     );
 
@@ -198,8 +203,9 @@ export class PublicMenusService {
         description: localize(section.description, lang),
         menuItems: section.menuItems
           .filter((entry) => !isDiscontinued(entry))
-          .map(({ addOns, modifierGroups, ...item }) => ({
+          .map(({ addOns, modifierGroups, offers, ...item }) => ({
             ...item,
+            offers: offers.map((row) => ({ ...row, priceCurrency })),
             name: localize(item.name, lang) || '',
             description: localize(item.description, lang),
             sold: salesByMenuItemId.get(item.id) || 0,
@@ -215,12 +221,16 @@ export class PublicMenusService {
                   name: localize(name, lang) || '',
                   image,
                   availableModes,
-                  offers,
+                  offers: offers.map((row) => ({ ...row, priceCurrency })),
                   modifierGroups: addOnModifierGroupsByItemId.get(id) || [],
                 })),
               }),
             ),
-            modifierGroups: mapModifierGroups(modifierGroups, lang),
+            modifierGroups: mapModifierGroups(
+              modifierGroups,
+              lang,
+              priceCurrency,
+            ),
           })),
       }))
       .filter(({ menuItems }) => menuItems.length > 0);
@@ -230,6 +240,7 @@ export class PublicMenusService {
       name: localize(orderMenu.name, lang) || '',
       description: localize(orderMenu.description, lang),
       image: orderMenu.image,
+      currency: priceCurrency,
       sections,
       createdAt: orderMenu.createdAt,
       updatedAt: orderMenu.updatedAt,

@@ -841,6 +841,20 @@
       "when": 1788842712360,
       "tag": "0119_offer_delivery_lead_time_minutes",
       "breakpoints": true
+    },
+    {
+      "idx": 120,
+      "version": "7",
+      "when": 1788845497608,
+      "tag": "0120_organization_currency",
+      "breakpoints": true
+    },
+    {
+      "idx": 121,
+      "version": "7",
+      "when": 1788847615416,
+      "tag": "0121_audit_resource_organization",
+      "breakpoints": true
     }
   ]
 }

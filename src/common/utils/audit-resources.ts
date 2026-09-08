@@ -27,6 +27,7 @@ import {
   offer,
 } from 'src/db/schema/menus';
 import { order } from 'src/db/schema/orders';
+import { organization } from 'src/db/schema/organizations';
 import { user } from 'src/db/schema/users';
 import type { DrizzleDB } from 'src/drizzle/drizzle.module';
 
@@ -61,6 +62,7 @@ export const AUDIT_TABLES: Record<AuditLabelScope, AuditableTable> = {
   ingredient,
   recipe,
   recipeIngredient,
+  organization,
 };
 
 type LabelSource = { table: AuditableTable; column: string };

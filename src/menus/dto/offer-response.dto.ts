@@ -23,8 +23,8 @@ export class OfferResponseDto {
   @ApiPropertyOptional()
   price: string | null;
 
-  @ApiPropertyOptional()
-  priceCurrency: string | null;
+  @ApiProperty({ description: 'price 的幣別；來自店家設定' })
+  priceCurrency: string;
 
   @ApiPropertyOptional({
     enum: itemAvailabilityEnum.enumValues,

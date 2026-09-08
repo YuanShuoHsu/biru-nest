@@ -52,10 +52,6 @@ export class PriceSpecificationDto {
   @IsNumberString()
   price: string;
 
-  @ApiProperty({ example: 'TWD' })
-  @IsString()
-  priceCurrency: string;
-
   @ApiPropertyOptional({
     example: '2025-06-01T00:00:00+08:00',
     description: '促銷開始時間（ISO 8601）',
@@ -90,10 +86,6 @@ export class CreateOfferDto {
   @ApiProperty({ example: '150.00' })
   @IsNumberString()
   price: string;
-
-  @ApiProperty({ default: 'TWD' })
-  @IsString()
-  priceCurrency: string;
 
   @ApiPropertyOptional({
     enum: itemAvailabilityEnum.enumValues,

@@ -80,7 +80,6 @@ export const ingredient = pgTable(
       .notNull()
       .references(() => organization.id, { onDelete: 'cascade' }),
     price: numeric('price', { precision: 10, scale: 2 }),
-    priceCurrency: text('price_currency').notNull().default('TWD'),
     sortOrder: integer('sort_order').notNull().default(0),
     supplierId: text('supplier_id').references(() => supplier.id, {
       onDelete: 'set null',
