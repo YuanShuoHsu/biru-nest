@@ -146,6 +146,20 @@ export class RecipesService {
     return { data: await this.toResponse(data, canReadPurchasing), total };
   }
 
+  private async detailOf(
+    found: typeof recipe.$inferSelect,
+    canReadPurchasing: boolean,
+  ): Promise<RecipeResponseDto> {
+    const materials = await this.materialsOf([found.id], canReadPurchasing);
+    const [response] = await this.toResponse(
+      [found],
+      canReadPurchasing,
+      materials,
+    );
+
+    return { ...response, recipeIngredients: materials.get(found.id) ?? [] };
+  }
+
   async findOne(
     recipeId: string,
     canReadPurchasing = true,
@@ -155,14 +169,18 @@ export class RecipesService {
     });
     if (!found) throw new NotFoundException('Recipe not found');
 
-    const materials = await this.materialsOf([recipeId], canReadPurchasing);
-    const [response] = await this.toResponse(
-      [found],
-      canReadPurchasing,
-      materials,
-    );
+    return this.detailOf(found, canReadPurchasing);
+  }
 
-    return { ...response, recipeIngredients: materials.get(recipeId) ?? [] };
+  async findOneByMenuItem(
+    menuItemId: string,
+    canReadPurchasing = true,
+  ): Promise<RecipeResponseDto | null> {
+    const found = await this.db.query.recipe.findFirst({
+      where: eq(recipe.menuItemId, menuItemId),
+    });
+
+    return found ? this.detailOf(found, canReadPurchasing) : null;
   }
 
   async create(

@@ -43,3 +43,8 @@ export class RecipeResponseDto {
   @ApiProperty() createdAt: Date;
   @ApiProperty() updatedAt: Date;
 }
+
+export class MenuItemRecipeDetailResponseDto {
+  @ApiProperty({ nullable: true, type: RecipeResponseDto })
+  recipe: RecipeResponseDto | null;
+}
