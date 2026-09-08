@@ -14,6 +14,7 @@ import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 import { Audit } from 'src/common/decorators/audit.decorator';
 
+import { OrganizationId } from './decorators/organization-id.decorator';
 import { HasPermission } from './decorators/permission.decorator';
 import { Roles } from './decorators/roles.decorator';
 import { AddOnPaginationQueryDto } from './dto/add-on-pagination-query.dto';
@@ -177,8 +178,13 @@ export class MenusController {
   createMenuItem(
     @Body() createMenuItemDto: CreateMenuItemDto,
     @Param('sectionId') sectionId: string,
+    @OrganizationId() organizationId: string,
   ): Promise<MenuItemResponseDto> {
-    return this.menusService.createMenuItem(sectionId, createMenuItemDto);
+    return this.menusService.createMenuItem(
+      sectionId,
+      organizationId,
+      createMenuItemDto,
+    );
   }
 
   @Get('menu-sections/:sectionId/menu-items')
@@ -188,9 +194,11 @@ export class MenusController {
     @Param('sectionId') sectionId: string,
     @Query() query: MenuItemPaginationQueryDto,
     @HasPermission({ purchasing: ['read'] }) canReadPurchasing: boolean,
+    @OrganizationId() organizationId: string,
   ): Promise<{ data: MenuItemResponseDto[]; total: number }> {
     return this.menusService.menuSectionItems(
       sectionId,
+      organizationId,
       query,
       canReadPurchasing,
     );
@@ -213,9 +221,11 @@ export class MenusController {
   async findMenuItem(
     @Param('menuItemId') menuItemId: string,
     @HasPermission({ purchasing: ['read'] }) canReadPurchasing: boolean,
+    @OrganizationId() organizationId: string,
   ): Promise<MenuItemResponseDto> {
     const result = await this.menusService.menuItem(
       { id: menuItemId },
+      organizationId,
       canReadPurchasing,
     );
     if (!result) throw new NotFoundException();
@@ -238,9 +248,11 @@ export class MenusController {
   updateMenuItem(
     @Body() updateMenuItemDto: UpdateMenuItemDto,
     @Param('menuItemId') menuItemId: string,
+    @OrganizationId() organizationId: string,
   ): Promise<MenuItemResponseDto> {
     return this.menusService.updateMenuItem({
       where: { id: menuItemId },
+      organizationId,
       data: updateMenuItemDto,
     });
   }
@@ -268,8 +280,13 @@ export class MenusController {
   createOffer(
     @Body() createOfferDto: CreateOfferDto,
     @Param('menuItemId') menuItemId: string,
+    @OrganizationId() organizationId: string,
   ): Promise<OfferResponseDto> {
-    return this.menusService.createOffer(menuItemId, createOfferDto);
+    return this.menusService.createOffer(
+      menuItemId,
+      organizationId,
+      createOfferDto,
+    );
   }
 
   @Get('menu-items/:menuItemId/offers')
@@ -277,8 +294,9 @@ export class MenusController {
   @ApiOperation({ summary: '取得品項所有定價' })
   findAllOffers(
     @Param('menuItemId') menuItemId: string,
+    @OrganizationId() organizationId: string,
   ): Promise<OfferResponseDto[]> {
-    return this.menusService.menuItemOffers(menuItemId);
+    return this.menusService.menuItemOffers(menuItemId, organizationId);
   }
 
   @Patch('offers/:offerId')
@@ -292,9 +310,11 @@ export class MenusController {
   updateOffer(
     @Body() updateOfferDto: UpdateOfferDto,
     @Param('offerId') offerId: string,
+    @OrganizationId() organizationId: string,
   ): Promise<OfferResponseDto> {
     return this.menusService.updateOffer({
       where: { id: offerId },
+      organizationId,
       data: updateOfferDto,
     });
   }
@@ -310,9 +330,11 @@ export class MenusController {
   updateOfferAvailability(
     @Body() updateItemAvailabilityDto: UpdateItemAvailabilityDto,
     @Param('offerId') offerId: string,
+    @OrganizationId() organizationId: string,
   ): Promise<OfferResponseDto> {
     return this.menusService.updateOffer({
       where: { id: offerId },
+      organizationId,
       data: updateItemAvailabilityDto,
     });
   }
@@ -325,8 +347,11 @@ export class MenusController {
     via: { table: 'offer', ownerColumn: 'menuItemId' },
   })
   @ApiOperation({ summary: '刪除品項定價' })
-  deleteOffer(@Param('offerId') offerId: string): Promise<OfferResponseDto> {
-    return this.menusService.deleteOffer({ id: offerId });
+  deleteOffer(
+    @Param('offerId') offerId: string,
+    @OrganizationId() organizationId: string,
+  ): Promise<OfferResponseDto> {
+    return this.menusService.deleteOffer({ id: offerId, organizationId });
   }
 
   // ── MenuItemAddOn ─────────────────────────────────────────────────
@@ -472,8 +497,13 @@ export class MenusController {
   createModifier(
     @Body() createModifierDto: CreateModifierDto,
     @Param('groupId') groupId: string,
+    @OrganizationId() organizationId: string,
   ): Promise<ModifierResponseDto> {
-    return this.menusService.createModifier(groupId, createModifierDto);
+    return this.menusService.createModifier(
+      groupId,
+      organizationId,
+      createModifierDto,
+    );
   }
 
   @Get('modifier-groups/:groupId/modifiers')
@@ -482,8 +512,9 @@ export class MenusController {
   findAllModifiers(
     @Param('groupId') groupId: string,
     @Query() query: ModifierPaginationQueryDto,
+    @OrganizationId() organizationId: string,
   ): Promise<{ data: ModifierResponseDto[]; total: number }> {
-    return this.menusService.modifiers(groupId, query);
+    return this.menusService.modifiers(groupId, organizationId, query);
   }
 
   @Patch('modifier-groups/:groupId/modifiers/reorder')
@@ -504,9 +535,11 @@ export class MenusController {
   updateModifier(
     @Body() updateModifierDto: UpdateModifierDto,
     @Param('modifierId') modifierId: string,
+    @OrganizationId() organizationId: string,
   ): Promise<ModifierResponseDto> {
     return this.menusService.updateModifier({
       where: { id: modifierId },
+      organizationId,
       data: updateModifierDto,
     });
   }
@@ -518,9 +551,11 @@ export class MenusController {
   updateModifierAvailability(
     @Body() updateItemAvailabilityDto: UpdateItemAvailabilityDto,
     @Param('modifierId') modifierId: string,
+    @OrganizationId() organizationId: string,
   ): Promise<ModifierResponseDto> {
     return this.menusService.updateModifier({
       where: { id: modifierId },
+      organizationId,
       data: updateItemAvailabilityDto,
     });
   }
@@ -531,8 +566,9 @@ export class MenusController {
   @ApiOperation({ summary: '刪除選項' })
   deleteModifier(
     @Param('modifierId') modifierId: string,
+    @OrganizationId() organizationId: string,
   ): Promise<ModifierResponseDto> {
-    return this.menusService.deleteModifier({ id: modifierId });
+    return this.menusService.deleteModifier({ id: modifierId, organizationId });
   }
 
   // ── MenuItemModifierGroup ─────────────────────────────────────────

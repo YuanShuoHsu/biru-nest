@@ -37,16 +37,6 @@ const organizationSnapshots = new WeakMap<object, AuditRow | undefined>();
 
 const logger = new Logger('OrganizationAudit');
 
-const parseMetadata = (row: AuditRow | undefined): AuditRow | undefined => {
-  if (!row || typeof row.metadata !== 'string') return row;
-
-  try {
-    return { ...row, metadata: JSON.parse(row.metadata) as unknown };
-  } catch {
-    return row;
-  }
-};
-
 const getInitialOrganization = async (userId: string) => {
   const membership = await db.query.member.findFirst({
     where: eq(schema.member.userId, userId),
@@ -266,7 +256,12 @@ export const createAuth = (mailsService: MailsService) =>
             organizationSnapshots.delete(member);
             if (!updated) return;
 
-            const changes = diffAuditRows(parseMetadata(before), updated);
+            const after = await db.query.organization.findFirst({
+              where: eq(schema.organization.id, member.organizationId),
+            });
+            if (!after) return;
+
+            const changes = diffAuditRows(before, after);
             if (!Object.keys(changes).length) return;
 
             try {
@@ -278,7 +273,7 @@ export const createAuth = (mailsService: MailsService) =>
                 organizationId: member.organizationId,
                 resource: 'organization',
                 resourceId: member.organizationId,
-                resourceLabel: updated.name,
+                resourceLabel: after.name,
                 ancestorIds: [],
                 action: 'update',
                 changes,

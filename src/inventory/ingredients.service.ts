@@ -33,6 +33,7 @@ import {
   getOrganizationIdBySlug,
 } from 'src/common/utils/organizations';
 import { ingredient, supplier, type Ingredient } from 'src/db/schema/inventory';
+import { organization } from 'src/db/schema/organizations';
 import { DRIZZLE, type DrizzleDB } from 'src/drizzle/drizzle.module';
 
 import {
@@ -301,9 +302,11 @@ export class IngredientsService {
       .select({
         eligibleQuantityUnitCode: ingredient.eligibleQuantityUnitCode,
         organizationId: ingredient.organizationId,
+        priceCurrency: organization.currency,
         unitCode: ingredient.unitCode,
       })
       .from(ingredient)
+      .innerJoin(organization, eq(organization.id, ingredient.organizationId))
       .where(eq(ingredient.id, ingredientId));
     if (!existing) throw new NotFoundException('Ingredient not found');
 
@@ -344,12 +347,12 @@ export class IngredientsService {
       return { ...row, inventoryLevel };
     });
 
-    const [supplierName, priceCurrency] = await Promise.all([
-      this.supplierNameOf(updated.supplierId),
-      getOrganizationCurrency(this.db, existing.organizationId),
-    ]);
-
-    return { ...updated, supplierName, priceCurrency, ...pricingOf(updated) };
+    return {
+      ...updated,
+      supplierName: await this.supplierNameOf(updated.supplierId),
+      priceCurrency: existing.priceCurrency,
+      ...pricingOf(updated),
+    };
   }
 
   async remove(ingredientId: string): Promise<void> {

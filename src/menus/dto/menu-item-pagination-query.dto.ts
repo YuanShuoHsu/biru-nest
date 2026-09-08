@@ -54,9 +54,8 @@ export const MENU_ITEM_SORT_FIELDS = [
   ...MENU_ITEM_PLAIN_DATE_FILTER_FIELDS,
 ] as const;
 
-const REMOVED_FIELDS = new Set(['priceCurrency']);
 const dropRemovedField = ({ value }: { value: unknown }) =>
-  typeof value === 'string' && REMOVED_FIELDS.has(value) ? undefined : value;
+  value === 'priceCurrency' ? undefined : value;
 
 export type MenuItemFilterField = (typeof MENU_ITEM_ALL_FILTER_FIELDS)[number];
 export type MenuItemSortField = (typeof MENU_ITEM_SORT_FIELDS)[number];
