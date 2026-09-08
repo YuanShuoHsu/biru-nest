@@ -4,10 +4,12 @@ import { Type } from 'class-transformer';
 import {
   IsDateString,
   IsEnum,
+  IsInt,
   IsNumber,
   IsNumberString,
   IsOptional,
   IsString,
+  Min,
   Validate,
   ValidateNested,
   ValidationArguments,
@@ -111,13 +113,13 @@ export class CreateOfferDto {
   availableHours?: string;
 
   @ApiPropertyOptional({
-    type: QuantitativeValueDto,
-    description: '預計準備時間，unitText 建議用 "minute"',
+    description: '預計準備時間（分鐘）',
+    example: 15,
   })
   @IsOptional()
-  @Type(() => QuantitativeValueDto)
-  @ValidateNested()
-  deliveryLeadTime?: QuantitativeValueDto;
+  @IsInt()
+  @Min(0)
+  deliveryLeadTimeMinutes?: number;
 
   @ApiPropertyOptional({
     type: QuantitativeValueDto,

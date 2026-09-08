@@ -437,9 +437,7 @@ export class MenusService {
       inventoryLevel: offerValue(
         sql`NULLIF(${offer.inventoryLevel}->>'value', '')::numeric`,
       ),
-      deliveryLeadTime: offerValue(
-        sql`NULLIF(${offer.deliveryLeadTime}->>'value', '')::numeric`,
-      ),
+      deliveryLeadTimeMinutes: offerValue(offer.deliveryLeadTimeMinutes),
       priceSpecification: offerValue(
         sql`NULLIF(${offer.priceSpecification}->>'price', '')::numeric`,
       ),
@@ -489,7 +487,7 @@ export class MenusService {
           ilike(sql`${menuItem.description}::text`, `%${value}%`),
           ilike(
             offerValue(
-              sql`concat_ws(' ', ${offer.priceCurrency}, ${offer.price}::text, ${offer.inventoryLevel}->>'value', ${offer.inventoryLevel}->>'unitText', ${offer.deliveryLeadTime}->>'value', ${offer.deliveryLeadTime}->>'unitText', ${offer.priceSpecification}->>'price', ${offer.priceSpecification}->>'validFrom', ${offer.priceSpecification}->>'validThrough')`,
+              sql`concat_ws(' ', ${offer.priceCurrency}, ${offer.price}::text, ${offer.inventoryLevel}->>'value', ${offer.inventoryLevel}->>'unitText', ${offer.deliveryLeadTimeMinutes}::text, ${offer.priceSpecification}->>'price', ${offer.priceSpecification}->>'validFrom', ${offer.priceSpecification}->>'validThrough')`,
             ),
             `%${value}%`,
           ),

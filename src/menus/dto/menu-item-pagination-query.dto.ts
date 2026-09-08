@@ -19,7 +19,7 @@ export const MENU_ITEM_STRING_FILTER_FIELDS = [
 export const MENU_ITEM_NUMBER_FILTER_FIELDS = [
   'price',
   'inventoryLevel',
-  'deliveryLeadTime',
+  'deliveryLeadTimeMinutes',
   'priceSpecification',
 ] as const;
 export const MENU_ITEM_ENUM_FILTER_FIELDS = ['availability'] as const;

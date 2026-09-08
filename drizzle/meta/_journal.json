@@ -834,6 +834,13 @@
       "when": 1788790907809,
       "tag": "0118_ingredient_inventory_level_unit_text",
       "breakpoints": true
+    },
+    {
+      "idx": 119,
+      "version": "7",
+      "when": 1788842712360,
+      "tag": "0119_offer_delivery_lead_time_minutes",
+      "breakpoints": true
     }
   ]
 }

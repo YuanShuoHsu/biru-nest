@@ -35,8 +35,8 @@ export class OfferResponseDto {
   @ApiPropertyOptional({ description: '可供應時段；null 代表全時段供應' })
   availableHours: string | null;
 
-  @ApiPropertyOptional({ type: QuantitativeValueDto })
-  deliveryLeadTime: QuantitativeValueDto | null;
+  @ApiPropertyOptional({ description: '預計準備時間（分鐘）' })
+  deliveryLeadTimeMinutes: number | null;
 
   @ApiPropertyOptional({ type: QuantitativeValueDto })
   inventoryLevel: QuantitativeValueDto | null;
