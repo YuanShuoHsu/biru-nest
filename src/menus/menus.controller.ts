@@ -39,6 +39,7 @@ import { ModifierResponseDto } from './dto/modifier-response.dto';
 import { OfferResponseDto } from './dto/offer-response.dto';
 import { ReorderDto } from './dto/reorder.dto';
 import { UpdateItemAvailabilityDto } from './dto/update-item-availability.dto';
+import { UpdateOfferAvailabilityDto } from './dto/update-offer-availability.dto';
 import { UpdateMenuItemAddOnDto } from './dto/update-menu-item-add-on.dto';
 import { UpdateMenuItemDto } from './dto/update-menu-item.dto';
 import { UpdateMenuSectionDto } from './dto/update-menu-section.dto';
@@ -326,16 +327,16 @@ export class MenusController {
     idSource: { param: 'offerId' },
     via: { table: 'offer', ownerColumn: 'menuItemId' },
   })
-  @ApiOperation({ summary: '更新品項供應狀態' })
+  @ApiOperation({ summary: '更新品項供應狀態與剩餘數量' })
   updateOfferAvailability(
-    @Body() updateItemAvailabilityDto: UpdateItemAvailabilityDto,
+    @Body() updateOfferAvailabilityDto: UpdateOfferAvailabilityDto,
     @Param('offerId') offerId: string,
     @OrganizationId() organizationId: string,
   ): Promise<OfferResponseDto> {
-    return this.menusService.updateOffer({
+    return this.menusService.updateOfferAvailability({
       where: { id: offerId },
       organizationId,
-      data: updateItemAvailabilityDto,
+      data: updateOfferAvailabilityDto,
     });
   }
 

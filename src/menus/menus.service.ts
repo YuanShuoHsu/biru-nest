@@ -35,6 +35,7 @@ import type {
   Modifier,
   ModifierGroup,
   Offer,
+  QuantitativeValue,
 } from 'src/db/schema/menus';
 import {
   menu,
@@ -107,6 +108,7 @@ import type { UpdateMenuSectionDto } from './dto/update-menu-section.dto';
 import type { UpdateMenuDto } from './dto/update-menu.dto';
 import type { UpdateModifierGroupDto } from './dto/update-modifier-group.dto';
 import type { UpdateModifierDto } from './dto/update-modifier.dto';
+import type { UpdateOfferAvailabilityDto } from './dto/update-offer-availability.dto';
 import type { UpdateOfferDto } from './dto/update-offer.dto';
 
 type RecipeSummary = {
@@ -766,6 +768,55 @@ export class MenusService {
       .where(eq(offer.id, params.where.id))
       .returning();
     if (!updated) throw new NotFoundException('Offer not found');
+
+    return {
+      ...updated,
+      priceCurrency: await getOrganizationCurrency(
+        this.db,
+        params.organizationId,
+      ),
+    };
+  }
+
+  async updateOfferAvailability(params: {
+    where: { id: string };
+    organizationId: string;
+    data: UpdateOfferAvailabilityDto;
+  }): Promise<OfferWithCurrency> {
+    const { inventoryLevel, ...availability } = params.data;
+
+    let nextInventoryLevel: QuantitativeValue | null | undefined;
+    if (inventoryLevel) {
+      const [current] = await this.db
+        .select({ inventoryLevel: offer.inventoryLevel })
+        .from(offer)
+        .where(eq(offer.id, params.where.id));
+      if (!current) throw new NotFoundException('Offer not found');
+
+      // 單位屬菜單定義，itemAvailability 權限改不得，因此併回既有值而非整包覆寫
+      const unitText = current.inventoryLevel?.unitText;
+      nextInventoryLevel =
+        inventoryLevel.value == null && !unitText
+          ? null
+          : {
+              ...(unitText && { unitText }),
+              ...(inventoryLevel.value != null && {
+                value: inventoryLevel.value,
+              }),
+            };
+    }
+
+    const [updated] = await this.db
+      .update(offer)
+      .set({
+        ...availability,
+        ...(nextInventoryLevel !== undefined && {
+          inventoryLevel: nextInventoryLevel,
+        }),
+        updatedAt: new Date(),
+      })
+      .where(eq(offer.id, params.where.id))
+      .returning();
 
     return {
       ...updated,
