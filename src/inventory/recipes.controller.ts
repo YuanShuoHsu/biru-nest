@@ -12,6 +12,8 @@ import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
 import { Audit } from 'src/common/decorators/audit.decorator';
 
+import { ReorderDto } from 'src/menus/dto/reorder.dto';
+
 import { HasPermission } from 'src/menus/decorators/permission.decorator';
 import { Roles } from 'src/menus/decorators/roles.decorator';
 
@@ -89,6 +91,21 @@ export class RecipesController {
     @Body() dto: CreateRecipeIngredientDto,
   ): Promise<RecipeIngredientResponseDto> {
     return this.recipesService.createIngredient(recipeId, dto);
+  }
+
+  @Patch('recipe-ingredients/reorder')
+  @Roles({ inventory: ['update'] }, 'recipeId')
+  @Audit({
+    resource: 'recipe',
+    idSource: { body: 'ids' },
+    via: { table: 'recipeIngredient', ownerColumn: 'recipeId' },
+  })
+  @ApiOperation({ summary: '重新排序食譜材料' })
+  reorderIngredients(
+    @Param('recipeId') recipeId: string,
+    @Body() { ids, offset }: ReorderDto,
+  ): Promise<void> {
+    return this.recipesService.reorderIngredients(recipeId, ids, offset);
   }
 
   @Patch('recipe-ingredients/:recipeIngredientId')

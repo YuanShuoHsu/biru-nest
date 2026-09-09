@@ -11,6 +11,7 @@ import { isWithinOpeningHours } from 'src/common/utils/opening-hours';
 
 import { eq, inArray } from 'drizzle-orm';
 import { DEFAULT_LANGUAGE, type LocalizedText } from 'src/db/schema/enums';
+import type { PriceSpecification } from 'src/db/schema/menus';
 import { menu, menuItem, modifier, offer } from 'src/db/schema/menus';
 import type {
   OrderItemAddOnSnapshot,
@@ -27,6 +28,20 @@ import type {
 
 const getName = (text: LocalizedText | null | undefined): string =>
   text?.[DEFAULT_LANGUAGE] || Object.values(text || {}).find(Boolean) || '';
+
+const activePromoPrice = (
+  priceSpecification: PriceSpecification | null | undefined,
+  at: Date,
+): string | null => {
+  if (!priceSpecification) return null;
+
+  const { price, validFrom, validThrough } = priceSpecification;
+
+  if (validFrom && at < new Date(validFrom)) return null;
+  if (validThrough && at > new Date(validThrough)) return null;
+
+  return price || null;
+};
 
 const sumModifierAdjustments = (
   modifiers: OrderItemModifierSnapshot[],
@@ -134,8 +149,13 @@ export class OrderPricingService {
       return item;
     };
 
+    const orderedAt = new Date();
+
     const getOfferPrice = (menuItemId: string): string => {
-      const price = offerMap.get(menuItemId)?.price;
+      const offerRow = offerMap.get(menuItemId);
+      const price =
+        activePromoPrice(offerRow?.priceSpecification, orderedAt) ??
+        offerRow?.price;
       if (!price)
         throw new BadRequestException(
           `MenuItem ${menuItemId} has no offer price`,

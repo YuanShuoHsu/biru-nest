@@ -63,8 +63,9 @@ import {
 import { unitPriceOf, unitPriceSql } from './pricing';
 import { bindMenuItemByRecipeName } from './recipe-menu-item-binding';
 
-const totalCostOf = (materials: RecipeIngredientResponseDto[]): number | null =>
-  // 空陣列 reduce 出 0，但沒有材料是「還沒填」不是「成本為零」，給 0 會讓毛利率顯示 100%
+const totalCostOf = (
+  materials: RecipeIngredientResponseDto[],
+): number | null =>
   materials.length === 0 || materials.some(({ cost }) => cost == null)
     ? null
     : materials.reduce((sum, { cost }) => sum + (cost ?? 0), 0);
@@ -426,6 +427,26 @@ export class RecipesService {
       .returning({ id: recipeIngredient.id });
     if (!deleted.length)
       throw new NotFoundException('Recipe ingredient not found');
+  }
+
+  async reorderIngredients(
+    recipeId: string,
+    ids: string[],
+    offset: number,
+  ): Promise<void> {
+    await this.db.transaction(async (tx) => {
+      for (const [i, id] of ids.entries()) {
+        await tx
+          .update(recipeIngredient)
+          .set({ sortOrder: offset + i })
+          .where(
+            and(
+              eq(recipeIngredient.id, id),
+              eq(recipeIngredient.recipeId, recipeId),
+            ),
+          );
+      }
+    });
   }
 
   private async toMaterial(
