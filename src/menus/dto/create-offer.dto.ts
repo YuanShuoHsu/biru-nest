@@ -9,6 +9,7 @@ import {
   IsNumberString,
   IsOptional,
   IsString,
+  Matches,
   Min,
   Validate,
   ValidateNested,
@@ -49,6 +50,7 @@ class IsOpeningHours implements ValidatorConstraintInterface {
 
 export class PriceSpecificationDto {
   @ApiProperty({ example: '150.00' })
+  @Matches(/^\d+(\.\d+)?$/)
   @IsNumberString()
   price: string;
 
@@ -84,6 +86,7 @@ export class QuantitativeValueDto {
 
 export class CreateOfferDto {
   @ApiProperty({ example: '150.00' })
+  @Matches(/^\d+(\.\d+)?$/)
   @IsNumberString()
   price: string;
 

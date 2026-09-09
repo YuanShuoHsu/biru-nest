@@ -648,18 +648,26 @@ export class MenusService {
       const renamed =
         !!previous && !isSameLocalizedText(previous.name, updated.name);
 
-      if (renamed && updated.menuId) {
-        const [row] = await tx
-          .select({ organizationId: menu.organizationId })
-          .from(menu)
-          .where(eq(menu.id, updated.menuId));
+      if (renamed) {
+        // 食譜的 name 是品項名稱的副本，不同步會讓品項刪除重建後 bindRecipeByMenuItemName 再也撿不回這份食譜
+        await tx
+          .update(recipe)
+          .set({ name: updated.name, updatedAt: new Date() })
+          .where(eq(recipe.menuItemId, updated.id));
 
-        if (row)
-          await bindRecipeByMenuItemName(tx, {
-            menuItemId: updated.id,
-            name: updated.name,
-            organizationId: row.organizationId,
-          });
+        if (updated.menuId) {
+          const [row] = await tx
+            .select({ organizationId: menu.organizationId })
+            .from(menu)
+            .where(eq(menu.id, updated.menuId));
+
+          if (row)
+            await bindRecipeByMenuItemName(tx, {
+              menuItemId: updated.id,
+              name: updated.name,
+              organizationId: row.organizationId,
+            });
+        }
       }
 
       const [boundRecipe] = await tx

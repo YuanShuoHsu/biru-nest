@@ -1,5 +1,6 @@
 import {
   ConflictException,
+  ForbiddenException,
   Inject,
   Injectable,
   NotFoundException,
@@ -59,15 +60,16 @@ import {
   RecipeIngredientResponseDto,
   RecipeResponseDto,
 } from './dto/recipe-response.dto';
-import { unitPriceOf } from './pricing';
+import { unitPriceOf, unitPriceSql } from './pricing';
 import { bindMenuItemByRecipeName } from './recipe-menu-item-binding';
 
-const totalCostOf = (
-  materials: RecipeIngredientResponseDto[],
-): number | null =>
-  materials.some(({ cost }) => cost == null)
+const totalCostOf = (materials: RecipeIngredientResponseDto[]): number | null =>
+  // 空陣列 reduce 出 0，但沒有材料是「還沒填」不是「成本為零」，給 0 會讓毛利率顯示 100%
+  materials.length === 0 || materials.some(({ cost }) => cost == null)
     ? null
     : materials.reduce((sum, { cost }) => sum + (cost ?? 0), 0);
+
+const PURCHASING_FIELDS: string[] = ['unitPrice', 'cost'];
 
 @Injectable()
 export class RecipesService {
@@ -267,11 +269,17 @@ export class RecipesService {
       sortDirection = 'asc',
     } = query;
 
+    // 回應已剝掉成本欄位，但排序結果仍會洩漏它們的大小關係
+    if (!canReadPurchasing && sortBy && PURCHASING_FIELDS.includes(sortBy))
+      throw new ForbiddenException();
+
     const fieldMap: Record<string, Column | SQL> = {
       ingredientName: sql`${ingredient.name}::text`,
       requiredQuantity: recipeIngredient.requiredQuantity,
       createdAt: recipeIngredient.createdAt,
       updatedAt: recipeIngredient.updatedAt,
+      unitPrice: unitPriceSql,
+      cost: sql`(${recipeIngredient.requiredQuantity} * ${unitPriceSql})`,
     };
 
     const dir = sortDirection === 'desc' ? desc : asc;

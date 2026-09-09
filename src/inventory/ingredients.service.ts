@@ -18,10 +18,7 @@ import {
   type SQL,
 } from 'drizzle-orm';
 
-import {
-  COMPATIBLE_UNIT_CODES,
-  UNIT_FACTORS,
-} from 'src/common/constants/units';
+import { COMPATIBLE_UNIT_CODES } from 'src/common/constants/units';
 import {
   buildFilterCondition,
   buildQuickFilterCondition,
@@ -49,7 +46,7 @@ import {
 } from './dto/ingredient-pagination-query.dto';
 import { IngredientResponseDto } from './dto/ingredient-response.dto';
 import { InventoryTransactionsService } from './inventory-transactions.service';
-import { pricingOf } from './pricing';
+import { packageBaseQuantitySql, pricingOf, unitPriceSql } from './pricing';
 
 const PURCHASING_FIELDS = [
   'price',
@@ -105,14 +102,6 @@ export class IngredientsService {
 
     const supplierName = sql`(select ${supplier.name} from ${supplier} where ${supplier.id} = ${ingredient.supplierId})`;
 
-    const packageBaseQuantity = sql`(${ingredient.eligibleQuantity} * case ${sql.join(
-      Object.entries(UNIT_FACTORS).map(
-        ([code, factor]) =>
-          sql`when ${ingredient.eligibleQuantityUnitCode} = ${code} then ${factor}::numeric`,
-      ),
-      sql` `,
-    )} end)`;
-
     const fieldMap: Record<string, Column | SQL> = {
       name: sql`${ingredient.name}::text`,
       brand: ingredient.brand,
@@ -124,8 +113,8 @@ export class IngredientsService {
       createdAt: ingredient.createdAt,
       updatedAt: ingredient.updatedAt,
       price: ingredient.price,
-      eligibleQuantity: packageBaseQuantity,
-      unitPrice: sql`(${ingredient.price} / nullif(${packageBaseQuantity}, 0))`,
+      eligibleQuantity: packageBaseQuantitySql,
+      unitPrice: unitPriceSql,
     };
 
     const dir = sortDirection === 'desc' ? desc : asc;

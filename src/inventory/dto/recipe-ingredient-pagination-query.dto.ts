@@ -23,8 +23,15 @@ export const RECIPE_INGREDIENT_ALL_FILTER_FIELDS = [
 export type RecipeIngredientFilterField =
   (typeof RECIPE_INGREDIENT_ALL_FILTER_FIELDS)[number];
 
-export const RECIPE_INGREDIENT_SORT_FIELDS =
-  RECIPE_INGREDIENT_ALL_FILTER_FIELDS;
+export const RECIPE_INGREDIENT_SORT_ONLY_FIELDS = [
+  'unitPrice',
+  'cost',
+] as const;
+
+export const RECIPE_INGREDIENT_SORT_FIELDS = [
+  ...RECIPE_INGREDIENT_ALL_FILTER_FIELDS,
+  ...RECIPE_INGREDIENT_SORT_ONLY_FIELDS,
+] as const;
 
 export type RecipeIngredientSortField =
   (typeof RECIPE_INGREDIENT_SORT_FIELDS)[number];
