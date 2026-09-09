@@ -269,7 +269,6 @@ export class RecipesService {
       sortDirection = 'asc',
     } = query;
 
-    // 回應已剝掉成本欄位，但排序結果仍會洩漏它們的大小關係
     if (!canReadPurchasing && sortBy && PURCHASING_FIELDS.includes(sortBy))
       throw new ForbiddenException();
 

@@ -23,7 +23,6 @@ export const unitPriceOf = (row: Package): number | null => {
   return row.price && baseQuantity ? Number(row.price) / baseQuantity : null;
 };
 
-// 沒填採購規格的食材算不出成本，欄位一律給 null 而不是 0
 export const pricingOf = (row: Package) => ({
   packageBaseQuantity: baseQuantityOf(row),
   packageQuantity: row.eligibleQuantity,
@@ -31,7 +30,6 @@ export const pricingOf = (row: Package) => ({
   unitPrice: unitPriceOf(row),
 });
 
-// 單價與成本要能在資料庫排序，同一套單位換算必須有 SQL 版本
 export const packageBaseQuantitySql = sql`(${ingredient.eligibleQuantity} * case ${sql.join(
   Object.entries(UNIT_FACTORS).map(
     ([code, factor]) =>

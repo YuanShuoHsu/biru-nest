@@ -649,7 +649,6 @@ export class MenusService {
         !!previous && !isSameLocalizedText(previous.name, updated.name);
 
       if (renamed) {
-        // 食譜的 name 是品項名稱的副本，不同步會讓品項刪除重建後 bindRecipeByMenuItemName 再也撿不回這份食譜
         await tx
           .update(recipe)
           .set({ name: updated.name, updatedAt: new Date() })
